@@ -1,8 +1,18 @@
+/* Z-index directory */
+
+  /* Classname - Index */
+
+    /* Header - 5 */
+
+
+/* End directory */
+
+
 /* CSS Imports */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;1,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
+/* Inter font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;1,400&display=swap');
 
 
 /* Full CSS */
@@ -12,42 +22,6 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
 
 
@@ -61,6 +35,7 @@
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
   height: 70px;
   width: 100%;
+  z-index: 5;
 }
 
 .Text-top_left {
@@ -112,3 +87,54 @@
 .button-access-ai p {
   text-align: right;
 }
+
+/* End AI button */
+
+
+/* End Header CSS */
+
+
+
+/* Main CSS */
+
+
+.main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+
+/* Sidebar CSS */
+
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 100vh;
+    margin-top: 70px;
+  }
+
+  /* mini calander */
+
+    .mini-calander {
+      background: #fff;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+      margin: 50px 0 0 50px;
+    }
+
+    .main-mini-calander {
+      display: grid;
+      grid-template-columns: auto auto auto;
+    }
+
+    .days {
+      font-weight: 200;
+    }
+
+    .span-days {
+      font-weight: 500;
+    }

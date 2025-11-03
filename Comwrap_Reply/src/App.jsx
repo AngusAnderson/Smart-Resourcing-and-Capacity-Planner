@@ -4,7 +4,6 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -25,6 +24,26 @@ function App() {
           </button>
         </div>
         
+      </div>
+
+      <div className="main">
+        <div className="sidebar">
+          <div className="mini-calander">
+            <h1>October</h1>
+            <div className="main-mini-calander">
+              {/* <div className="days">
+                <p>Sun Mon Tue <span className='span-days'>Wed</span> Thu Fri Sat</p>
+              </div>
+              <div className="days-Numbers">
+                <p>28 29 30 1 2 3 4</p>
+              </div> */}
+            </div>
+            
+          </div>
+        </div>
+        <div className="hero">
+
+        </div>
       </div>
 
 
