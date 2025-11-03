@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #F2F2F2;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,8 +31,10 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-family: 'Inter', Arial, sans-serif;
+  font-style: italic;
+  font-size: 16px;
+  color: #000;
 }
 
 button {
