@@ -15,7 +15,6 @@ Select one:
 ---
 
 ## Changes Made 
-List main changes in this MR:
 -
 -
 
