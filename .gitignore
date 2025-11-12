@@ -8,8 +8,3 @@ __pycache__/
 *.pdf
 *.ps
 
-# virtual environment
-venv/
-env/
-.vscode/
-.venv/
