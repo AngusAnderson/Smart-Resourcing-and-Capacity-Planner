@@ -1,0 +1,30 @@
+/* Header CSS */
+
+.Header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+    height: 70px;
+    width: 100%;
+    z-index: 5;
+  }
+  
+  .Text-top_left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 10px 0 0 50px;
+  }
+  
+  .Text-top_right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px 50px 0 0;
+  }
+  
+  .span-1_Comwrap {
+    color: #FA1451;
+  }

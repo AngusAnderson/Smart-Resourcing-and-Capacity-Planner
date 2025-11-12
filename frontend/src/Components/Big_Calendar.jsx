@@ -1,4 +1,5 @@
 import React from "react";
+import '../css/Big_Calendar.css'
 
 const Big_Calendar = () => {
     return (
