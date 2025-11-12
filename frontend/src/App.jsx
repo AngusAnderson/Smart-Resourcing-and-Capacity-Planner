@@ -1,4 +1,3 @@
-import './App.css'
 import useToggle from './functions/useToggle';
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar';

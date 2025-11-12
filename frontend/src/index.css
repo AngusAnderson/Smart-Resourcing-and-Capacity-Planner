@@ -1,3 +1,23 @@
+/* CSS Imports */
+
+
+/* Inter font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;1,400&display=swap');
+
+/* Z-index directory */
+
+  /* Classname - Index */
+
+    /* Header - 5 */
+
+
+/* End directory */
+
+
+
+/* ------ */
+
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -74,41 +94,6 @@ p {
 }
 
 
-
-/* --- */
-
-/* Z-index directory */
-
-  /* Classname - Index */
-
-    /* Header - 5 */
-
-
-/* End directory */
-
-
-/* CSS Imports */
-
-
-/* Inter font import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;1,400&display=swap');
-
-
-/* Full CSS */
-
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-#svg {
-  color: #000;
-  display: inline-block;
-}
-
-
 /* Header CSS */
 
 .Header {
@@ -139,6 +124,46 @@ p {
 .span-1_Comwrap {
   color: #FA1451;
 }
+
+
+/* ---- */
+
+
+/* Full CSS */
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+#svg {
+  color: #000;
+  display: inline-block;
+}
+
+/* AI sidebar Start */
+
+  .sidebar-AI {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #fff;
+    width: 300px;
+    height: 100vh;
+    display: none;
+  }
+
+  .AI-block {
+    color: #000;
+    background: #fff;
+  }
+
+/* End AI sidebar */
+
+
+
 
 /* AI button */
 
@@ -173,6 +198,29 @@ p {
 }
 
 /* End AI button */
+
+
+/* AI Sidebar Start */
+
+  /* Sidebar base style */
+  .sidebar-right {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background-color: #f4f4f4;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    transition: right 0.3s ease; 
+    overflow-y: auto;
+    padding: 20px;
+    z-index: 1000;
+  }
+
+  /* Sidebar visible state */
+  .sidebar-right.active {
+    right: 0;
+  }
 
 
 /* End Header CSS */
@@ -218,11 +266,6 @@ p {
     .month h1{
       display: inline-block;
       margin: 0 50px 10px 50px;
-    }
-
-    #chevron {
-      display: inline-block;
-      color: #000;
     }
 
     .calendar {
@@ -271,19 +314,204 @@ p {
     }
 
     .search-box {
-      display: inline-block;
-      justify-content: space-between;
-      background: #F2F2F2;
-      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      background: #f2f2f2;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 2rem auto;
+      box-shadow: 0 2px 6px rgba(60,60,60,0.07);
+    }
+    .search-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-icon svg {
+      width: 24px;
+      height: 24px;
+      color: #212121;
+    }
+    .search-input {
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      width: 100%;
+      outline: none;
+      color: #212121;
     }
 
-    .h1-filter_box {
-      font-style: normal;
-      font-weight: 1000;
-      margin: 0;
+    .vertical-divider {
+      height: 28px;
+      width: 1.5px;
+      background: #E0E0E0;
+      margin: 0 14px;
+      border: none;
     }
 
-    .search-text {
-      font-size: 11px;
-      font-weight: 100;
+    .hr-filter_box {
+      opacity: .3;
     }
+
+    .white-space-filter_box {
+      height: 150px;
+      width: 100%;
+    }
+
+
+    /* Project Progress bar */
+
+    .progress-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    .progress-bar {
+      width: 30px;
+      height: 300px;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+    }
+    
+    .segment {
+      width: 100%;
+    }
+    
+    .currently-allocated {
+      height: 25%;
+      background: #90ca6d; /* green */
+    }
+    
+    .over-allocated {
+      height: 15%;
+      background: #f8f46c; /* yellow */
+    }
+    
+    .under-allocated-1 {
+      height: 40%;
+      background: #f5af49; /* orange */
+    }
+    
+    .under-allocated-2 {
+      height: 20%;
+      background: #eb5747; /* red */
+    }
+    
+    .labels {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    
+    .label {
+      font-size: 14px;
+      font-style: italic;
+      font-weight: 300;
+      color: #000;
+    }
+
+  /* End filter box */
+
+
+  /* Hero - { Main Calander } Start  */
+
+    .hero {
+      background: #fff;
+      position: absolute;
+      top: 100px;
+      right: 0;
+      margin: 20px 50px 0 0;
+      width: 80vw;
+      height: 89vh;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-big-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .month-big {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .month-big h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 10px;
+    }
+    
+    #svg-big {
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      color: #000;
+      margin: 0 150px 0 150px;
+    }
+    
+    .calendar-big {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 0px;
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    
+    .day-header-big {
+      text-align: center;
+      font-size: 1.35rem;
+      /* font-weight: 500; */
+      opacity: 0.6;
+      padding: 12px 0;
+      color: #000;
+    }
+    
+    .date-cell-big {
+      min-height: 70px;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: #f6f8fa;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .date-cell-big {
+      color: #000;
+      background: #fff;
+    }
+    
+    .date-cell-big:hover {
+      background: #e0e7ef;
+    }
+
+    .date-cell-big,
+    .day-header-big {
+      border: 1px solid #e6e6e6;
+      box-sizing: border-box;
+    }
+    
+
