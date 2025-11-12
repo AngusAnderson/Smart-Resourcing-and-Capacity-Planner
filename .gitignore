@@ -4,3 +4,9 @@
 # Compiled Documents
 *.pdf
 *.ps
+
+# virtual environment
+venv/
+env/
+.vscode/
+.venv/
