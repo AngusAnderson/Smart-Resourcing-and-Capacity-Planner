@@ -67,6 +67,38 @@ Depending on what you are making, it can be a good idea to include screenshots o
 ## Installation
 Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
+### Django backend
+**Navigate to backend folder**
+cd backend
+
+**Create virtual environment (optional but recommended)**
+python -m venv venv
+**On macOS/Linux:** source venv/bin/activate
+**or on Windows:** venv\Scripts\activate
+
+**Install all dependencies**
+pip install -r requirements.txt
+
+**Run migrations**
+python manage.py migrate
+
+**Start server**
+python manage.py runserver
+
+### React frontend
+**Navigate to frontend folder**
+cd frontend
+
+**Install dependencies from package.json**
+npm install
+
+**Start development server**
+npm run dev
+
+**Access:** 
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+
 ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
