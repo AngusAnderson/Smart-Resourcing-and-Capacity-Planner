@@ -1,7 +1,8 @@
 import useToggle from './functions/useToggle';
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar';
-import Big_Calendar from './Components/Big_Calendar';
+// import Big_Calendar from './Components/Big_Calendar';
+import Calendar from './Components/Calendar'
 
 
 function App() {
@@ -20,8 +21,8 @@ function App() {
         {/* Sidebar Section */}
         <Sidebar />
         
-        {/* Big Calendar Section */}
-        <Big_Calendar />
+        {/* Main Calendar Section */}
+        <Calendar />
         
       </div>
 
