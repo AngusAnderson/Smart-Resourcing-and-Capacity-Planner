@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
-    "comwrap",
+    "comwrap.apps.ComwrapConfig",
 ]
 
 CORS_ALLOWED_ORIGINS = [
