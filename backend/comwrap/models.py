@@ -34,6 +34,8 @@ class ForecastEntry(models.Model):
     forecastID = models.CharField(max_length=20, unique=True)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     jobCode = models.ForeignKey(JobCode, on_delete=models.CASCADE)
+    date = models.DateField()
+    hoursAllocated = models.DecimalField(max_digits=5, decimal_places=1)
     
     def __str__(self):
         return f"{self.employee.name} - {self.jobCode.code} on {self.date}: {self.hoursAllocated} hours"
