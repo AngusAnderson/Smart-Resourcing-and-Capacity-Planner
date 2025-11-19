@@ -1,37 +1,25 @@
+import React, { useState } from 'react';
 import useToggle from './functions/useToggle';
 import Header from './Components/Header';
-import Sidebar from './Components/Sidebar';
-// import Big_Calendar from './Components/Big_Calendar';
-import Calendar from './Components/Calendar'
-
+import Sidebar from './Components/Sidebar/Sidebar';
+import Calendar from './Components/Calendar';
 
 function App() {
-
-  // From useToggle.js
   const [isVisible, toggleVisibility] = useToggle(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <>
-      {/* Header Section */}
       <Header isVisible={isVisible} toggleVisibility={toggleVisibility}/>
-
-      
-
-      <div className="main">
-        {/* Sidebar Section */}
-        <Sidebar />
-        
-        {/* Main Calendar Section */}
-        <Calendar />
-        
+      <div className="container">
+        <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <div className="main">
+          <Calendar searchTerm={searchTerm} />
+        </div>
       </div>
-
-      
     </>
-
-
-
-  )
+  );
 }
 
-export default App
+export default App;

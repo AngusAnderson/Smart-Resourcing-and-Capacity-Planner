@@ -1,0 +1,21 @@
+/* Sidebar CSS */
+
+  .heading-line {
+    opacity: .3;
+  }
+
+  /* mini calander */
+
+    .mini-calander {
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+      height: 450px;
+      position: relative; 
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .sx-react-calendar-wrapper {
+      height: 100%;
+      width: 100%;
+    }
+  /* End mini calander css */

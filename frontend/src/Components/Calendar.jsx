@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
 import { createResizePlugin } from '@schedule-x/resize'
+import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import {
   createViewDay,
   createViewMonthAgenda,
@@ -13,85 +14,94 @@ import 'temporal-polyfill/global'
 import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
 
-function Calendar() {
-  const eventsService = useState(() => createEventsServicePlugin())[0]
+function Calendar({ searchTerm }) {
+  const calendarIds = ["Red", "Blue", "Green", "Black"];
+  function getRandomCalendarId() {
+    return calendarIds[Math.floor(Math.random() * calendarIds.length)];
+  }
+
+  const testEvents = [
+    {
+      id: '1',
+      title: 'Project A',
+      start: Temporal.PlainDate.from('2025-11-19'),
+      end: Temporal.PlainDate.from('2025-11-25'),
+      calendarId: getRandomCalendarId(),
+    },
+    {
+      id: '2',
+      title: 'Project B',
+      start: Temporal.PlainDate.from('2025-11-15'),
+      end: Temporal.PlainDate.from('2025-11-22'),
+      calendarId: getRandomCalendarId(),
+    },
+  ];
+
+  const eventsService = useState(() => createEventsServicePlugin())[0];
 
   const calendar = useCalendarApp({
-    views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-    plugins: [eventsService, 
+    views: [
+      createViewMonthAgenda(),
+      createViewDay(),
+      createViewWeek(),
+      createViewMonthGrid()
+    ],
+    calendars: {
+      Red: {
+        colorName: 'Red',
+        lightColors: { main: '#f91c45', container: '#ffd2dc', onContainer: '#59000d' },
+        darkColors: { main: '#ffc0cc', onContainer: '#ffdee6', container: '#a24258' }
+      },
+      Blue: {
+        colorName: 'Blue',
+        lightColors: { main: '#1c7df9', container: '#d2e7ff', onContainer: '#002859' },
+        darkColors: { main: '#c0dfff', onContainer: '#dee6ff', container: '#426aa2' }
+      },
+      Green: {
+        colorName: 'Green',
+        lightColors: { main: '#1cf9b0', container: '#dafff0', onContainer: '#004d3d' },
+        darkColors: { main: '#c0fff5', onContainer: '#e6fff5', container: '#42a297' }
+      },
+      Black: {
+        colorName: 'Black',
+        lightColors: { main: '#222', container: '#eee', onContainer: '#555' },
+        darkColors: { main: '#444', onContainer: '#999', container: '#222' }
+      }
+    },
+    plugins: [
+      eventsService,
       createDragAndDropPlugin(),
       createResizePlugin(),
+      createCurrentTimePlugin()
     ],
-  })
-
-  const [showModal, setShowModal] = useState(false)
-
-  const [newEventData, setNewEventData] = useState({
-    title: '',
-    start: '',
-    end: ''
-  })
-
-  const handleAddButtonClick = () => {
-    setShowModal(true)
-    console.log(setShowModal)
-  }
-
-  const handleModalSubmit = () => {
-    const startDateTime = Temporal.PlainDateTime.from(newEventData.start)
-    const endDateTime = Temporal.PlainDateTime.from(newEventData.end)
-  
-    eventsService.add({
-      id: String(Date.now()),
-      title: newEventData.title,
-      start: startDateTime,
-      end: endDateTime
-    })
-  
-    setShowModal(false)
-    setNewEventData({ title: '', start: '', end: '' })
-  }
+    defaultView: 'monthGrid',
+    callbacks: {
+      onEventUpdate(updatedEvent) {
+        console.log('Updated Event:', updatedEvent);
+      }
+    }
+  });
 
   useEffect(() => {
-    eventsService.getAll()
-  }, [eventsService])
+    if (eventsService.getAll) {
+      eventsService.getAll().forEach(ev => eventsService.remove(ev.id));
+    }
+    if (eventsService.clear) eventsService.clear();
+
+    const filteredEvents = searchTerm
+      ? testEvents.filter(event =>
+          event.title.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : testEvents;
+
+    filteredEvents.forEach(event => eventsService.add(event));
+  }, [searchTerm, eventsService, testEvents]);
 
   return (
-
-    
-    <div className="hero">
-
-      {showModal && (
-        <div className="modal">
-          <input
-            type="text"
-            placeholder="Event Title"
-            value={newEventData.title}
-            onChange={e => setNewEventData({ ...newEventData, title: e.target.value })}
-          />
-          <input
-            type="datetime-local"
-            value={newEventData.start}
-            onChange={e => setNewEventData({ ...newEventData, start: e.target.value })}
-          />
-          <input
-            type="datetime-local"
-            value={newEventData.end}
-            onChange={e => setNewEventData({ ...newEventData, end: e.target.value })}
-          />
-          <button onClick={handleModalSubmit}>Add Event</button>
-          <button onClick={() => setShowModal(false)}>Cancel</button>
-        </div>
-      )}
-      <div className="calendar-big-wrapper">
-        <ScheduleXCalendar calendarApp={calendar}>
-            
-        </ScheduleXCalendar>
-      </div>
-
-      <button className='btn-1' onClick={handleAddButtonClick}>Add Event</button>
+    <div className="calendar-big-wrapper">
+      <ScheduleXCalendar calendarApp={calendar} />
     </div>
-  )
+  );
 }
 
-export default Calendar
+export default Calendar;
