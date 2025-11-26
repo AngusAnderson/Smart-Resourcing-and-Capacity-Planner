@@ -12,7 +12,22 @@ def get_specialisms(request):
     return Response(list(specialisms))
 
 @api_view(['GET'])
-def get_employees(request):
+def get_employees(request, slug=None):
+
+    if slug is not None:
+        try:
+            employee = Employee.objects.get(slug=slug)
+        except Employee.DoesNotExist:
+            return Response({"error": "Employee not found"}, status=404)
+        
+        data = {
+            "employeeID": employee.id,
+            "name": employee.name,
+            "excludedFromAI": employee.excludedFromAI,
+            "specialisms": list(employee.specialisms.values_list("name", flat=True))
+        }
+        return Response(data)
+
     employees = Employee.objects.all()
     attributes = []
     for e in employees:
@@ -25,19 +40,53 @@ def get_employees(request):
     return Response(attributes)
 
 @api_view(['GET'])
-def get_jobcodes(request):
-    jobcodes = JobCode.objects.all().values()
-    return Response(list(jobcodes))
+def get_jobcodes(request, code=None):
+    if code is None:
+        jobcodes = JobCode.objects.all().values()
+        return Response(list(jobcodes))
+
+    try:
+        jobcode = JobCode.objects.get(code=code)
+    except JobCode.DoesNotExist:
+        return Response({"error": "Jobcode not found"}, status=404)
+    
+    return Response({
+        "code": jobcode.code,
+        "description": jobcode.description,
+        "customerName": jobcode.customerName,
+        "businessUnit": jobcode.businessUnit,
+        "budgetTime": jobcode.budgetTime,
+        "budgetCost": jobcode.budgetCost,
+        "startDate": jobcode.startDate,
+        "endDate": jobcode.endDate,
+    })
 
 @api_view(['GET'])
-def get_forecasts(request):
-    forecasts = ForecastEntry.objects.select_related('employee', 'jobCode')
-    data = []
-    for f in forecasts:
-        data.append({
-            "forecastID": f.forecastID,
-            "employee": f.employee.name,
-            "jobCode": f.jobCode.code,
-            "customer": f.jobCode.customerName,
-        })
+def get_forecasts(request, forecastID=None):
+    if forecastID is None:
+        forecasts = ForecastEntry.objects.select_related('employee', 'jobCode')
+        data = []
+        for f in forecasts:
+            data.append({
+                "forecastID": f.forecastID,
+                "employee": f.employee.name,
+                "jobCode": f.jobCode.code,
+                "customer": f.jobCode.customerName,
+            })
+        return Response(data)
+    
+    try:
+        f = ForecastEntry.objects.select_related('employee', 'jobCode').get(forecastID=forecastID)
+    except ForecastEntry.DoesNotExist:
+        return Response({"error": "Forecast not found"}, status=404)
+    
+    data = {
+        "forecastID": f.forecastID,
+        "employee": f.employee.name,
+        "employeeID": f.employee.id,
+        "jobCode": f.jobCode.code,
+        "description": f.jobCode.description,
+        "date": f.date,
+        "hoursAllocated": float(f.hoursAllocated),
+    }
     return Response(data)
