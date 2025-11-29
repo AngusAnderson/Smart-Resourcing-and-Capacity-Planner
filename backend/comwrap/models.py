@@ -22,7 +22,8 @@ class Employee(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} - {self.specialisms.all()}"
+        specialisms = ", ".join(s.name for s in self.specialisms.all())
+        return f"{self.name} - {specialisms}"
     
 class JobCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
