@@ -13,6 +13,7 @@ import { createEventsServicePlugin } from '@schedule-x/events-service'
 import 'temporal-polyfill/global'
 import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
+import api from '../services/api'
 
 function Calendar({ searchTerm }) {
   const calendarIds = ["Red", "Blue", "Green", "Black"];
@@ -20,22 +21,33 @@ function Calendar({ searchTerm }) {
     return calendarIds[Math.floor(Math.random() * calendarIds.length)];
   }
 
-  const testEvents = [
-    {
-      id: '1',
-      title: 'Project A',
-      start: Temporal.PlainDate.from('2025-11-19'),
-      end: Temporal.PlainDate.from('2025-11-25'),
-      calendarId: getRandomCalendarId(),
-    },
-    {
-      id: '2',
-      title: 'Project B',
-      start: Temporal.PlainDate.from('2025-11-15'),
-      end: Temporal.PlainDate.from('2025-11-22'),
-      calendarId: getRandomCalendarId(),
-    },
-  ];
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobCodes = async () => {
+      try {
+        const response = await api.get('/jobcodes/');
+        console.log('API Response:', response.data); // Debug log
+        const eventData = response.data.map((jobcode) => ({
+          id: jobcode.code,
+          title: jobcode.title,
+          start: Temporal.PlainDate.from(jobcode.startDate),
+          end: Temporal.PlainDate.from(jobcode.endDate),
+          calendarId: getRandomCalendarId(),
+        }));
+        setEvents(eventData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching jobcodes:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchJobCodes();
+  }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
 
@@ -89,13 +101,13 @@ function Calendar({ searchTerm }) {
     if (eventsService.clear) eventsService.clear();
 
     const filteredEvents = searchTerm
-      ? testEvents.filter(event =>
+      ? events.filter(event =>
           event.title.toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : testEvents;
+      : events;
 
     filteredEvents.forEach(event => eventsService.add(event));
-  }, [searchTerm, eventsService, testEvents]);
+  }, [searchTerm, eventsService, events]);
 
   return (
     <div className="calendar-big-wrapper">
