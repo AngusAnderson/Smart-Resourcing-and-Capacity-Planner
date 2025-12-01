@@ -32,13 +32,17 @@ function Calendar({ searchTerm }) {
         console.log('API Response:', response.data); // Debug log
         const eventData = response.data.map((jobcode) => ({
           id: jobcode.code,
-          title: jobcode.title,
+          title: jobcode.code,
           start: Temporal.PlainDate.from(jobcode.startDate),
           end: Temporal.PlainDate.from(jobcode.endDate),
           calendarId: getRandomCalendarId(),
         }));
         setEvents(eventData);
         setLoading(false);
+        //log the jobcode data for debugging
+        response.data.forEach(jobcode => {
+          console.log('Jobcode:', jobcode);
+        });
       } catch (err) {
         console.error('Error fetching jobcodes:', err);
         setError(err.message);
