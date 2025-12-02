@@ -13,11 +13,14 @@ import 'temporal-polyfill/global'
 import '@schedule-x/theme-default/dist/index.css'
 
 
-function Mini_Calendar() {
+function Mini_Calendar({ setSelectedDate }) {
   const eventsService = useState(() => createEventsServicePlugin())[0]
+
  
   const calendar = useCalendarApp({
-    views: [createViewMonthAgenda()],
+    views: [
+        createViewMonthAgenda() // Keep this if you want it as another view
+    ],
     events: [
       {
         id: '1',
@@ -26,6 +29,20 @@ function Mini_Calendar() {
         end: Temporal.PlainDate.from('2025-11-15'),
       },
     ],
+    callbacks: {
+      onClickAgendaDate: (date) => {
+        console.log("Date clicked:", date.toString());
+        if (setSelectedDate) {
+          console.log("Mini_Calendar sees setSelectedDate exists");
+          setSelectedDate(date);
+        } else {
+          console.error("setSelectedDate does not exist");
+        }
+ //   onSelectedDateUpdate: (date) => {
+
+
+    },
+  },
     plugins: [eventsService]
   })
  
@@ -37,9 +54,10 @@ function Mini_Calendar() {
     <div className="mini-calander">
       <ScheduleXCalendar calendarApp={calendar} />
       <hr className='heading-line'></hr>
-            
     </div>
   )
+
+
 }
  
 export default Mini_Calendar
