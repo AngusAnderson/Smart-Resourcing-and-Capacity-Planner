@@ -84,6 +84,23 @@ function Calendar({ searchTerm }) {
         darkColors: { main: '#444', onContainer: '#999', container: '#222' }
       }
     },
+    callbacks: {
+      // updates events when user moves or resizes in calendar
+      onEventUpdate: async (updatedEvent) => {
+        try {
+          await api.put(`/jobcodes/${updatedEvent.id}/`, {
+            startDate: updatedEvent.start.toString(),
+            endDate: updatedEvent.end.toString(),
+          });
+          
+        //logging for debugging
+        } catch (err) {
+          console.error('Error updating jobcode:', err);
+          setError(err.message);
+        }
+        console.log('Updated Event:', updatedEvent);
+      }
+    },
     plugins: [
       eventsService,
       createDragAndDropPlugin(),
