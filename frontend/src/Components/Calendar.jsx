@@ -14,6 +14,7 @@ import 'temporal-polyfill/global'
 import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
+import api from '../services/api'
 
 function Calendar({ searchTerm, selectedDate }) {
   const calendarIds = ["Red", "Blue", "Green", "Black"];
@@ -22,22 +23,37 @@ function Calendar({ searchTerm, selectedDate }) {
     return calendarIds[Math.floor(Math.random() * calendarIds.length)];
   }
 
-  const testEvents = [
-    {
-      id: '1',
-      title: 'Project A',
-      start: Temporal.PlainDate.from('2025-11-19'),
-      end: Temporal.PlainDate.from('2025-11-25'),
-      calendarId: getRandomCalendarId(),
-    },
-    {
-      id: '2',
-      title: 'Project B',
-      start: Temporal.PlainDate.from('2025-11-15'),
-      end: Temporal.PlainDate.from('2025-11-22'),
-      calendarId: getRandomCalendarId(),
-    },
-  ];
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobCodes = async () => {
+      try {
+        const response = await api.get('/jobcodes/');
+        console.log('API Response:', response.data); // Debug log
+        const eventData = response.data.map((jobcode) => ({
+          id: jobcode.code,
+          title: jobcode.code,
+          start: Temporal.PlainDate.from(jobcode.startDate),
+          end: Temporal.PlainDate.from(jobcode.endDate),
+          calendarId: getRandomCalendarId(),
+        }));
+        setEvents(eventData);
+        setLoading(false);
+        //log the jobcode data for debugging
+        response.data.forEach(jobcode => {
+          console.log('Jobcode:', jobcode);
+        });
+      } catch (err) {
+        console.error('Error fetching jobcodes:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchJobCodes();
+  }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const calendarControls = useState(() => createCalendarControlsPlugin())[0];
@@ -72,6 +88,23 @@ function Calendar({ searchTerm, selectedDate }) {
         darkColors: { main: '#444', onContainer: '#999', container: '#222' }
       }
     },
+    callbacks: {
+      // updates events when user moves or resizes in calendar
+      onEventUpdate: async (updatedEvent) => {
+        try {
+          await api.put(`/jobcodes/${updatedEvent.id}/`, {
+            startDate: updatedEvent.start.toString(),
+            endDate: updatedEvent.end.toString(),
+          });
+
+        //logging for debugging
+        } catch (err) {
+          console.error('Error updating jobcode:', err);
+          setError(err.message);
+        }
+        console.log('Updated Event:', updatedEvent);
+      }
+    },
     plugins: [
       eventsService,
       createDragAndDropPlugin(),
@@ -79,12 +112,7 @@ function Calendar({ searchTerm, selectedDate }) {
       createCurrentTimePlugin(),
       calendarControls
     ],
-    defaultView: 'monthGrid',
-    callbacks: {
-      onEventUpdate(updatedEvent) {
-        console.log('Updated Event:', updatedEvent);
-      }
-    }
+    defaultView: 'monthGrid'
   });
 
   useEffect(() => {
@@ -95,13 +123,13 @@ function Calendar({ searchTerm, selectedDate }) {
     if (eventsService.clear) eventsService.clear();
 
     const filteredEvents = searchTerm
-      ? testEvents.filter(event =>
+      ? events.filter(event =>
           event.title.toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : testEvents;
+      : events;
 
     filteredEvents.forEach(event => eventsService.add(event));
-  }, [searchTerm, eventsService, testEvents]);
+  }, [searchTerm, eventsService, events]);
 
 
   useEffect(() => {

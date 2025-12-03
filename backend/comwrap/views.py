@@ -39,27 +39,40 @@ def get_employees(request, slug=None):
         })
     return Response(attributes)
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH'])
 def get_jobcodes(request, code=None):
+    if request.method == 'GET' and code is not None:
+        try:
+            jobcode = JobCode.objects.get(code=code)
+        except JobCode.DoesNotExist:
+            return Response({"error": "Jobcode not found"}, status=404)
+        
+        data = {
+            "code": jobcode.code,
+            "description": jobcode.description,
+            "customerName": jobcode.customerName,
+            "businessUnit": jobcode.businessUnit,
+            "budgetTime": jobcode.budgetTime,
+            "budgetCost": float(jobcode.budgetCost),
+            "startDate": jobcode.startDate,
+            "endDate": jobcode.endDate,
+        }
+        return Response(data)
+        
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            jobcode = JobCode.objects.get(code=code)
+        except JobCode.DoesNotExist:
+            return Response({"error": "Jobcode not found"}, status=404)
+        
+        data = request.data
+        for field, value in data.items():
+            setattr(jobcode, field, value)
+        jobcode.save()
+        return Response({"message": "Jobcode updated successfully"})
     if code is None:
         jobcodes = JobCode.objects.all().values()
         return Response(list(jobcodes))
-
-    try:
-        jobcode = JobCode.objects.get(code=code)
-    except JobCode.DoesNotExist:
-        return Response({"error": "Jobcode not found"}, status=404)
-    
-    return Response({
-        "code": jobcode.code,
-        "description": jobcode.description,
-        "customerName": jobcode.customerName,
-        "businessUnit": jobcode.businessUnit,
-        "budgetTime": jobcode.budgetTime,
-        "budgetCost": jobcode.budgetCost,
-        "startDate": jobcode.startDate,
-        "endDate": jobcode.endDate,
-    })
 
 @api_view(['GET'])
 def get_forecasts(request, forecastID=None):
