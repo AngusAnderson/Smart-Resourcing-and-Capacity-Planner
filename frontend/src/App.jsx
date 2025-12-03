@@ -8,14 +8,15 @@ function App() {
   const [isVisible, toggleVisibility] = useToggle(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
 
   return (
     <>
       <Header isVisible={isVisible} toggleVisibility={toggleVisibility}/>
       <div className="container">
-        <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} setSelectedDate={setSelectedDate}/>
         <div className="main">
-          <Calendar searchTerm={searchTerm} />
+          <Calendar searchTerm={searchTerm} selectedDate={selectedDate} />
         </div>
       </div>
     </>

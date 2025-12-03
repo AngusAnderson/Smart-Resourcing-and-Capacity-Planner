@@ -13,9 +13,11 @@ import { createEventsServicePlugin } from '@schedule-x/events-service'
 import 'temporal-polyfill/global'
 import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
+import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 
-function Calendar({ searchTerm }) {
+function Calendar({ searchTerm, selectedDate }) {
   const calendarIds = ["Red", "Blue", "Green", "Black"];
+
   function getRandomCalendarId() {
     return calendarIds[Math.floor(Math.random() * calendarIds.length)];
   }
@@ -38,6 +40,8 @@ function Calendar({ searchTerm }) {
   ];
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
+  const calendarControls = useState(() => createCalendarControlsPlugin())[0];
+
 
   const calendar = useCalendarApp({
     views: [
@@ -72,7 +76,8 @@ function Calendar({ searchTerm }) {
       eventsService,
       createDragAndDropPlugin(),
       createResizePlugin(),
-      createCurrentTimePlugin()
+      createCurrentTimePlugin(),
+      calendarControls
     ],
     defaultView: 'monthGrid',
     callbacks: {
@@ -83,6 +88,7 @@ function Calendar({ searchTerm }) {
   });
 
   useEffect(() => {
+
     if (eventsService.getAll) {
       eventsService.getAll().forEach(ev => eventsService.remove(ev.id));
     }
@@ -96,6 +102,23 @@ function Calendar({ searchTerm }) {
 
     filteredEvents.forEach(event => eventsService.add(event));
   }, [searchTerm, eventsService, testEvents]);
+
+
+  useEffect(() => {
+    if (selectedDate) {
+      console.log("Big Calendar has received the date:", selectedDate.toString());
+    }
+  }, [selectedDate]);
+  
+
+  useEffect(() => {
+    if (!selectedDate) return
+    console.log("Big Calendar navigating to:", selectedDate.toString())
+
+    calendarControls.setDate(selectedDate)
+
+  }, [selectedDate, calendarControls])
+
 
   return (
     <div className="calendar-big-wrapper">
