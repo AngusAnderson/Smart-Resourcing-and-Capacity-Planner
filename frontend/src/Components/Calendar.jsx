@@ -92,7 +92,7 @@ function Calendar({ searchTerm }) {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
           });
-          
+
         //logging for debugging
         } catch (err) {
           console.error('Error updating jobcode:', err);
@@ -107,12 +107,7 @@ function Calendar({ searchTerm }) {
       createResizePlugin(),
       createCurrentTimePlugin()
     ],
-    defaultView: 'monthGrid',
-    callbacks: {
-      onEventUpdate(updatedEvent) {
-        console.log('Updated Event:', updatedEvent);
-      }
-    }
+    defaultView: 'monthGrid'
   });
 
   useEffect(() => {
