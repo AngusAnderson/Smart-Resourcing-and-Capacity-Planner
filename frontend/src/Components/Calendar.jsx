@@ -113,7 +113,7 @@ function Calendar({ searchTerm, selectedDate }) {
   useEffect(() => {
     console.log("Active month for calculations:", activeDate.toString());
   }, [activeDate]);
-  
+
   const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
   const options = [];
   for (let v = 0; v <= workingDaysInMonth; v += 0.5){
@@ -187,7 +187,12 @@ function Calendar({ searchTerm, selectedDate }) {
 
       //Refreshes colour logic when arrows used to navigate to a different date
       onRangeUpdate: ({ start }) => {
-        setActiveDate(start.toPlainDate());
+        const startPlain = start.toPlainDate()
+        const inMonth = startPlain.add({ days: 14 })
+
+        setActiveDate(
+          Temporal.PlainDate.from({ year: inMonth.year, month: inMonth.month, day: 1 })
+        )
       },
 
       // updates events when user moves or resizes in calendar
