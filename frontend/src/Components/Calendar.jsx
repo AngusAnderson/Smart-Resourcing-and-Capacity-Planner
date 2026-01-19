@@ -106,8 +106,14 @@ function Calendar({ searchTerm, selectedDate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
   const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
-  const monthDate = selectedDate ?? Temporal.Now.plainDateISO();
+  const monthDate = activeDate
+
+  useEffect(() => {
+    console.log("Active month for calculations:", activeDate.toString());
+  }, [activeDate]);
+  
   const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
   const options = [];
   for (let v = 0; v <= workingDaysInMonth; v += 0.5){
@@ -178,6 +184,12 @@ function Calendar({ searchTerm, selectedDate }) {
       }
     },
     callbacks: {
+
+      //Refreshes colour logic when arrows used to navigate to a different date
+      onRangeUpdate: ({ start }) => {
+        setActiveDate(start.toPlainDate());
+      },
+
       // updates events when user moves or resizes in calendar
       onEventUpdate: async (updatedEvent) => {
         try {
@@ -240,11 +252,11 @@ function Calendar({ searchTerm, selectedDate }) {
   
 
   useEffect(() => {
-    if (!selectedDate) return
+    if (!selectedDate) return;
     console.log("Big Calendar navigating to:", selectedDate.toString())
     console.log("Working days from the month of this date:", getWorkingDaysInMonth(selectedDate))
-    calendarControls.setDate(selectedDate)
-
+    calendarControls.setDate(selectedDate);
+    setActiveDate(selectedDate);
   }, [selectedDate, calendarControls])
 
 
