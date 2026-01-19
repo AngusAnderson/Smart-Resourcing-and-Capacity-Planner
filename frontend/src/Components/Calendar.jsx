@@ -17,15 +17,105 @@ import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 import api from '../services/api'
 
 function Calendar({ searchTerm, selectedDate }) {
-  const calendarIds = ["Red", "Blue", "Green", "Black"];
+  const calendarIds = ["Red", "Yellow", "Green", "Orange"];
 
-  function getRandomCalendarId() {
-    return calendarIds[Math.floor(Math.random() * calendarIds.length)];
+  function getCalendarIdForAllocation(actualDaysWorked, targetAllocatedDays, workingDaysInMonth) {
+    
+    if (actualDaysWorked === targetAllocatedDays){
+      return calendarIds[2]
+    } else if (actualDaysWorked > targetAllocatedDays && actualDaysWorked <= workingDaysInMonth){
+      return calendarIds[3]
+    } else if (actualDaysWorked < targetAllocatedDays){
+      return calendarIds[0]
+    } else if (actualDaysWorked > workingDaysInMonth){
+      return calendarIds[1]
+    }
   }
+
+  function getWorkingDaysInMonth(monthDate) {
+    const firstDay = Temporal.PlainDate.from({
+      year: monthDate.year,
+      month: monthDate.month,
+      day: 1
+    })
+
+    const lastDay = firstDay
+      .add({ months: 1 })
+      .subtract({ days: 1 })
+
+    let workingDays = 0
+    let current = firstDay
+
+    while (Temporal.PlainDate.compare(current, lastDay) <= 0) {
+      const dayOfWeek = current.dayOfWeek // 1 = Monday, 7 = Sunday
+
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        workingDays++
+      }
+
+      current = current.add({ days: 1 })
+    }
+
+    return workingDays
+  }
+
+
+  function getActualDaysWorkedInMonth(events, monthDate) {
+    const days = new Set();
+
+    //for each event (jobcode)
+    events.forEach((event) => {
+      let start = event.start;
+      let end = event.end;
+
+      // Ensure Temporal.PlainDate
+      if (!(start instanceof Temporal.PlainDate)) {
+        start = Temporal.PlainDate.from(start);
+      }
+      if (!(end instanceof Temporal.PlainDate)) {
+        end = Temporal.PlainDate.from(end);
+      }
+
+      let current = start;
+
+      while (Temporal.PlainDate.compare(current, end) <= 0) {
+        // Check if this day is within the month we're calculating
+        if (
+          current.year === monthDate.year &&
+          current.month === monthDate.month
+        ) {
+          const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
+
+          if (dow >= 1 && dow <= 5) {
+            // Add this day as a unique working day
+            days.add(current.toString());
+          }
+        }
+
+        current = current.add({ days: 1 });
+      }
+    });
+
+    return days.size;
+  }
+
+
+
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
+  const monthDate = selectedDate ?? Temporal.Now.plainDateISO();
+  const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
+  const options = [];
+  for (let v = 0; v <= workingDaysInMonth; v += 0.5){
+    options.push(Number(v.toFixed(1)));
+  }
+
+
+
 
   useEffect(() => {
     const fetchJobCodes = async () => {
@@ -37,7 +127,6 @@ function Calendar({ searchTerm, selectedDate }) {
           title: jobcode.code,
           start: Temporal.PlainDate.from(jobcode.startDate),
           end: Temporal.PlainDate.from(jobcode.endDate),
-          calendarId: getRandomCalendarId(),
         }));
         setEvents(eventData);
         setLoading(false);
@@ -72,20 +161,20 @@ function Calendar({ searchTerm, selectedDate }) {
         lightColors: { main: '#f91c45', container: '#ffd2dc', onContainer: '#59000d' },
         darkColors: { main: '#ffc0cc', onContainer: '#ffdee6', container: '#a24258' }
       },
-      Blue: {
-        colorName: 'Blue',
-        lightColors: { main: '#1c7df9', container: '#d2e7ff', onContainer: '#002859' },
-        darkColors: { main: '#c0dfff', onContainer: '#dee6ff', container: '#426aa2' }
+      Yellow: {
+        colorName: 'Yellow',
+        lightColors: { main: '#facc15', container: '#fef3c7', onContainer: '#78350f' },
+        darkColors: { main: '#fde047', container: '#92400e', onContainer: '#fff7ed' }
       },
       Green: {
         colorName: 'Green',
         lightColors: { main: '#1cf9b0', container: '#dafff0', onContainer: '#004d3d' },
         darkColors: { main: '#c0fff5', onContainer: '#e6fff5', container: '#42a297' }
       },
-      Black: {
-        colorName: 'Black',
-        lightColors: { main: '#222', container: '#eee', onContainer: '#555' },
-        darkColors: { main: '#444', onContainer: '#999', container: '#222' }
+      Orange: {
+        colorName: 'Orange',
+        lightColors: { main: '#fb923c', container: '#ffedd5', onContainer: '#7c2d12' },
+        darkColors: { main: '#fdba74', container: '#9a3412', onContainer: '#fff7ed' }
       }
     },
     callbacks: {
@@ -128,8 +217,19 @@ function Calendar({ searchTerm, selectedDate }) {
         )
       : events;
 
-    filteredEvents.forEach(event => eventsService.add(event));
-  }, [searchTerm, eventsService, events]);
+
+    const actualDaysWorked = getActualDaysWorkedInMonth(events, monthDate);
+    const targetDaysToUse = targetAllocatedDays ?? workingDaysInMonth;
+    const calendarIdForMonth = getCalendarIdForAllocation(actualDaysWorked, targetDaysToUse, workingDaysInMonth);
+
+
+    console.log('Actual days:', actualDaysWorked);
+    console.log('Target days:', targetDaysToUse);
+    console.log('Calendar colour:', calendarIdForMonth);
+
+
+    filteredEvents.forEach(event => eventsService.add({...event, calendarId: calendarIdForMonth}));
+  }, [searchTerm, eventsService, events, monthDate, targetAllocatedDays, workingDaysInMonth]);
 
 
   useEffect(() => {
@@ -142,7 +242,7 @@ function Calendar({ searchTerm, selectedDate }) {
   useEffect(() => {
     if (!selectedDate) return
     console.log("Big Calendar navigating to:", selectedDate.toString())
-
+    console.log("Working days from the month of this date:", getWorkingDaysInMonth(selectedDate))
     calendarControls.setDate(selectedDate)
 
   }, [selectedDate, calendarControls])
@@ -150,7 +250,27 @@ function Calendar({ searchTerm, selectedDate }) {
 
   return (
     <div className="calendar-big-wrapper">
+
+      <div className="calendar-toolbar">
+        <label>
+          Target allocated days:
+          <select
+            value={targetAllocatedDays ?? workingDaysInMonth}
+            onChange={(e) => setTargetAllocatedDays(Number(e.target.value))}
+          >
+            {options.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <span>Working days: {workingDaysInMonth}</span>
+      </div>
+
       <ScheduleXCalendar calendarApp={calendar} />
+
     </div>
   );
 }
