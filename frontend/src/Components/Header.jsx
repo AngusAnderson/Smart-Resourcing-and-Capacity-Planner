@@ -1,15 +1,37 @@
+
 import React, { useRef, useState } from 'react'
+
 import '../css/Header.css'
 
 const Header = ({ isVisible, toggleVisibility }) => {
+
+const[messages, setMessages] = useState([])
+const [inputValue, setInputValue] = useState('')
+
+const handleInputKeyDown = (e) => {
+  if (e.key !== 'Enter') return
+  e.preventDefault()
+  const text = inputValue.trim()
+  if (!text) return
+
+  setMessages((prev) => [
+    ...prev,
+    { text, role: 'user' },
+    { text: 'OK', role: 'reply' },
+  ])
+
+  setInputValue('')
+}
 
 const panelRef = useRef(null)
 const [panelSize, setPanelSize] = useState({ width: 320, height: 240 })
 
 const handleResizeEnd = () => {
   if (!panelRef.current) return
-  const { offsetWidth, offsetHeight } = panelRef.current
-  setPanelSize({ width: offsetWidth, height: offsetHeight })
+  const nextWidth = panelRef.current.offsetWidth
+  const nextHeight = panelRef.current.offsetHeight
+  if (nextWidth === panelSize.width && nextHeight === panelSize.height) return
+  setPanelSize({ width: nextWidth, height: nextHeight })
 }
     return (
         <div className='Header'>
@@ -40,10 +62,26 @@ const handleResizeEnd = () => {
                 onMouseUp={handleResizeEnd}
                 style={{ width: panelSize.width, height: panelSize.height }}
               >
-                <div className="ai-content" />
-                <div className="ai-input-row">
-                  <input className="ai-input" type="text" placeholder="Type here" />
+                <div className="ai-content">
+                  <div className="ai-messages">
+                    {messages.map((msg, idx) => (
+                      <div key={idx} className={`ai-message ${msg.role}`}>
+                        {msg.text}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+                <div className="ai-input-row">
+                  <input
+                    className="ai-input"
+                    type="text"
+                    placeholder="Type here"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                  />
+                </div>
+                
               </div>
             )}
             
