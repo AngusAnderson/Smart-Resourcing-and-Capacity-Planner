@@ -24,12 +24,7 @@ const Header = ({ isVisible, toggleVisibility }) => {
             </button>
             </div>
 
-            <div id="sidebar-AI" class="sidebar-AI">
-          {isVisible && 
-          <div className='AI-block'>
-            This element is now visible
-          </div>}
-        </div>
+            {isVisible && <div id="ai-panel" className="ai-panel" />}
             
         </div>
 
