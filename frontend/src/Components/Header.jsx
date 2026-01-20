@@ -24,7 +24,18 @@ const Header = ({ isVisible, toggleVisibility }) => {
             </button>
             </div>
 
-            {isVisible && <div id="ai-panel" className="ai-panel" />}
+            {isVisible && (
+              <div id="ai-panel" className="ai-panel">
+                <div className="ai-content" />
+                <div className="ai-input-row">
+                  <input
+                    className="ai-input"
+                    type="text"
+                    placeholder="Type here…"
+                  />
+                </div>
+              </div>
+            )}
             
         </div>
 
