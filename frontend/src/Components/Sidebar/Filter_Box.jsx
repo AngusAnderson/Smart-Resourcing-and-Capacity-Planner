@@ -18,7 +18,7 @@ const Filter_Box = ({ searchTerm, onSearchChange }) => {
               <input
                 className="search-input"
                 type="text"
-                placeholder="Search Employees"
+                placeholder="Search..."
                 value={searchTerm}
                 onChange={e => onSearchChange(e.target.value)}
               />

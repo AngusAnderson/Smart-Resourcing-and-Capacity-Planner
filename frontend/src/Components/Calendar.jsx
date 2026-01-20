@@ -38,6 +38,8 @@ function Calendar({ searchTerm, selectedDate }) {
           start: Temporal.PlainDate.from(jobcode.startDate),
           end: Temporal.PlainDate.from(jobcode.endDate),
           calendarId: getRandomCalendarId(),
+          customerName: jobcode.customerName,
+          businessUnit: jobcode.businessUnit,
         }));
         setEvents(eventData);
         setLoading(false);
@@ -124,7 +126,9 @@ function Calendar({ searchTerm, selectedDate }) {
 
     const filteredEvents = searchTerm
       ? events.filter(event =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase())
+          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
         )
       : events;
 
