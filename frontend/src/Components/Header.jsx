@@ -1,8 +1,16 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import '../css/Header.css'
 
 const Header = ({ isVisible, toggleVisibility }) => {
 
+const panelRef = useRef(null)
+const [panelSize, setPanelSize] = useState({ width: 320, height: 240 })
+
+const handleResizeEnd = () => {
+  if (!panelRef.current) return
+  const { offsetWidth, offsetHeight } = panelRef.current
+  setPanelSize({ width: offsetWidth, height: offsetHeight })
+}
     return (
         <div className='Header'>
         <div className="Text-top_left">
@@ -25,14 +33,16 @@ const Header = ({ isVisible, toggleVisibility }) => {
             </div>
 
             {isVisible && (
-              <div id="ai-panel" className="ai-panel">
+              <div
+                id="ai-panel"
+                className="ai-panel"
+                ref={panelRef}
+                onMouseUp={handleResizeEnd}
+                style={{ width: panelSize.width, height: panelSize.height }}
+              >
                 <div className="ai-content" />
                 <div className="ai-input-row">
-                  <input
-                    className="ai-input"
-                    type="text"
-                    placeholder="Type here…"
-                  />
+                  <input className="ai-input" type="text" placeholder="Type here" />
                 </div>
               </div>
             )}
