@@ -203,6 +203,15 @@ function Calendar({ searchTerm, selectedDate }) {
             endDate: updatedEvent.end.toString(),
           });
 
+        // Update the event object when it is dragged on the calendar
+        setEvents((prevEvents) =>
+        prevEvents.map((ev) =>
+          ev.id === updatedEvent.id
+            ? { ...ev, start: updatedEvent.start, end: updatedEvent.end }
+            : ev
+          )
+        );
+
         //logging for debugging
         } catch (err) {
           console.error('Error updating jobcode:', err);
