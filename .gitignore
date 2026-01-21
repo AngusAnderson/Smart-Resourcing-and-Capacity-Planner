@@ -3,6 +3,8 @@
 __pycache__/
 *.pyo
 *.pyd
+.DS_Store
+
 
 # Compiled Documents
 *.pdf
@@ -16,3 +18,4 @@ env/
 
 # database files
 *.sqlite3
+backend/db.sqlite3

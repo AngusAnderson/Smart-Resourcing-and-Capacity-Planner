@@ -36,7 +36,9 @@ const handleResizeEnd = () => {
     return (
         <div className='Header'>
         <div className="Text-top_left">
+          <a href="/">
           <h1>Reply <span className='span-1_Comwrap'>Comwrap</span></h1>
+          </a>
         </div>
         <div className="Text-top_right">
           <h1>John Doe</h1>

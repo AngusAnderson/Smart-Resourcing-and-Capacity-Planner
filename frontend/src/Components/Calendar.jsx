@@ -15,8 +15,10 @@ import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 import api from '../services/api'
+import { useNavigate } from 'react-router-dom'
 
 function Calendar({ searchTerm, selectedDate }) {
+  const navigate = useNavigate()
   const calendarIds = ["Red", "Blue", "Green", "Black"];
 
   function getRandomCalendarId() {
@@ -105,6 +107,12 @@ function Calendar({ searchTerm, selectedDate }) {
           setError(err.message);
         }
         console.log('Updated Event:', updatedEvent);
+      },
+      // Navigate to project page when event is clicked
+      onEventClick: (calendarEvent) => {
+        console.log('Event clicked:', calendarEvent);
+        // Navigate to project page using the event ID (jobcode)
+        navigate(`/projects/${calendarEvent.id}`);
       }
     },
     plugins: [

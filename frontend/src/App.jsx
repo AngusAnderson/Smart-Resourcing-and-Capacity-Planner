@@ -17,20 +17,18 @@ function App() {
   return (
     <Router>
       <Header isVisible={isVisible} toggleVisibility={toggleVisibility}/>
+
       <div className="container">
-        <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} setSelectedDate={setSelectedDate}/>
+        <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} setSelectedDate={setSelectedDate} />
         <div className="main">
-           <Routes>
-
-          <Route path="/" element={<Calendar searchTerm={searchTerm} selectedDate={selectedDate} />}/>
-          <Route path = "/employees/:id" element = {<EmployeePage />} />
-          <Route path = "/projects/:id" element = {<ProjectPage />} />
-
-          </Routes>
+          <Calendar searchTerm={searchTerm} selectedDate={selectedDate} />
         </div>
       </div>
     </Router>
   );
+
 }
+        
+
 
 export default App;
