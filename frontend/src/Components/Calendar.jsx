@@ -85,11 +85,7 @@ function Calendar({ searchTerm, selectedDate }) {
           current.month === monthDate.month
         ) {
           const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
-
-          if (dow >= 1 && dow <= 5) {
-            // Add this day as a unique working day
             days.add(current.toString());
-          }
         }
 
         current = current.add({ days: 1 });
@@ -114,12 +110,15 @@ function Calendar({ searchTerm, selectedDate }) {
     console.log("Active month for calculations:", activeDate.toString());
   }, [activeDate]);
 
+
+
   const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
   const options = [];
   for (let v = 0; v <= workingDaysInMonth; v += 0.5){
     options.push(Number(v.toFixed(1)));
   }
 
+  const actualDaysWorked = getActualDaysWorkedInMonth(events, monthDate);
 
 
 
@@ -276,8 +275,7 @@ function Calendar({ searchTerm, selectedDate }) {
 
   return (
     <div className="calendar-big-wrapper">
-
-      <div className="calendar-toolbar">
+      <div className="calendar-header-overlay">
         <label>
           Target allocated days:
           <select
@@ -292,13 +290,14 @@ function Calendar({ searchTerm, selectedDate }) {
           </select>
         </label>
 
-        <span>Working days: {workingDaysInMonth}</span>
+        <span>Current Allocated Days: {actualDaysWorked}</span>
+        <span>Month's Working Days: {workingDaysInMonth}</span>
       </div>
 
       <ScheduleXCalendar calendarApp={calendar} />
-
     </div>
   );
+
 }
 
 export default Calendar;
