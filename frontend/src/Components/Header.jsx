@@ -1,8 +1,38 @@
-import React from 'react'
+
+import React, { useRef, useState } from 'react'
+
 import '../css/Header.css'
 
 const Header = ({ isVisible, toggleVisibility }) => {
 
+const[messages, setMessages] = useState([])
+const [inputValue, setInputValue] = useState('')
+
+const handleInputKeyDown = (e) => {
+  if (e.key !== 'Enter') return
+  e.preventDefault()
+  const text = inputValue.trim()
+  if (!text) return
+
+  setMessages((prev) => [
+    ...prev,
+    { text, role: 'user' },
+    { text: 'OK', role: 'reply' },
+  ])
+
+  setInputValue('')
+}
+
+const panelRef = useRef(null)
+const [panelSize, setPanelSize] = useState({ width: 320, height: 240 })
+
+const handleResizeEnd = () => {
+  if (!panelRef.current) return
+  const nextWidth = panelRef.current.offsetWidth
+  const nextHeight = panelRef.current.offsetHeight
+  if (nextWidth === panelSize.width && nextHeight === panelSize.height) return
+  setPanelSize({ width: nextWidth, height: nextHeight })
+}
     return (
         <div className='Header'>
         <div className="Text-top_left">
@@ -24,12 +54,36 @@ const Header = ({ isVisible, toggleVisibility }) => {
             </button>
             </div>
 
-            <div id="sidebar-AI" class="sidebar-AI">
-          {isVisible && 
-          <div className='AI-block'>
-            This element is now visible
-          </div>}
-        </div>
+            {isVisible && (
+              <div
+                id="ai-panel"
+                className="ai-panel"
+                ref={panelRef}
+                onMouseUp={handleResizeEnd}
+                style={{ width: panelSize.width, height: panelSize.height }}
+              >
+                <div className="ai-content">
+                  <div className="ai-messages">
+                    {messages.map((msg, idx) => (
+                      <div key={idx} className={`ai-message ${msg.role}`}>
+                        {msg.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="ai-input-row">
+                  <input
+                    className="ai-input"
+                    type="text"
+                    placeholder="Type here"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                  />
+                </div>
+                
+              </div>
+            )}
             
         </div>
 
