@@ -189,13 +189,17 @@ function Calendar({ searchTerm, selectedDate }) {
     callbacks: {
 
       //Refreshes colour logic when arrows used to navigate to a different date
-      onRangeUpdate: ({ start }) => {
-        const startPlain = start.toPlainDate()
-        const inMonth = startPlain.add({ days: 14 })
+      onRangeUpdate: ({ start, end }) => {
+        const startPlain = start.toPlainDate();
+        const endPlain = end?.toPlainDate?.() ?? startPlain;
+
+        // calculate middle date of the dates in the calendar's view 
+        const daysBetween = startPlain.until(endPlain).days;
+        const mid = startPlain.add({ days: Math.floor(daysBetween / 2) });
 
         setActiveDate(
-          Temporal.PlainDate.from({ year: inMonth.year, month: inMonth.month, day: 1 })
-        )
+          Temporal.PlainDate.from({ year: mid.year, month: mid.month, day: 1 })
+        );
       },
 
       // updates events when user moves or resizes in calendar
