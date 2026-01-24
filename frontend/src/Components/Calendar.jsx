@@ -15,8 +15,10 @@ import '@schedule-x/theme-default/dist/index.css'
 import '../css/Calendar.css'
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 import api from '../services/api'
+import { useNavigate } from 'react-router-dom'
 
 function Calendar({ searchTerm, selectedDate }) {
+  const navigate = useNavigate()
   const calendarIds = ["Red", "Yellow", "Green", "Orange"];
 
   function getCalendarIdForAllocation(actualDaysWorked, targetAllocatedDays, workingDaysInMonth) {
@@ -132,6 +134,8 @@ function Calendar({ searchTerm, selectedDate }) {
           title: jobcode.code,
           start: Temporal.PlainDate.from(jobcode.startDate),
           end: Temporal.PlainDate.from(jobcode.endDate),
+          customerName: jobcode.customerName,
+          businessUnit: jobcode.businessUnit,
         }));
         setEvents(eventData);
         setLoading(false);
@@ -217,6 +221,12 @@ function Calendar({ searchTerm, selectedDate }) {
           setError(err.message);
         }
         console.log('Updated Event:', updatedEvent);
+      },
+      // Navigate to project page when event is clicked
+      onEventClick: (calendarEvent) => {
+        console.log('Event clicked:', calendarEvent);
+        // Navigate to project page using the event ID (jobcode)
+        navigate(`/projects/${calendarEvent.id}`);
       }
     },
     plugins: [
@@ -238,7 +248,9 @@ function Calendar({ searchTerm, selectedDate }) {
 
     const filteredEvents = searchTerm
       ? events.filter(event =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase())
+          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
         )
       : events;
 

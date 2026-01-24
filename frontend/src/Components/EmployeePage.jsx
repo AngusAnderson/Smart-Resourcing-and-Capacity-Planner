@@ -13,7 +13,8 @@ const mockEmployee = {
     "Edge Delivery Services"
   ],
   previousProjects: ["Project X", "Project Y", "Project Z"],
-  currentProjects: ["Project A"]
+  currentProjects: ["Project A"],
+  futureProjects: ["Project B", "Project C"]
 };
 
 function EmployeePage() {
@@ -81,6 +82,15 @@ function EmployeePage() {
             <h2 className="side-heading">Current Projects</h2>
             <ul className="side-list">
               {employee.currentProjects.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="side-card">
+            <h2 className="side-heading">Future Projects</h2>
+            <ul className="side-list">
+              {(employee.futureProjects || []).map((p) => (
                 <li key={p}>{p}</li>
               ))}
             </ul>
