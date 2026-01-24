@@ -21,7 +21,11 @@ function App() {
       <div className="container">
         <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} setSelectedDate={setSelectedDate} />
         <div className="main">
-          <Calendar searchTerm={searchTerm} selectedDate={selectedDate} />
+          <Routes>
+            <Route path="/" element={<Calendar searchTerm={searchTerm} selectedDate={selectedDate} />} />
+            <Route path="/employees/:id" element={<EmployeePage />} />
+            <Route path="/projects/:id" element={<ProjectPage />} />
+          </Routes>
         </div>
       </div>
     </Router>
