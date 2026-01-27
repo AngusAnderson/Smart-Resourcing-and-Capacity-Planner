@@ -183,12 +183,13 @@ p {
 }
 
 .ai-input {
-  height: 25px;
   width: 100%;
-  box-sizing: border-box;
-  display: block;
-  font-size: 16px;
+  min-height: 32px;
+  max-height: 120px; 
   resize: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-size: 16px;
 }
 .ai-messages{
   display: flex;
@@ -215,6 +216,14 @@ p {
   align-self: flex-start;
   text-align: left;
   background: #dcdcdc;
+}
+
+.ai-drag-bar {
+  height: 18px;
+  cursor: move;
+  border-bottom: 1px solid #eee;
+  background: #f7f7f7;
+  border-radius: 10px 10px 0 0;
 }
 
 /* End AI Chat window */
