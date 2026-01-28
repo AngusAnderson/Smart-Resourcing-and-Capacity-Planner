@@ -62,21 +62,6 @@ default:
   cache:
     paths:
       - ~/.cache/pip/
-  before_script:
-    - cd backend
-    - apt -y update
-    - apt -y install net-tools python3.8 python3-pip mysql-client libmysqlclient-dev apt-utils
-    - pip3 install -r requirements-ci.txt
-
-
-migrations:
-  stage: build
-  services:
-    - mysql:8.0
-  script:
-    - python3 manage.py migrate
-    - python3 manage.py check
-
 
 frontend-setup:
   image: node:20
@@ -87,6 +72,26 @@ frontend-setup:
     - npm run build
     - npm test
     - npm run lint
+
+
+migrations:
+  stage: build
+  image: python:3.12
+  services:
+    - name: mysql:8.0
+      alias: mysql
+  script:
+    - cd backend
+    - apt-get update -y
+    - apt-get install -y default-mysql-client
+    - pip install --upgrade pip
+    - pip install -r requirements-ci.txt
+    - python manage.py migrate
+    - python manage.py check
+
+
+
+
 
 
 #django-tests:
