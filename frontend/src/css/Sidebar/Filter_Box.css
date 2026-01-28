@@ -136,13 +136,14 @@ font-weight: bold;
     #90ca6d 0deg 90deg,
     #f8f46c 90deg 140deg,
     #f5af49 140deg 250deg,
-    #eb5747 250deg 360deg,
+    #eb5747 250deg 360deg
   );
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.5s ease;
 }
+
 
 .progress-ring-inner {
   width: 80px;
