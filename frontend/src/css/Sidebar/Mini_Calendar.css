@@ -36,11 +36,15 @@
 
   
 
-  .sidebar-calendar-wrapper .sx__calendar-popover,
-  .sidebar-calendar-wrapper [class*="popover"],
-  .sidebar-calendar-wrapper [class*="date-picker"] {
-    z-index: 999999 !important;
-    /* position: fixed !important; */
-  }
+  /* Force Schedule-X sidebar date picker popup to stay at top-left of sidebar */
+.sidebar-calendar-wrapper .sx__date-picker-popup.bottom-start {
+  position: fixed !important;      /* was absolute */
+  top: 100px !important;           /* tweak: distance from top of viewport */
+  left: 24px !important;           /* tweak: aligns with sidebar padding */
+  right: auto !important;
+  transform: none !important;
+  z-index: 99999 !important;
+}
+
 
 /* End mini calander css */
