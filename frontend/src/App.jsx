@@ -16,6 +16,7 @@ function App() {
 
   return (
     <Router>
+      <link rel="icon" href="../src/assets/favicon.ico"></link>
       <Header isVisible={isVisible} toggleVisibility={toggleVisibility}/>
 
       <div className="container">

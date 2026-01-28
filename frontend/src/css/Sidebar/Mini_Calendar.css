@@ -23,7 +23,7 @@
   }
 
   /* Mini Calendar for Smaller screens */
-  @media (max-width: 2600px) {
+  @media (min-width: 1025px) {
     .sx__calendar,
     .sx-react-calendar-wrapper {
       font-size: 10px;
@@ -36,11 +36,10 @@
 
   
 
-  /* Force Schedule-X sidebar date picker popup to stay at top-left of sidebar */
 .sidebar-calendar-wrapper .sx__date-picker-popup.bottom-start {
-  position: fixed !important;      /* was absolute */
-  top: 100px !important;           /* tweak: distance from top of viewport */
-  left: 24px !important;           /* tweak: aligns with sidebar padding */
+  position: fixed !important;
+  top: 100px !important;
+  left: 24px !important;
   right: auto !important;
   transform: none !important;
   z-index: 99999 !important;
