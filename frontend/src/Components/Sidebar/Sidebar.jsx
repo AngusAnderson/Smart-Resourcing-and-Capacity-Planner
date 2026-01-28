@@ -10,7 +10,9 @@ const Sidebar = ({ searchTerm, onSearchChange, setSelectedDate }) => {
     return (
         <div className="sidebar">
           {/* Code for mini calander in the sidebar */}
+          <div className="sidebar-calendar-wrapper">
             <Mini_Calendar setSelectedDate={setSelectedDate}/>         
+          </div>         
           {/* Code for filter box in the sidebar */}
           <Filter_Box searchTerm={searchTerm} onSearchChange={onSearchChange}/>
           

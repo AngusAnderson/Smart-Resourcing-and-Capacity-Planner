@@ -36,8 +36,11 @@
 
   
 
-  .sidebar-calendar-wrapper .sx__calendar-popover {
-    position: absolute;
-    z-index: 9999;
+  .sidebar-calendar-wrapper .sx__calendar-popover,
+  .sidebar-calendar-wrapper [class*="popover"],
+  .sidebar-calendar-wrapper [class*="date-picker"] {
+    z-index: 999999 !important;
+    /* position: fixed !important; */
   }
+
 /* End mini calander css */
