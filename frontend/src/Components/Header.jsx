@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import '../css/Header.css'
 
@@ -7,6 +7,41 @@ const Header = ({ isVisible, toggleVisibility }) => {
 
 const[messages, setMessages] = useState([])
 const [inputValue, setInputValue] = useState('')
+const [panelPos, setPanelPos] = useState({ x: null, y: null })
+const dragState = useRef(null)
+const inputRef = useRef(null)
+
+
+const startDrag = (e) => {
+  if (!panelRef.current) return
+  const rect = panelRef.current.getBoundingClientRect()
+  dragState.current = {
+    offsetX: e.clientX - rect.left,
+    offsetY: e.clientY - rect.top,
+  }
+  setPanelPos({ x: rect.left, y: rect.top })
+}
+
+useEffect(() => {
+  const onMove = (e) => {
+    const s = dragState.current
+    if (!s) return
+    setPanelPos({
+      x: e.clientX - s.offsetX,
+      y: e.clientY - s.offsetY,
+    })
+  }
+  const onUp = () => {
+    dragState.current = null
+  }
+
+  window.addEventListener('mousemove', onMove)
+  window.addEventListener('mouseup', onUp)
+  return () => {
+    window.removeEventListener('mousemove', onMove)
+    window.removeEventListener('mouseup', onUp)
+  }
+}, [])
 
 const handleInputKeyDown = (e) => {
   if (e.key !== 'Enter') return
@@ -21,6 +56,16 @@ const handleInputKeyDown = (e) => {
   ])
 
   setInputValue('')
+  if (inputRef.current) {
+    inputRef.current.style.height = 'auto'
+  }
+}
+
+const handleInputChange = (e) => {
+  setInputValue(e.target.value)
+  if (!inputRef.current) return
+  inputRef.current.style.height = 'auto'
+  inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
 }
 
 const panelRef = useRef(null)
@@ -62,8 +107,16 @@ const handleResizeEnd = () => {
                 className="ai-panel"
                 ref={panelRef}
                 onMouseUp={handleResizeEnd}
-                style={{ width: panelSize.width, height: panelSize.height }}
+                style={{
+                  width: panelSize.width,
+                  height: panelSize.height,
+                  left: panelPos.x ?? undefined,
+                  top: panelPos.y ?? undefined,
+                  right: panelPos.x == null ? 20 : 'auto',
+                }}
+                
               >
+                <div className="ai-drag-bar" onMouseDown={startDrag} />
                 <div className="ai-content">
                   <div className="ai-messages">
                     {messages.map((msg, idx) => (
@@ -74,13 +127,15 @@ const handleResizeEnd = () => {
                   </div>
                 </div>
                 <div className="ai-input-row">
-                  <input
+                    
+                  <textarea
                     className="ai-input"
-                    type="text"
                     placeholder="Type here"
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleInputKeyDown}
+                    rows={1}
+                    ref={inputRef}
                   />
                 </div>
                 
