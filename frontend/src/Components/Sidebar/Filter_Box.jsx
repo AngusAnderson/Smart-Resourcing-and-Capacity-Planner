@@ -1,5 +1,6 @@
 import React from "react";
 import '../../css/Sidebar/Filter_Box.css';
+import OverallProjectProgress from '../../functions/Filter_Box_Functions/Overall_Project_Progress'
 
 const Filter_Box = ({ searchTerm, onSearchChange }) => {
     return (
@@ -26,25 +27,24 @@ const Filter_Box = ({ searchTerm, onSearchChange }) => {
 
             <hr className='hr-filter_box'></hr>
             <div className="white-space-filter_box"></div>
-            <hr className='hr-filter_box'></hr>
+            {/* <hr className='hr-filter_box'></hr> */}
             <h1 className='h1-filter_box'>Overall Project Progress</h1>
 
 
             {/* Project Progress bar */}
-            <div class="progress-bar-container">
+
+            <OverallProjectProgress />
+
+
+            {/* <div class="progress-bar-container">
               <div class="progress-bar">
                 <div class="segment currently-allocated"></div>
                 <div class="segment over-allocated"></div>
                 <div class="segment under-allocated-1"></div>
                 <div class="segment under-allocated-2"></div>
-              </div>
-              <div class="labels">
-                <div class="label">Correctly Allocated - 25%</div>
-                <div class="label">Over Allocated - 15%</div>
-                <div class="label">Under Allocated - 40%</div><br></br>
-                <div class="label">Under Allocated - 20%</div>
-              </div>
-            </div>
+              </div> */}
+              {/* Instead of labels we'll implement an 'onHover' effect when possible */}
+            {/* </div> */}
           </div>
     )
 }
