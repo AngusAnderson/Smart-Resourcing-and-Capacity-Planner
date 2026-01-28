@@ -22,18 +22,6 @@
     outline: none !important;
   }
 
-  /* Mini Calendar for Smaller screens */
-  @media (min-width: 1025px) {
-    .sx__calendar,
-    .sx-react-calendar-wrapper {
-      font-size: 10px;
-    }
-
-    .sx__month-agenda-events {
-      display: none;
-    }
-  }
-
   
 
 .sidebar-calendar-wrapper .sx__date-picker-popup.bottom-start {

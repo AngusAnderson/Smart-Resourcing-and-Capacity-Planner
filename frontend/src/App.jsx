@@ -16,7 +16,10 @@ function App() {
 
   return (
     <Router>
+      
+
       <link rel="icon" href="../src/assets/favicon.ico"></link>
+      <title>Comwrap Reply</title>
       <Header isVisible={isVisible} toggleVisibility={toggleVisibility}/>
 
       <div className="container">

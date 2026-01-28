@@ -3,21 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
 
-const mockProject = {
-  id: 1,
-  name: "Project A",
-  customerName: "Comwrap Reply",
-  businessUnit: "Department Name",
-  description:
-    "Project description goes here.",
-  startDate: "5/10/25",
-  finishDate: "9/10/25",
-  durationDays: 18,
-  remainingBudgetDays: 12,
-  budget: 50000,
-  confidenceScore: 0.8
-};
-
 function ProjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -86,6 +71,8 @@ function ProjectPage() {
             <button className="pill-button">Edit</button>
           </div>
 
+          <hr className='hr-filter_box'></hr>
+
           <div className="project-body-card">
             <p className="label-line">
               <span className="label">Customer Name:</span>{" "}
@@ -105,7 +92,7 @@ function ProjectPage() {
 
         <aside className="project-side">
           <div className="side-card">
-            <h2 className="side-heading">Time</h2>
+            <h2 className="side-heading">Time:</h2>
             <p className="label-line">
               <span className="label">Start Date:</span>{" "}
               <span>{project.startDate}</span>
@@ -125,7 +112,7 @@ function ProjectPage() {
           </div>
 
           <div className="side-card">
-            <h2 className="side-heading">Finance</h2>
+            <h2 className="side-heading">Finance:</h2>
             <p className="label-line">
               <span className="label">Budget (Cost Currency):</span>{" "}
               <span>{project.budget}</span>

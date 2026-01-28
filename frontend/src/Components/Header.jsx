@@ -86,7 +86,7 @@ const handleResizeEnd = () => {
           </a>
         </div>
         <div className="Text-top_right">
-          <h1>John Doe</h1>
+          <h1>Joe Strummer</h1>
         </div>
 
         <div className="Text-middle">
