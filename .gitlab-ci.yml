@@ -31,6 +31,9 @@
 # https://gitlab.com/gitlab-org/gitlab/-/issues/30178
 
 
+stages:
+    - build
+
 workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -53,8 +56,6 @@ default:
   # Pick zero or more services to be used on all builds.
   # Only needed when using a docker container to run your tests in.
   # Check out: https://docs.gitlab.com/ee/ci/services/
-  services:
-    - mysql:8.0
   #
   # This folder is cached between builds
   # http://docs.gitlab.com/ee/ci/yaml/README.html#cache
@@ -64,17 +65,28 @@ default:
   before_script:
     - cd backend
     - apt -y update
-    - apt -y install apt-utils
-    - apt -y install net-tools python3.8 python3-pip mysql-client libmysqlclient-dev
-    - apt -y upgrade
+    - apt -y install net-tools python3.8 python3-pip mysql-client libmysqlclient-dev apt-utils
     - pip3 install -r requirements-ci.txt
 
 
 migrations:
   stage: build
+  services:
+    - mysql:8.0
   script:
     - python3 manage.py migrate
     - python3 manage.py check
+
+
+frontend-setup:
+  image: node:20
+  stage: build
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+    - npm test
+    - npm run lint
 
 
 #django-tests:
