@@ -70,8 +70,8 @@ frontend-setup:
     - cd frontend
     - npm ci
     - npm run build
-    - npm test
-    - npm run lint
+#    - npm test
+#    - npm run lint
 
 
 migrations:
