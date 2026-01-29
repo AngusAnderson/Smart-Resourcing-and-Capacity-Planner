@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef, useState } from 'react'
-
 import '../css/Header.css'
+import api from '../services/api'
+
 
 const Header = ({ isVisible, toggleVisibility }) => {
 
@@ -43,21 +44,27 @@ useEffect(() => {
   }
 }, [])
 
-const handleInputKeyDown = (e) => {
+const handleInputKeyDown = async (e) => {
   if (e.key !== 'Enter') return
   e.preventDefault()
   const text = inputValue.trim()
   if (!text) return
 
-  setMessages((prev) => [
-    ...prev,
-    { text, role: 'user' },
-    { text: 'OK', role: 'reply' },
-  ])
+  setMessages((prev) => [...prev, { text, role: 'user' }])
 
   setInputValue('')
   if (inputRef.current) {
     inputRef.current.style.height = 'auto'
+  }
+  try {
+    const response = await api.post('/ai/chat/', { message: text })
+    const reply = response.data.reply ?? ''
+    setMessages((prev) => [...prev, { text: reply, role: 'reply' }])
+  } catch (err) {
+    setMessages((prev) => [
+      ...prev,
+      { text: 'Error: failed to reach AI', role: 'reply' },
+    ])
   }
 }
 

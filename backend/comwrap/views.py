@@ -2,6 +2,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Employee, Specialism, JobCode, ForecastEntry
 
+
+
+@api_view(['POST'])
+def ai_chat(request):
+    message = (request.data or {}).get("message", "").strip()
+    if not message:
+        return Response({"error": "Messag is obligatory"}, status=400)
+    return Response({"reply": "OK"})
+
 @api_view(['GET'])
 def hello_world(request):
     return Response({"message": "Hello from Django!"})
