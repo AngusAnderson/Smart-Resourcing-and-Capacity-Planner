@@ -9,13 +9,13 @@ client = OpenAI()
 
 @api_view(['POST'])
 def ai_chat(request):
-    message = (request.data or {}).get("message", "").strip()
-    if not message:
-        return Response({"error": "Message is required"}, status=400)
+    messages = (request.data or {}).get("messages", [])
+    if not messages:
+        return Response({"error": "Messages are required"}, status=400)
 
     response = client.responses.create(
-        model="gpt-5",  
-        input=message,
+        model="gpt-5",
+        input=messages,
     )
 
     return Response({"reply": response.output_text})

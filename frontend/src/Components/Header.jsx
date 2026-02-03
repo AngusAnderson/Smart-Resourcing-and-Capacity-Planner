@@ -50,16 +50,22 @@ const handleInputKeyDown = async (e) => {
   const text = inputValue.trim()
   if (!text) return
 
-  setMessages((prev) => [...prev, { text, role: 'user' }])
+  const nextMessages = [...messages, { text, role: 'user' }]
+  setMessages(nextMessages)
 
   setInputValue('')
   if (inputRef.current) {
     inputRef.current.style.height = 'auto'
   }
   try {
-    const response = await api.post('/ai/chat/', { message: text })
+    const response = await api.post('/ai/chat/', {
+      messages: nextMessages.map(m => ({
+        role: m.role === 'reply' ? 'assistant' : 'user',
+        content: m.text
+      }))
+    })
     const reply = response.data.reply ?? ''
-    setMessages((prev) => [...prev, { text: reply, role: 'reply' }])
+    setMessages(prev => [...prev, { text: reply, role: 'reply' }])
   } catch (err) {
     setMessages((prev) => [
       ...prev,
