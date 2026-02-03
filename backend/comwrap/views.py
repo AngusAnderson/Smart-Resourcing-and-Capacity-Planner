@@ -1,6 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Employee, Specialism, JobCode, ForecastEntry
+from openai import OpenAI
+
+client = OpenAI()
 
 
 
@@ -8,8 +11,14 @@ from .models import Employee, Specialism, JobCode, ForecastEntry
 def ai_chat(request):
     message = (request.data or {}).get("message", "").strip()
     if not message:
-        return Response({"error": "Messag is obligatory"}, status=400)
-    return Response({"reply": "OK"})
+        return Response({"error": "Message is required"}, status=400)
+
+    response = client.responses.create(
+        model="gpt-5",  
+        input=message,
+    )
+
+    return Response({"reply": response.output_text})
 
 @api_view(['GET'])
 def hello_world(request):
