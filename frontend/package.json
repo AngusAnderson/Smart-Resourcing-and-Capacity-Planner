@@ -25,11 +25,7 @@
     "axios": "^1.13.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-<<<<<<< HEAD
-    "react-router-dom": "^7.12.0",
-=======
     "react-router-dom": "^7.9.6",
->>>>>>> 73e6c1d9748bd73437a1f1a18905326070c168d7
     "temporal-polyfill": "^0.3.0"
   },
   "devDependencies": {
