@@ -31,33 +31,90 @@ def get_specialisms(request):
     specialisms = Specialism.objects.all().values()
     return Response(list(specialisms))
 
-@api_view(['GET'])
+@api_view(['GET', 'POST', 'DELETE'])
 def get_employees(request, slug=None):
+    if request.method == 'GET' :
+        if slug is not None:
+            try:
+                employee = Employee.objects.get(slug=slug)
+            except Employee.DoesNotExist:
+                return Response({"error": "Employee not found"}, status=404)
+            
+            data = {
+                "employeeID": employee.id,
+                "name": employee.name,
+                "excludedFromAI": employee.excludedFromAI,
+                "specialisms": list(employee.specialisms.values_list("name", flat=True))
+            }
+            return Response(data)
+        employees = Employee.objects.all()
+        attributes = []
+        for e in employees:
+            attributes.append({ 
+                "employeeID": e.id,
+                "name": e.name,
+                "excludedFromAI": e.excludedFromAI,
+                "specialisms": list(e.specialisms.values_list("name", flat=True))
+            })
+        return Response(attributes)
 
-    if slug is not None:
+    elif request.method == 'POST':
+        name = request.data.get("name")
+        specialisms = request.data.get("specialisms", [])
+        excludedFromAI = request.data.get("excludedFromAI", False)
+
+        if not name:
+            return Response({"error": "Name is required"}, status=400)
+        
+        try:
+            employee = Employee.objects.create(name=name, excludedFromAI=excludedFromAI)
+            specialism_objects = Specialism.objects.filter(name__in=specialisms)
+            employee.specialisms.set(specialism_objects)
+
+            return Response({
+                "message": "Employee created successfully", 
+                "employeeID": employee.id,
+                "name": employee.name,
+                "excludedFromAI": employee.excludedFromAI,
+                "specialisms": list(employee.specialisms.values_list("name", flat=True))
+                }, status=201)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+    elif request.method == 'DELETE':
+        if slug is None:
+            return Response({"error": "Slug is required"}, status=400)
         try:
             employee = Employee.objects.get(slug=slug)
+            employee.delete()
+            return Response({"message": "Employee deleted successfully"})
         except Employee.DoesNotExist:
             return Response({"error": "Employee not found"}, status=404)
-        
-        data = {
-            "employeeID": employee.id,
-            "name": employee.name,
-            "excludedFromAI": employee.excludedFromAI,
-            "specialisms": list(employee.specialisms.values_list("name", flat=True))
-        }
-        return Response(data)
 
-    employees = Employee.objects.all()
-    attributes = []
-    for e in employees:
-        attributes.append({
-            "employeeID": e.id,
-            "name": e.name,
-            "excludedFromAI": e.excludedFromAI,
-            "specialisms": list(e.specialisms.values_list("name", flat=True))
-        })
-    return Response(attributes)
+    # if slug is not None:
+    #     try:
+    #         employee = Employee.objects.get(slug=slug)
+    #     except Employee.DoesNotExist:
+    #         return Response({"error": "Employee not found"}, status=404)
+        
+    #     data = {
+    #         "employeeID": employee.id,
+    #         "name": employee.name,
+    #         "excludedFromAI": employee.excludedFromAI,
+    #         "specialisms": list(employee.specialisms.values_list("name", flat=True))
+    #     }
+    #     return Response(data)
+
+    # employees = Employee.objects.all()
+    # attributes = []
+    # for e in employees:
+    #     attributes.append({
+    #         "employeeID": e.id,
+    #         "name": e.name,
+    #         "excludedFromAI": e.excludedFromAI,
+    #         "specialisms": list(e.specialisms.values_list("name", flat=True))
+    #     })
+    # return Response(attributes)
 
 @api_view(['GET', 'PUT', 'PATCH'])
 def get_jobcodes(request, code=None):
