@@ -21,6 +21,7 @@ function EmployeePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(null);
+  const [forecasts, setForecasts] = useState([]);
 
   useEffect(() => {
     async function fetchEmployee() {
@@ -34,6 +35,24 @@ function EmployeePage() {
       }
     }
     fetchEmployee();
+  }, [id]);
+
+  useEffect(() => {
+    async function fetchForecasts() {
+      try {
+        const res = await axios.get("/api/forecasts/");
+        // Filter forecasts for this employee
+        const employeeForecasts = res.data.filter(
+          (forecast) => forecast.employeeID === parseInt(id)
+        );
+        setForecasts(employeeForecasts);
+      } catch (err) {
+        console.error("Failed to load forecasts", err);
+      }
+    }
+    if (id) {
+      fetchForecasts();
+    }
   }, [id]);
 
   if (!employee) return null;
@@ -65,6 +84,34 @@ function EmployeePage() {
                 <li key={s}>{s}</li>
               ))}
             </ul>
+          </div>
+
+          <div className="employee-body-card">
+            <h2 className="section-title">Forecasts</h2>
+            {forecasts.length > 0 ? (
+              <table className="forecasts-table">
+                <thead>
+                  <tr>
+                    <th>Job Code</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Hours Allocated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {forecasts.map((forecast) => (
+                    <tr key={forecast.forecastID}>
+                      <td>{forecast.jobCode}</td>
+                      <td>{forecast.customer}</td>
+                      <td>{forecast.date}</td>
+                      <td>{forecast.hoursAllocated}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No forecasts found for this employee.</p>
+            )}
           </div>
         </main>
 
