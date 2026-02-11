@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import "../css/EmployeeList.css";
+import "../css/Employee_List.css";
 
 function EmployeeList(){
     const [employees, setEmployees] = useState([]);
