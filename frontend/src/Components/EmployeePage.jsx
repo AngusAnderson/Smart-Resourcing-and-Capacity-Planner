@@ -22,6 +22,7 @@ function EmployeePage() {
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(null);
   const [forecasts, setForecasts] = useState([]);
+  const [expandedMonths, setExpandedMonths] = useState({});
 
   useEffect(() => {
     async function fetchEmployee() {
@@ -48,6 +49,32 @@ function EmployeePage() {
       fetchForecasts();
     }
   }, [employee]);
+
+  // Group forecasts by month
+  const groupedForecasts = forecasts.reduce((acc, forecast) => {
+    const date = new Date(forecast.date);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    if (!acc[monthKey]) {
+      acc[monthKey] = [];
+    }
+    acc[monthKey].push(forecast);
+    return acc;
+  }, {});
+
+  const sortedMonths = Object.keys(groupedForecasts).sort();
+
+  const toggleMonth = (monthKey) => {
+    setExpandedMonths((prev) => ({
+      ...prev,
+      [monthKey]: !prev[monthKey],
+    }));
+  };
+
+  const getMonthLabel = (monthKey) => {
+    const [year, month] = monthKey.split('-');
+    const date = new Date(year, parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
 
   if (!employee) return null;
 
@@ -83,32 +110,55 @@ function EmployeePage() {
           <div className="employee-body-card">
             <h2 className="section-title">Forecasts:</h2>
             {forecasts.length > 0 ? (
-              <table className="forecasts-table">
-                <thead>
-                  <tr>
-                    <th>Job Code</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Hours Allocated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {forecasts.map((forecast) => (
-                    <tr key={forecast.forecastID}>
-                      <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link">{forecast.jobCode}</Link></td>
-                      <td>{forecast.customer}</td>
-                      <td>{forecast.date}</td>
-                      <td>{forecast.hoursAllocated}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Hours:</td>
-                    <td style={{ fontWeight: 700 }}>{forecasts.reduce((sum, f) => sum + parseFloat(f.hoursAllocated), 0)}</td>
-                  </tr>
-                </tfoot>
-              </table>
+              <div className="forecasts-months">
+                {sortedMonths.map((monthKey) => (
+                  <div key={monthKey} className="month-group">
+                    <div
+                      className="month-header"
+                      onClick={() => toggleMonth(monthKey)}
+                    >
+                      <span className="month-toggle">
+                        {expandedMonths[monthKey] ? '▼' : '▶'}
+                      </span>
+                      <span className="month-label">
+                        {getMonthLabel(monthKey)}
+                      </span>
+                      <span className="month-count">
+                        ({groupedForecasts[monthKey].length} forecast{groupedForecasts[monthKey].length !== 1 ? 's' : ''})
+                      </span>
+                    </div>
+
+                    {expandedMonths[monthKey] && (
+                      <table className="forecasts-table">
+                        <thead>
+                          <tr>
+                            <th>Job Code</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Hours Allocated</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {groupedForecasts[monthKey].map((forecast) => (
+                            <tr key={forecast.forecastID}>
+                              <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link">{forecast.jobCode}</Link></td>
+                              <td>{forecast.customer}</td>
+                              <td>{new Date(forecast.date).toLocaleDateString()}</td>
+                              <td>{forecast.hoursAllocated}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Hours:</td>
+                            <td style={{ fontWeight: 700 }}>{groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.hoursAllocated), 0)}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
               <p>No forecasts found for this employee.</p>
             )}
