@@ -13,6 +13,7 @@ class ResourceBusinessUnit(models.Model):
             self.name = "cwpuk_cwpuk"  # Default value for resource business unit
         super().save(*args, **kwargs)
 
+
 class ReplyEntity(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -32,10 +33,16 @@ class Specialism(models.Model):
         return self.name
 
 
+def get_default_resource_bu():
+    """Get or create the default ResourceBusinessUnit"""
+    resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name="cwpuk_cwpuk")
+    return resource_bu.id
+
+
 class Employee(models.Model):
     name = models.CharField(max_length=30, unique=True)
     specialisms = models.ManyToManyField(Specialism, related_name='employees')
-    resourceBU = models.ForeignKey(ResourceBusinessUnit)  # New field for resource business unit, should default to cwpuk_cwpuk. 
+    resourceBU = models.ForeignKey(ResourceBusinessUnit, on_delete=models.CASCADE, default=get_default_resource_bu)  # New field for resource business unit, defaults to cwpuk_cwpuk. 
     excludedFromAI = models.BooleanField()
     slug = models.SlugField(unique=True, blank=True)
     jobCodes = models.ManyToManyField('JobCode', related_name='employees', blank=True)
@@ -48,6 +55,13 @@ class Employee(models.Model):
     def __str__(self):
         specialisms = ", ".join(s.name for s in self.specialisms.all())
         return f"{self.name} - {specialisms}"
+
+
+def get_default_reply_entity():
+    """Get or create the default ReplyEntity"""
+    reply_entity, _ = ReplyEntity.objects.get_or_create(name="Comwrap UK")
+    return reply_entity.id
+
     
 class JobCode(models.Model):
     JOB_ORIGIN_CHOICES = {
@@ -65,11 +79,12 @@ class JobCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
     description = models.TextField()
     customerName = models.CharField(max_length=100)
-    replyEntity = models.ForeignKey(ReplyEntity, on_delete=models.CASCADE)  # New field for reply entity, should default to Comwrap UK.
+    replyEntity = models.ForeignKey(ReplyEntity, on_delete=models.CASCADE, default=get_default_reply_entity)  # New field for reply entity, defaults to Comwrap UK.
     businessUnit = models.CharField(max_length=100)
     jobOrigin = models.CharField(
         max_length=1, 
-        choices=[(k, v) for k, v in JOB_ORIGIN_CHOICES.items()]
+        choices=[(k, v) for k, v in JOB_ORIGIN_CHOICES.items()],
+        default='A',  # Default to "Order or eq."
         ) #choice of job origin from JOB_ORIGIN_CHOICES mapping
     budgetTime = models.IntegerField()  # in hours
     budgetCost = models.DecimalField(max_digits=10, decimal_places=2)  # in currency units,or maybe make as string??
