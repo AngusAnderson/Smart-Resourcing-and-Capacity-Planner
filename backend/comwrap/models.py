@@ -80,10 +80,10 @@ class JobCode(models.Model):
         choices=[(k, v) for k, v in STATUS_CHOICES.items()],
         null=True,
         blank=True,
-    )  # choice of job status from STATUS_CHOICES mapping, nullable for "OTHER JOB S-ORD" or "NO FORECAST" on description
+    )  # choice of job status from STATUS_CHOICES mapping, nullable 
     
     def save(self, *args, **kwargs):
-        # Auto-set status to null if description contains specific keywords
+        # Auto-set status to null if description contains "OTHER JOB S-ORD" or "NO FORECAST" on description
         if self.description and ("NO FORECAST" in self.description.upper() or "OTHER JOB S-ORD" in self.description.upper()):
             self.status = None
         super().save(*args, **kwargs)
