@@ -5,7 +5,18 @@ from datetime import date
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
 django.setup()
 
-from comwrap.models import Employee, Specialism, JobCode, ForecastEntry
+from comwrap.models import (
+    Employee,
+    Specialism,
+    JobCode,
+    Forecast,
+    ForecastAllocation,
+    ResourceBusinessUnit,
+    ReplyEntity,
+)
+
+RESOURCE_BUSINESS_UNIT = ["cwpuk_cwpuk"]
+REPLY_ENTITY = ["Comwrap UK"]
 
 SPECIALISMS = [
     "Frontend Developer",
@@ -29,6 +40,8 @@ JOBCODES = [
         "end": date(2026, 2, 4),
         "budget_time": 200,
         "budget_cost": 50000,
+        "job_origin": "A",
+        "status": "O",
     },
     {
         "code": "RPL-IT-15-3-1",
@@ -39,6 +52,8 @@ JOBCODES = [
         "end": date(2026, 1, 10),
         "budget_time": 120,
         "budget_cost": 30000,
+        "job_origin": "B",
+        "status": "O",
     },
 ]
 
@@ -66,10 +81,23 @@ FORECASTS = [
     },
 ]
 
-def create_employees(specialism_map):
+def create_resource_business_unit():
+    for bu_name in RESOURCE_BUSINESS_UNIT:
+        resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=bu_name)
+    return resource_bu
+
+def create_reply_entity():
+    for entity_name in REPLY_ENTITY:
+        reply_entity, _ = ReplyEntity.objects.get_or_create(name=entity_name)
+    return reply_entity
+
+def create_employees(specialism_map, resource_bu):
     employees = {}
     for e in EMPLOYEES:
-        employee, _ = Employee.objects.get_or_create(name=e["name"], excludedFromAI=e["excluded"])
+        employee, _ = Employee.objects.get_or_create(
+            name=e["name"],
+            defaults={"excludedFromAI": e["excluded"], "resourceBU": resource_bu}
+        )
         employee.specialisms.set([specialism_map[s] for s in e["specialisms"]])
         employee.save()
         employees[e["name"]] = employee
@@ -82,47 +110,66 @@ def create_specialisms():
         specs[s] = spec
     return specs
 
-def create_jobcodes():
+def create_jobcodes(reply_entity):
     jobcodes = {}
     for j in JOBCODES:
         jobcode, _ = JobCode.objects.get_or_create(
             code=j["code"],
-            description=j["description"],
-            customerName=j["customer"],
-            businessUnit=j["unit"],
-            startDate=j["start"],
-            endDate=j["end"],
-            budgetTime=j["budget_time"],
-            budgetCost=j["budget_cost"]
+            defaults={
+                "description": j["description"],
+                "customerName": j["customer"],
+                "businessUnit": j["unit"],
+                "startDate": j["start"],
+                "endDate": j["end"],
+                "budgetTime": j["budget_time"],
+                "budgetCost": j["budget_cost"],
+                "replyEntity": reply_entity,
+                "jobOrigin": j["job_origin"],
+                "status": j["status"],
+            }
         )
         jobcodes[j["code"]] = jobcode
     return jobcodes
 
 def create_forecasts(employee_map, jobcode_map):
     for f in FORECASTS:
-        ForecastEntry.objects.get_or_create(
+        # Create or get the Forecast (one forecast per jobCode/date/forecastID)
+        forecast_obj, _ = Forecast.objects.get_or_create(
             forecastID=f["forecastID"],
+            defaults={
+                "jobCode": jobcode_map[f["jobcode"]],
+                "date": f["date"],
+            },
+        )
+
+        # Create allocation linking the forecast to the employee with hours
+        ForecastAllocation.objects.get_or_create(
+            forecast=forecast_obj,
             employee=employee_map[f["employee"]],
-            jobCode=jobcode_map[f["jobcode"]],
-            date=f["date"],
-            hoursAllocated=f["hours"]
+            defaults={"hoursAllocated": f["hours"]},
         )
 
 def populate():
     print("Clearing data...")
-    ForecastEntry.objects.all().delete()
+    # Remove allocations and forecasts first, then jobcodes/employees/specialisms
+    ForecastAllocation.objects.all().delete()
+    Forecast.objects.all().delete()
     JobCode.objects.all().delete()
     Employee.objects.all().delete()
     Specialism.objects.all().delete()
+
+    print("Creating ResourceBusinessUnit and ReplyEntity...")
+    resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=RESOURCE_BUSINESS_UNIT[0])
+    reply_entity, _ = ReplyEntity.objects.get_or_create(name=REPLY_ENTITY[0])
 
     print("Creating specialisms...")
     specialisms = create_specialisms()
 
     print("Creating employees...")
-    employees = create_employees(specialisms)
+    employees = create_employees(specialisms, resource_bu)
 
     print("Creating jobcodes...")
-    jobcodes = create_jobcodes()
+    jobcodes = create_jobcodes(reply_entity)
 
     print("Creating forecasts...")
     create_forecasts(employees, jobcodes)

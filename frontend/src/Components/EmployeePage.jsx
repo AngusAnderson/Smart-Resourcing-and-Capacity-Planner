@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "../css/Employee_Project.css";
 
@@ -26,10 +26,8 @@ function EmployeePage() {
   useEffect(() => {
     async function fetchEmployee() {
       try {
-        // we will add this later when backend and frontend are linked
-        // const res = await axios.get(`/api/employees/${id}/`);
-        // setEmployee(res.data);
-        setEmployee(mockEmployee);
+        const res = await axios.get(`/api/employees/${id}/`);
+        setEmployee(res.data);
       } catch (err) {
         console.error("Failed to load employee", err);
       }
@@ -40,20 +38,16 @@ function EmployeePage() {
   useEffect(() => {
     async function fetchForecasts() {
       try {
-        const res = await axios.get("/api/forecasts/");
-        // Filter forecasts for this employee
-        const employeeForecasts = res.data.filter(
-          (forecast) => forecast.employeeID === parseInt(id)
-        );
-        setForecasts(employeeForecasts);
+        const res = await axios.get(`/api/forecasts/?employee_id=${employee.employeeID}`);
+        setForecasts(res.data);
       } catch (err) {
         console.error("Failed to load forecasts", err);
       }
     }
-    if (id) {
+    if (employee) {
       fetchForecasts();
     }
-  }, [id]);
+  }, [employee]);
 
   if (!employee) return null;
 
@@ -101,7 +95,7 @@ function EmployeePage() {
                 <tbody>
                   {forecasts.map((forecast) => (
                     <tr key={forecast.forecastID}>
-                      <td>{forecast.jobCode}</td>
+                      <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link">{forecast.jobCode}</Link></td>
                       <td>{forecast.customer}</td>
                       <td>{forecast.date}</td>
                       <td>{forecast.hoursAllocated}</td>
@@ -119,7 +113,7 @@ function EmployeePage() {
           <div className="side-card">
             <h2 className="side-heading">Previous Projects</h2>
             <ul className="side-list">
-              {employee.previousProjects.map((p) => (
+              {(employee.previousProjects || []).map((p) => (
                 <li key={p}>{p}</li>
               ))}
             </ul>
@@ -128,7 +122,7 @@ function EmployeePage() {
           <div className="side-card">
             <h2 className="side-heading">Current Projects</h2>
             <ul className="side-list">
-              {employee.currentProjects.map((p) => (
+              {(employee.currentProjects || []).map((p) => (
                 <li key={p}>{p}</li>
               ))}
             </ul>

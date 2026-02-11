@@ -1,6 +1,12 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Employee, Specialism, JobCode, ForecastEntry
+from .models import (
+    Employee,
+    Specialism,
+    JobCode,
+    Forecast,
+    ForecastAllocation,
+)
 from .serializers import JobCodeSerializer
 from openai import OpenAI
 
@@ -20,7 +26,6 @@ def ai_chat(request):
     )
 
     return Response({"reply": response.output_text})
-from .serializers import JobCodeSerializer
 
 @api_view(['GET'])
 def hello_world(request):
@@ -67,6 +72,12 @@ def get_jobcodes(request, code=None):
         except JobCode.DoesNotExist:
             return Response({"error": "Jobcode not found"}, status=404)
         
+        employees = []
+        try:
+            employees = list(jobcode.employees.values("id", "name"))
+        except AttributeError:
+            pass
+        
         data = {
             "code": jobcode.code,
             "description": jobcode.description,
@@ -76,7 +87,7 @@ def get_jobcodes(request, code=None):
             "budgetCost": float(jobcode.budgetCost),
             "startDate": jobcode.startDate,
             "endDate": jobcode.endDate,
-            "employees": list(jobcode.employees.values("id", "name"))
+            "employees": employees
         }
         return Response(data)
         
@@ -121,31 +132,68 @@ def get_jobcodes(request, code=None):
 
 @api_view(['GET'])
 def get_forecasts(request, forecastID=None):
+    # If an employee_id query param is provided, return allocations for that employee
+    employee_id = request.GET.get('employee_id')
+
     if forecastID is None:
-        forecasts = ForecastEntry.objects.select_related('employee', 'jobCode')
+        if employee_id is not None:
+            allocations = (
+                ForecastAllocation.objects.select_related('forecast__jobCode', 'employee')
+                .filter(employee__id=employee_id)
+            )
+            data = []
+            for a in allocations:
+                data.append({
+                    "forecastID": a.forecast.forecastID,
+                    "jobCode": a.forecast.jobCode.code,
+                    "customer": a.forecast.jobCode.customerName,
+                    "date": a.forecast.date,
+                    "hoursAllocated": float(a.hoursAllocated),
+                    "employeeID": a.employee.id,
+                    "employeeName": a.employee.name,
+                })
+            return Response(data)
+
+        # No filter: return all forecasts with their allocations
+        forecasts = Forecast.objects.select_related('jobCode').all()
         data = []
         for f in forecasts:
+            allocs = []
+            for a in f.allocations.select_related('employee').all():
+                allocs.append({
+                    "employeeID": a.employee.id,
+                    "employeeName": a.employee.name,
+                    "hoursAllocated": float(a.hoursAllocated),
+                })
             data.append({
                 "forecastID": f.forecastID,
-                "employee": f.employee.name,
                 "jobCode": f.jobCode.code,
                 "customer": f.jobCode.customerName,
+                "date": f.date,
+                "allocations": allocs,
             })
         return Response(data)
-    
+
+    # Single forecast by forecastID
     try:
-        f = ForecastEntry.objects.select_related('employee', 'jobCode').get(forecastID=forecastID)
-    except ForecastEntry.DoesNotExist:
+        f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
+    except Forecast.DoesNotExist:
         return Response({"error": "Forecast not found"}, status=404)
-    
+
+    allocations = []
+    for a in f.allocations.select_related('employee').all():
+        allocations.append({
+            "employeeID": a.employee.id,
+            "employeeName": a.employee.name,
+            "hoursAllocated": float(a.hoursAllocated),
+        })
+
     data = {
         "forecastID": f.forecastID,
-        "employee": f.employee.name,
-        "employeeID": f.employee.id,
         "jobCode": f.jobCode.code,
         "description": f.jobCode.description,
         "date": f.date,
-        "hoursAllocated": float(f.hoursAllocated),
+        "allocations": allocations,
     }
     return Response(data)
 
