@@ -4,3 +4,5 @@ djangorestframework==3.16.1
 pillow==11.1.0
 pytz==2024.2
 sqlparse==0.5.3
+python-dotenv
+openai
