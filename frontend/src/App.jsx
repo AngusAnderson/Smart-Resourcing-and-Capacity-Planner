@@ -5,6 +5,7 @@ import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
 import ProjectPage from './Components/ProjectPage';
+import EmployeeList from './Components/EmployeeList';
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 
@@ -24,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Calendar searchTerm={searchTerm} selectedDate={selectedDate} />} />
             <Route path="/employees/:id" element={<EmployeePage />} />
+            <Route path="/employees" element={<EmployeeList />} />
             <Route path="/projects/:id" element={<ProjectPage />} />
           </Routes>
         </div>
