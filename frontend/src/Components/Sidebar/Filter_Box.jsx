@@ -5,8 +5,9 @@ import Dashboard_Tabs from "./Dashboard_Tabs";
 import { getDeadlinesWithinTwoWeeks } from '../../functions/Filter_Box_Functions/Dashboard_Tabs_Functions/deadlineUtils';
 
 const Filter_Box = ({ searchTerm, onSearchChange, events }) => {
-  const deadlines = getDeadlinesWithinTwoWeeks(events || []);
+  const deadlines = getDeadlinesWithinTwoWeeks(events);
   const feedItems = [];
+
 
   return (
     <div className="filter-box">

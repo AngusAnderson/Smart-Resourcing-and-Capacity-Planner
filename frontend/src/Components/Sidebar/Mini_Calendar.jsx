@@ -25,7 +25,6 @@ function Mini_Calendar({ setSelectedDate }) {
     const fetchJobCodes = async () => {
       try {
         const response = await api.get('/jobcodes/')
-        console.log('API Response:', response.data) // Debug log
         const eventData = response.data.map((jobcode) => ({
           id: jobcode.code,
           start: Temporal.PlainDate.from(jobcode.startDate),

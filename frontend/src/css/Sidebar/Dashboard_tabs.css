@@ -1,19 +1,12 @@
 .tabs-header {
     display: flex;
+    border-bottom: 1px solid #ccc;
   }
 
 .tabs-header span {
     color: #000;
     font-weight: 100;
 }
-  
-  .tab {
-    flex: 1;
-    padding: 8px 0;
-    border: none;
-    border-radius: 0;
-    background: #f2f2f2;
-  }
   
   .tab.active {
     background: #d0d0d0;
@@ -23,4 +16,50 @@
     background: #f5f5f5;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
     height: 100%;
+    padding: 24px 32px;
   }
+
+  .tabs-body span {
+    color: #000;
+    font-weight: 300;
+  }
+
+  /* :-moz-ui-valid */
+
+  .tabs-container {
+    width: 100%;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 0;
+    background: #f2f2f2;
+    font-size: 1.6rem;
+  }
+  
+  .deadlines-list {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  
+  .deadline-title {
+    font-size: 15px;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: #000;
+  }
+  
+  .deadline-subline {
+    margin-top: 8px;
+    font-size: 14px;
+    padding-left: 20px;
+  }
+  
+  .deadline-date {
+    margin-left: 8px;
+  }
+  
+  
