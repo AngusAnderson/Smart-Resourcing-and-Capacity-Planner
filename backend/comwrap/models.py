@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 
 # Create your models here.
-class resourceBusinessUnit(models.Model):
+class ResourceBusinessUnit(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -13,7 +13,7 @@ class resourceBusinessUnit(models.Model):
             self.name = "cwpuk_cwpuk"  # Default value for resource business unit
         super().save(*args, **kwargs)
 
-class replyEntity(models.Model):
+class ReplyEntity(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -35,7 +35,7 @@ class Specialism(models.Model):
 class Employee(models.Model):
     name = models.CharField(max_length=30, unique=True)
     specialisms = models.ManyToManyField(Specialism, related_name='employees')
-    resourceBU = models.ForeignKey(resourceBusinessUnit)  # New field for resource business unit, should default to cwpuk_cwpuk. 
+    resourceBU = models.ForeignKey(ResourceBusinessUnit)  # New field for resource business unit, should default to cwpuk_cwpuk. 
     excludedFromAI = models.BooleanField()
     slug = models.SlugField(unique=True, blank=True)
     jobCodes = models.ManyToManyField('JobCode', related_name='employees', blank=True)
@@ -65,7 +65,7 @@ class JobCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
     description = models.TextField()
     customerName = models.CharField(max_length=100)
-    replyEntity = models.ForeignKey(replyEntity, on_delete=models.CASCADE)  # New field for reply entity, should default to Comwrap UK.
+    replyEntity = models.ForeignKey(ReplyEntity, on_delete=models.CASCADE)  # New field for reply entity, should default to Comwrap UK.
     businessUnit = models.CharField(max_length=100)
     jobOrigin = models.CharField(
         max_length=1, 

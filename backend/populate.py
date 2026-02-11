@@ -5,7 +5,10 @@ from datetime import date
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
 django.setup()
 
-from comwrap.models import Employee, Specialism, JobCode, ForecastEntry
+from comwrap.models import Employee, Specialism, JobCode, ForecastEntry, ResourceBusinessUnit, ReplyEntity
+
+RESOURCE_BUSINESS_UNIT_NAME = "cwpuk_cwpuk"
+REPLY_ENTITY_NAME = "Comwrap UK"
 
 SPECIALISMS = [
     "Frontend Developer",
@@ -29,6 +32,8 @@ JOBCODES = [
         "end": date(2026, 2, 4),
         "budget_time": 200,
         "budget_cost": 50000,
+        "job_origin": "A",
+        "status": "O",
     },
     {
         "code": "RPL-IT-15-3-1",
@@ -39,6 +44,8 @@ JOBCODES = [
         "end": date(2026, 1, 10),
         "budget_time": 120,
         "budget_cost": 30000,
+        "job_origin": "B",
+        "status": "O",
     },
 ]
 
@@ -66,10 +73,13 @@ FORECASTS = [
     },
 ]
 
-def create_employees(specialism_map):
+def create_employees(specialism_map, resource_bu):
     employees = {}
     for e in EMPLOYEES:
-        employee, _ = Employee.objects.get_or_create(name=e["name"], excludedFromAI=e["excluded"])
+        employee, _ = Employee.objects.get_or_create(
+            name=e["name"],
+            defaults={"excludedFromAI": e["excluded"], "resourceBU": resource_bu}
+        )
         employee.specialisms.set([specialism_map[s] for s in e["specialisms"]])
         employee.save()
         employees[e["name"]] = employee
@@ -82,18 +92,23 @@ def create_specialisms():
         specs[s] = spec
     return specs
 
-def create_jobcodes():
+def create_jobcodes(reply_entity):
     jobcodes = {}
     for j in JOBCODES:
         jobcode, _ = JobCode.objects.get_or_create(
             code=j["code"],
-            description=j["description"],
-            customerName=j["customer"],
-            businessUnit=j["unit"],
-            startDate=j["start"],
-            endDate=j["end"],
-            budgetTime=j["budget_time"],
-            budgetCost=j["budget_cost"]
+            defaults={
+                "description": j["description"],
+                "customerName": j["customer"],
+                "businessUnit": j["unit"],
+                "startDate": j["start"],
+                "endDate": j["end"],
+                "budgetTime": j["budget_time"],
+                "budgetCost": j["budget_cost"],
+                "replyEntity": reply_entity,
+                "jobOrigin": j["job_origin"],
+                "status": j["status"],
+            }
         )
         jobcodes[j["code"]] = jobcode
     return jobcodes
@@ -115,14 +130,18 @@ def populate():
     Employee.objects.all().delete()
     Specialism.objects.all().delete()
 
+    print("Creating ResourceBusinessUnit and ReplyEntity...")
+    resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=RESOURCE_BUSINESS_UNIT_NAME)
+    reply_entity, _ = ReplyEntity.objects.get_or_create(name=REPLY_ENTITY_NAME)
+
     print("Creating specialisms...")
     specialisms = create_specialisms()
 
     print("Creating employees...")
-    employees = create_employees(specialisms)
+    employees = create_employees(specialisms, resource_bu)
 
     print("Creating jobcodes...")
-    jobcodes = create_jobcodes()
+    jobcodes = create_jobcodes(reply_entity)
 
     print("Creating forecasts...")
     create_forecasts(employees, jobcodes)
