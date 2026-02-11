@@ -1,6 +1,5 @@
 .tabs-header {
     display: flex;
-    border-bottom: 1px solid #ccc;
   }
 
 .tabs-header span {
@@ -24,8 +23,6 @@
     font-weight: 300;
   }
 
-  /* :-moz-ui-valid */
-
   .tabs-container {
     width: 100%;
   }
@@ -37,17 +34,28 @@
     border-radius: 0;
     background: #f2f2f2;
     font-size: 1.6rem;
+    outline: none;  
+  }
+
+  .tab:focus {
+    outline: none;
   }
   
-  .deadlines-list {
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
+  .deadlines-list, .feed-list {
+    height: 240px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .deadline-item, .feed-item {
+    margin-bottom: 32px;
+    cursor: pointer;
+
   }
   
-  .deadline-title {
+  .deadline-title, .feed-title {
     font-size: 15px;
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: 0.08em;
     color: #000;
   }
@@ -58,8 +66,25 @@
     padding-left: 20px;
   }
   
-  .deadline-date {
+  .deadline-date  {
     margin-left: 8px;
   }
+
+  .feed-sublime {
+    font-weight: 200;
+  }
+
+  .feed-separator {
+    margin-left: 25px;
+  }
+
+  .feed-undo-button {
+    background: transparent;
+    color: #000;
+    font-weight: 200;
+    outline: none;  
+  }
   
-  
+  .feed-undo-button:focus {
+    outline: none;
+  }

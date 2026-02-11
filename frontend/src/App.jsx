@@ -5,8 +5,9 @@ import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
 import ProjectPage from './Components/ProjectPage';
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
+import { saveFeedItems, loadFeedItems } from './utils/Storage';
 
 function App() {
   const [isVisible, toggleVisibility] = useToggle(false);
@@ -15,6 +16,20 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const [events, setEvents] = useState([]);
+
+  const [feedItems, setFeedItems] = useState(() => loadFeedItems());
+
+  const addFeedItem = (item) => {
+    setFeedItems((prev) => {
+      const next = [item, ...prev].slice(0, 10);
+      saveFeedItems(next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    saveFeedItems(feedItems);
+  }, [feedItems]);
 
   useEffect(() => {
     const load = async () => {
@@ -40,7 +55,8 @@ function App() {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           setSelectedDate={setSelectedDate}
-          events={events}              // <-- new
+          events={events}
+          feedItems={feedItems}
         />
         <div className="main">
           <Routes>
@@ -50,7 +66,8 @@ function App() {
                 <Calendar
                   searchTerm={searchTerm}
                   selectedDate={selectedDate}
-                  events={events}      // <-- new
+                  events={events}
+                  onFeedItem={addFeedItem}
                 />
               }
             />

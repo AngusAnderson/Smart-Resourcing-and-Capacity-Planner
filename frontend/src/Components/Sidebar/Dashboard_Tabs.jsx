@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Temporal } from "temporal-polyfill";
 import "../../css/Sidebar/Dashboard_tabs.css";
 
 function formatDueText(end) {
   const endDate = Temporal.PlainDate.from(end);
   const today = Temporal.Now.plainDateISO();
-  const diff = endDate.until(today, { largestUnit: "days" }).days * -1; // days until end [web:18][web:27]
+  const diff = endDate.until(today, { largestUnit: "days" }).days * -1; 
   return `Due ${diff} days`;
 }
 
@@ -18,7 +19,29 @@ function formatDisplayDate(end) {
 }
 
 function Dashboard_Tabs({ deadlines, feedItems }) {
+
+  console.log('DASHBOARD_TABS feedItems', feedItems);
   const [activeTab, setActiveTab] = useState("deadlines");
+  const navigate = useNavigate();
+
+  const handleDeadlineClick = (id) => {
+    navigate(`/projects/${id}`);
+  };
+
+  const handleFeedClick = (projectId) => {
+    if (!projectId) return;
+    navigate(`/projects/${projectId}`);
+  };
+
+  const handleUndoClick = async (item) => {
+    try {
+      if (item.undo) {
+        await item.undo();
+      }
+    } catch (e) {
+      console.error("Undo failed", e);
+    }
+  };
 
   return (
     <div className="tabs-container">
@@ -41,10 +64,10 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
         {activeTab === "deadlines" && (
           <div className="deadlines-list">
             {deadlines.length === 0 && (
-              <p className="deadlines-empty">No deadlines in the next 2 weeks.</p>
+              <p className="deadlines-empty">No projects ending in the next 2 weeks.</p>
             )}
             {deadlines.map((ev) => (
-              <div className="deadline-item" key={ev.id}>
+              <div className="deadline-item" key={ev.id} onClick={() => handleDeadlineClick(ev.id)}>
                 <div className="deadline-title">{ev.title}</div>
                 <div className="deadline-subline">
                   <span className="deadline-due">{formatDueText(ev.end)}</span>
@@ -60,12 +83,25 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
         {activeTab === "feed" && (
           <div className="feed-list">
             {feedItems?.length === 0 && (
-              <p className="feed-empty">No feed items yet.</p>
+              <p className="feed-empty">No recent activity.</p>
             )}
             {feedItems?.map((item) => (
-              <div className="feed-item" key={item.id}>
-                <p className="feed-title">{item.title}</p>
-                <p className="feed-body">{item.description}</p>
+              <div className="feed-item" key={item.id} onClick={() => handleFeedClick(item.projectId)} >
+                <div className="feed-title">{item.message}</div>
+                <div className="feed-subline">
+                  <span className="feed-time">Completed at {item.completedAt}</span>
+                  <span className="feed-separator"> -- </span>
+                  <button
+                    type="button"
+                    className="feed-undo-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUndoClick(item);
+                    }}
+                  >
+                    Undo
+                  </button>
+                </div>
               </div>
             ))}
           </div>
