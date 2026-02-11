@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 
-function Calendar({ searchTerm, selectedDate, onFeedItem }) { // <-- onFeedItem from parent
+function Calendar({ searchTerm, selectedDate, onFeedItem }) {
   const navigate = useNavigate();
   const calendarIds = ['Red', 'Blue', 'Green', 'Black'];
 
@@ -80,39 +80,43 @@ function Calendar({ searchTerm, selectedDate, onFeedItem }) { // <-- onFeedItem 
       },
     },
     callbacks: {
-      onEventUpdate: async (updatedEvent, previousEvent) => {
+      onEventUpdate: async (updatedEvent) => {
+        console.log("CALENDAR onEventUpdate fired:", updatedEvent);
+    
         try {
           await api.put(`/jobcodes/${updatedEvent.id}/`, {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
           });
-
+    
           const time = Temporal.Now.plainTimeISO().toString().slice(0, 5); // "HH:MM"
-
-          onFeedItem?.({
-            id: crypto.randomUUID(),
-            projectId: updatedEvent.id,
-            message: `Updated dates for project ${updatedEvent.id}`,
-            completedAt: time,
-            undo: async () => {
-              await api.put(`/jobcodes/${previousEvent.id}/`, {
-                startDate: previousEvent.start.toString(),
-                endDate: previousEvent.end.toString(),
-              });
-            },
-          });
+    
+          if (onFeedItem) {
+            console.log("CALENDAR calling onFeedItem");
+            onFeedItem({
+              id: crypto.randomUUID(),
+              projectId: updatedEvent.id,
+              message: `Updated dates for project ${updatedEvent.id}`,
+              completedAt: time,
+              // you can add previousStart/previousEnd later if you want
+            });
+          } else {
+            console.warn("onFeedItem is missing");
+          }
         } catch (err) {
           console.error("Error updating jobcode:", err);
           setError(err.message);
         }
+    
         console.log("Updated Event:", updatedEvent);
       },
-      // Navigate to project page when event is clicked
+    
       onEventClick: (calendarEvent) => {
-        console.log('Event clicked:', calendarEvent);
+        console.log("Event clicked:", calendarEvent);
         navigate(`/projects/${calendarEvent.id}`);
       },
-    },
+    }
+    ,
     plugins: [
       eventsService,
       createDragAndDropPlugin(),

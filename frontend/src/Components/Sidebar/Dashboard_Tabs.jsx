@@ -6,7 +6,7 @@ import "../../css/Sidebar/Dashboard_tabs.css";
 function formatDueText(end) {
   const endDate = Temporal.PlainDate.from(end);
   const today = Temporal.Now.plainDateISO();
-  const diff = endDate.until(today, { largestUnit: "days" }).days * -1; 
+  const diff = endDate.until(today, { largestUnit: "days" }).days * -1;
   return `Due ${diff} days`;
 }
 
@@ -19,8 +19,6 @@ function formatDisplayDate(end) {
 }
 
 function Dashboard_Tabs({ deadlines, feedItems }) {
-
-  console.log('DASHBOARD_TABS feedItems', feedItems);
   const [activeTab, setActiveTab] = useState("deadlines");
   const navigate = useNavigate();
 
@@ -64,13 +62,21 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
         {activeTab === "deadlines" && (
           <div className="deadlines-list">
             {deadlines.length === 0 && (
-              <p className="deadlines-empty">No projects ending in the next 2 weeks.</p>
+              <p className="deadlines-empty">
+                No projects ending in the next 2 weeks.
+              </p>
             )}
             {deadlines.map((ev) => (
-              <div className="deadline-item" key={ev.id} onClick={() => handleDeadlineClick(ev.id)}>
+              <div
+                className="deadline-item"
+                key={ev.id}
+                onClick={() => handleDeadlineClick(ev.id)}
+              >
                 <div className="deadline-title">{ev.title}</div>
                 <div className="deadline-subline">
-                  <span className="deadline-due">{formatDueText(ev.end)}</span>
+                  <span className="deadline-due">
+                    {formatDueText(ev.end)}
+                  </span>
                   <span className="deadline-date">
                     {` { ${formatDisplayDate(ev.end)} }`}
                   </span>
@@ -82,14 +88,20 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
 
         {activeTab === "feed" && (
           <div className="feed-list">
-            {feedItems?.length === 0 && (
+            {(!feedItems || feedItems.length === 0) && (
               <p className="feed-empty">No recent activity.</p>
             )}
             {feedItems?.map((item) => (
-              <div className="feed-item" key={item.id} onClick={() => handleFeedClick(item.projectId)} >
+              <div
+                className="feed-item"
+                key={item.id}
+                onClick={() => handleFeedClick(item.projectId)}
+              >
                 <div className="feed-title">{item.message}</div>
                 <div className="feed-subline">
-                  <span className="feed-time">Completed at {item.completedAt}</span>
+                  <span className="feed-time">
+                    Completed at {item.completedAt}
+                  </span>
                   <span className="feed-separator"> -- </span>
                   <button
                     type="button"

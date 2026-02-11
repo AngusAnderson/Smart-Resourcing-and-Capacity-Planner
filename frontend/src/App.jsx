@@ -22,6 +22,7 @@ function App() {
   const addFeedItem = (item) => {
     setFeedItems((prev) => {
       const next = [item, ...prev].slice(0, 10);
+      console.log("APP addFeedItem prev:", prev, "next:", next);
       saveFeedItems(next);
       return next;
     });

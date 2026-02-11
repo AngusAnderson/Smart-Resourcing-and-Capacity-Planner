@@ -193,21 +193,21 @@ p {
 /* Scroll bar css  */
 
 /* Chrome / Edge / Safari */
-.deadlines-list::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: 6px;
 }
 
-.deadlines-list::-webkit-scrollbar-track {
-  background: #f2f2f2;
+*::-webkit-scrollbar-track {
+  background: transparent;
   border-radius: 3px;
 }
 
-.deadlines-list::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: #c4c4c4;
   border-radius: 3px;
 }
 
-.deadlines-list::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
   background: #a0a0a0;
 }
 
