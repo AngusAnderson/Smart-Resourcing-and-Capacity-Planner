@@ -34,6 +34,7 @@ class JobCode(models.Model):
     budgetCost = models.DecimalField(max_digits=10, decimal_places=2)  # in currency units,or maybe make as string??
     startDate = models.DateField()
     endDate = models.DateField()
+    employees = models.ManyToManyField(Employee, related_name='jobCodes')
 
     def __str__(self):
         return f"{self.code}: {self.description}"
