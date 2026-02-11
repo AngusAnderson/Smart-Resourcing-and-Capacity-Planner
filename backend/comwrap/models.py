@@ -90,6 +90,7 @@ class JobCode(models.Model):
     budgetCost = models.DecimalField(max_digits=10, decimal_places=2)  # in currency units,or maybe make as string??
     startDate = models.DateField()
     endDate = models.DateField()
+    employees = models.ManyToManyField(Employee, related_name='jobCodes')
     status = models.CharField(
         max_length=1,
         choices=[(k, v) for k, v in STATUS_CHOICES.items()],

@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from .models import Event
+from .models import JobCode, Employee
 
-
-class EventSerializer(serializers.ModelSerializer):
+class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Event
-        fields = ["id", "title", "start", "end"]
+        model = Employee
+        fields = ["id", "name"]
+
+class JobCodeSerializer(serializers.ModelSerializer):
+    employees = serializers.PrimaryKeyRelatedField(many=True, queryset=Employee.objects.all())
+
+    class Meta:
+        model = JobCode
+        fields = "__all__"

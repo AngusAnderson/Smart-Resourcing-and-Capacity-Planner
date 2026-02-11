@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef, useState } from 'react'
-
 import '../css/Header.css'
+import api from '../services/api'
+
 
 const Header = ({ isVisible, toggleVisibility }) => {
 
@@ -43,23 +44,44 @@ useEffect(() => {
   }
 }, [])
 
-const handleInputKeyDown = (e) => {
+const handleInputKeyDown = async (e) => {
   if (e.key !== 'Enter') return
   e.preventDefault()
   const text = inputValue.trim()
   if (!text) return
 
-  setMessages((prev) => [
-    ...prev,
-    { text, role: 'user' },
-    { text: 'OK', role: 'reply' },
-  ])
+  const userMsg = { text, role: 'user' }
+  const thinkingMsg = { text: 'Thinking…', role: 'reply', pending: true }
+
+  const nextMessages = [...messages, userMsg, thinkingMsg]
+  setMessages(nextMessages)
 
   setInputValue('')
-  if (inputRef.current) {
-    inputRef.current.style.height = 'auto'
+  if (inputRef.current) inputRef.current.style.height = 'auto'
+
+  try {
+    const response = await api.post('/ai/chat/', {
+      messages: nextMessages
+        .filter(m => !m.pending)
+        .map(m => ({
+          role: m.role === 'reply' ? 'assistant' : 'user',
+          content: m.text
+        }))
+    })
+    const reply = response.data.reply ?? ''
+
+    setMessages(prev =>
+      prev.map(m => (m.pending ? { text: reply, role: 'reply' } : m))
+    )
+  } catch (err) {
+    setMessages(prev =>
+      prev.map(m =>
+        m.pending ? { text: 'Error: failed to reach AI', role: 'reply' } : m
+      )
+    )
   }
 }
+
 
 const handleInputChange = (e) => {
   setInputValue(e.target.value)
@@ -90,7 +112,7 @@ const handleResizeEnd = () => {
         </div>
 
         <div className="Text-middle">
-          <button class="button-access-ai" onClick={toggleVisibility}>
+          <button className="button-access-ai" onClick={toggleVisibility}>
           {isVisible ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
     <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8"/>
     </svg> : <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
