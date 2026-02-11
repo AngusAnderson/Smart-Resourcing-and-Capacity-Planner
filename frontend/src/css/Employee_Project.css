@@ -198,3 +198,14 @@
   color: #ff4444;
   text-decoration: underline;
 }
+
+.forecasts-table tfoot {
+  background-color: #f5f5f5;
+  border-top: 2px solid #000000;
+}
+
+.forecasts-table tfoot td {
+  padding: 12px 16px;
+  font-weight: 700;
+  color: #000000;
+}

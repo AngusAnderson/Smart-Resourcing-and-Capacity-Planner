@@ -81,7 +81,7 @@ function EmployeePage() {
           </div>
 
           <div className="employee-body-card">
-            <h2 className="section-title">Forecasts</h2>
+            <h2 className="section-title">Forecasts:</h2>
             {forecasts.length > 0 ? (
               <table className="forecasts-table">
                 <thead>
@@ -102,6 +102,12 @@ function EmployeePage() {
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Hours:</td>
+                    <td style={{ fontWeight: 700 }}>{forecasts.reduce((sum, f) => sum + parseFloat(f.hoursAllocated), 0)}</td>
+                  </tr>
+                </tfoot>
               </table>
             ) : (
               <p>No forecasts found for this employee.</p>
