@@ -23,8 +23,10 @@ def get_employees(request, slug=None):
         data = {
             "employeeID": employee.id,
             "name": employee.name,
+            "resourceBU": employee.resourceBU.name,
             "excludedFromAI": employee.excludedFromAI,
-            "specialisms": list(employee.specialisms.values_list("name", flat=True))
+            "specialisms": list(employee.specialisms.values_list("name", flat=True)),
+            "jobCodes": list(employee.jobCodes.values_list("code", flat=True))
         }
         return Response(data)
 
@@ -34,8 +36,10 @@ def get_employees(request, slug=None):
         attributes.append({
             "employeeID": e.id,
             "name": e.name,
+            "resourceBU": e.resourceBU.name,
             "excludedFromAI": e.excludedFromAI,
-            "specialisms": list(e.specialisms.values_list("name", flat=True))
+            "specialisms": list(e.specialisms.values_list("name", flat=True)),
+            "jobCodes": list(e.jobCodes.values_list("code", flat=True))
         })
     return Response(attributes)
 
@@ -52,10 +56,12 @@ def get_jobcodes(request, code=None):
             "description": jobcode.description,
             "customerName": jobcode.customerName,
             "businessUnit": jobcode.businessUnit,
+            "jobOrigin": jobcode.jobOrigin,
             "budgetTime": jobcode.budgetTime,
             "budgetCost": float(jobcode.budgetCost),
             "startDate": jobcode.startDate,
             "endDate": jobcode.endDate,
+            "status": jobcode.status,
         }
         return Response(data)
         
