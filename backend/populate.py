@@ -7,8 +7,8 @@ django.setup()
 
 from comwrap.models import Employee, Specialism, JobCode, ForecastEntry, ResourceBusinessUnit, ReplyEntity
 
-RESOURCE_BUSINESS_UNIT_NAME = "cwpuk_cwpuk"
-REPLY_ENTITY_NAME = "Comwrap UK"
+RESOURCE_BUSINESS_UNIT = ["cwpuk_cwpuk"]
+REPLY_ENTITY = ["Comwrap UK"]
 
 SPECIALISMS = [
     "Frontend Developer",
@@ -73,6 +73,16 @@ FORECASTS = [
     },
 ]
 
+def create_resource_business_unit():
+    for bu_name in RESOURCE_BUSINESS_UNIT:
+        resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=bu_name)
+    return resource_bu
+
+def create_reply_entity():
+    for entity_name in REPLY_ENTITY:
+        reply_entity, _ = ReplyEntity.objects.get_or_create(name=entity_name)
+    return reply_entity
+
 def create_employees(specialism_map, resource_bu):
     employees = {}
     for e in EMPLOYEES:
@@ -131,8 +141,8 @@ def populate():
     Specialism.objects.all().delete()
 
     print("Creating ResourceBusinessUnit and ReplyEntity...")
-    resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=RESOURCE_BUSINESS_UNIT_NAME)
-    reply_entity, _ = ReplyEntity.objects.get_or_create(name=REPLY_ENTITY_NAME)
+    resource_bu, _ = ResourceBusinessUnit.objects.get_or_create(name=RESOURCE_BUSINESS_UNIT[0])
+    reply_entity, _ = ReplyEntity.objects.get_or_create(name=REPLY_ENTITY[0])
 
     print("Creating specialisms...")
     specialisms = create_specialisms()
