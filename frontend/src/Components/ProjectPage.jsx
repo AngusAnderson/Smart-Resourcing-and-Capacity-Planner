@@ -24,6 +24,7 @@ function ProjectPage() {
           customerName: res.data.customerName,
           businessUnit: res.data.businessUnit,
           description: res.data.description,
+          // employees: res.data.employees,
           startDate: res.data.startDate,
           finishDate: res.data.endDate,
           durationDays: calculateDuration(res.data.startDate, res.data.endDate),
@@ -86,6 +87,12 @@ function ProjectPage() {
             <h2 className="section-title">Description:</h2>
             <div className="description-box">
               <p>{project.description}</p>
+            </div>
+
+            <h2 className="section-title">Employees:</h2>
+            <div className="description-box">
+              {/* <p>{project.employees}</p> */}
+              {/* Have it so this shows the list of employees working on the project */}
             </div>
           </div>
         </main>

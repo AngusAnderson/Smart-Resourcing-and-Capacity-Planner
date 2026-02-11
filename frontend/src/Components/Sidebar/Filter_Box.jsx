@@ -1,52 +1,45 @@
 import React from "react";
 import '../../css/Sidebar/Filter_Box.css';
-import OverallProjectProgress from '../../functions/Filter_Box_Functions/Overall_Project_Progress'
+import OverallProjectProgress from '../../functions/Filter_Box_Functions/Overall_Project_Progress';
+import Dashboard_Tabs from "./Dashboard_Tabs";
+import { getDeadlinesWithinTwoWeeks } from '../../functions/Filter_Box_Functions/Dashboard_Tabs_Functions/deadlineUtils';
 
-const Filter_Box = ({ searchTerm, onSearchChange }) => {
-    return (
-        <div className="filter-box">
-            <h1 className='h1-filter_box'>Filter</h1>
+const Filter_Box = ({ searchTerm, onSearchChange, events }) => {
+  const deadlines = getDeadlinesWithinTwoWeeks(events || []);
+  const feedItems = [];
 
-            {/* Filter search box */}
-            <form className="search-box" onSubmit={e => e.preventDefault()}>
-              <span className="search-icon">
-                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="8" stroke="currentColor" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" />
-                </svg>
-              </span>
-              <div className="vertical-divider"></div>
-              <input
-                className="search-input"
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={e => onSearchChange(e.target.value)}
-              />
-            </form>
+  return (
+    <div className="filter-box">
+      <h1 className='h1-filter_box'>Filter</h1>
 
-            <hr className='hr-filter_box'></hr>
-            <div className="white-space-filter_box"></div>
-            {/* <hr className='hr-filter_box'></hr> */}
-            <h1 className='h1-filter_box'>Overall Project Progress</h1>
+      {/* Filter search box */}
+      <form className="search-box" onSubmit={e => e.preventDefault()}>
+        <span className="search-icon">
+          <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" />
+          </svg>
+        </span>
+        <div className="vertical-divider"></div>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={e => onSearchChange(e.target.value)}
+        />
+      </form>
 
+      <hr className='hr-filter_box' />
+      <div className="white-space-filter_box"></div>
 
-            {/* Project Progress bar */}
+      <h1 className='h1-filter_box'>Overall Project Progress</h1>
+      <OverallProjectProgress />
 
-            <OverallProjectProgress />
+      {/* Dashboard tabs area */}
+      <Dashboard_Tabs deadlines={deadlines} feedItems={feedItems} />
+    </div>
+  );
+};
 
-
-            {/* <div class="progress-bar-container">
-              <div class="progress-bar">
-                <div class="segment currently-allocated"></div>
-                <div class="segment over-allocated"></div>
-                <div class="segment under-allocated-1"></div>
-                <div class="segment under-allocated-2"></div>
-              </div> */}
-              {/* Instead of labels we'll implement an 'onHover' effect when possible */}
-            {/* </div> */}
-          </div>
-    )
-}
-
-export default Filter_Box
+export default Filter_Box;

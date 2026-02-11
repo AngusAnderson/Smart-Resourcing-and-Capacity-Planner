@@ -33,5 +33,9 @@
   z-index: 99999 !important;
 }
 
+.sx__range-heading {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
 
 /* End mini calander css */

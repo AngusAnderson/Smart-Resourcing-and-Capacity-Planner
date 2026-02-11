@@ -56,10 +56,6 @@ font-weight: bold;
   opacity: .3;
 }
 
-/* .white-space-filter_box {
-  height: 150px;
-  width: 100%;
-} */
 
 
 /* Project Progress bar */
@@ -192,3 +188,27 @@ font-weight: bold;
 
 
 /* End filter box */
+
+
+
+/* Media Queries */
+
+/* Small Screens */
+@media (max-width: 1799px) {
+  .wrap {
+    display: none;
+  }
+}
+
+/* Large Screens */
+@media (min-width: 1800px) {
+  .filter-box {
+    height: 53%;
+  }
+
+  .wrap {
+    color: #000;
+    margin-top: 50px;
+    padding-left: 30px;
+  }
+}

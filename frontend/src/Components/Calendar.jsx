@@ -16,6 +16,7 @@ import '../css/Calendar.css'
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 import api from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 
 function Calendar({ searchTerm, selectedDate }) {
   const navigate = useNavigate()
@@ -30,33 +31,19 @@ function Calendar({ searchTerm, selectedDate }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchJobCodes = async () => {
+    const load = async () => {
       try {
-        const response = await api.get('/jobcodes/');
-        console.log('API Response:', response.data); // Debug log
-        const eventData = response.data.map((jobcode) => ({
-          id: jobcode.code,
-          title: jobcode.code,
-          start: Temporal.PlainDate.from(jobcode.startDate),
-          end: Temporal.PlainDate.from(jobcode.endDate),
-          calendarId: getRandomCalendarId(),
-          customerName: jobcode.customerName,
-          businessUnit: jobcode.businessUnit,
-        }));
+        const eventData = await fetchJobcodesAsEvents();
         setEvents(eventData);
         setLoading(false);
-        //log the jobcode data for debugging
-        response.data.forEach(jobcode => {
-          console.log('Jobcode:', jobcode);
-        });
       } catch (err) {
         console.error('Error fetching jobcodes:', err);
         setError(err.message);
         setLoading(false);
       }
     };
-
-    fetchJobCodes();
+  
+    load();
   }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
