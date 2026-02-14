@@ -152,18 +152,64 @@ function EmployeePage() {
     }
   };
 
-  if (loading) return <div className="employee-page">Loading...</div>;
+  if (loading) return <div className="detail-page">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
-  if (!employee) return <div className="employee-page">Employee not found</div>;
+  if (!employee) return <div className="detail-page">Employee not found</div>;
 
-  return (
-    <div className="employee-page">
-      <h1>{employee.name}</h1>
-      <div className="employee-details">
-        <p><strong>Specialisms:</strong> {employee.specialisms.join(", ") || "None"}</p>
-        <p><strong>Excluded from AI:</strong> {employee.excludedFromAI ? "Yes" : "No"}</p>
+//   return (
+//     <div className="employee-page">
+//       <h1>{employee.name}</h1>
+//       <div className="employee-details">
+//         <p><strong>Specialisms:</strong> {employee.specialisms.join(", ") || "None"}</p>
+//         <p><strong>Excluded from AI:</strong> {employee.excludedFromAI ? "Yes" : "No"}</p>
+//       </div>
+//       {/* Add more employee details as needed */}
+//     </div>
+//   );
+// }
+
+// export default EmployeePage;
+
+ return (
+    <div className="detail-page">
+      <div className="detail-top-row">
+        <button className="back-button" onClick={() => navigate("/employees")}>
+          Back to Employees
+        </button>
       </div>
-      {/* Add more employee details as needed */}
+
+      <div className="employee-layout">
+        <main className="employee-main">
+          <div className="employee-header-row">
+            <h1 className="employee-name">{employee.name}</h1>
+          </div>
+
+          <div className="employee-body-card">
+            <p className="label-line">
+              <span className="label">Excluded From AI:</span>{" "}
+              <span>{employee.excludedFromAI ? "Yes" : "No"}</span>
+            </p>
+
+            <h2 className="section-title">Specialisms:</h2>
+            <ul className="specialism-list">
+              {(employee.specialisms || []).length ? (
+                employee.specialisms.map((s) => <li key={s}>{s}</li>)
+              ) : (
+                <li>None</li>
+              )}
+            </ul>
+          </div>
+        </main>
+
+        <aside className="employee-side">
+          <div className="side-card">
+            <h2 className="side-heading">Employee Info</h2>
+            <ul className="side-list">
+              <li>ID: {employee.employeeID}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
