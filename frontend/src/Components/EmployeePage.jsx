@@ -124,7 +124,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
 
@@ -133,6 +133,8 @@ function EmployeePage() {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchEmployee();
@@ -170,10 +172,64 @@ function EmployeePage() {
 
 // export default EmployeePage;
 
- return (
+//  return (
+//     <div className="detail-page">
+//       <div className="detail-top-row">
+//         <button className="back-button" onClick={() => navigate("/employees")}>
+//           Back to Employees
+//         </button>
+//       </div>
+
+//       <div className="employee-layout">
+//         <main className="employee-main">
+//           <div className="employee-header-row">
+//             <h1 className="employee-name">{employee.name}</h1>
+//             <button className="pill-button">Edit</button>
+//           </div>
+
+//           <div className="employee-body-card">
+//             <p className="label-line">
+//               <span className="label">Excluded From AI:</span>{" "}
+//               <span>{employee.excludedFromAI ? "Yes" : "No"}</span>
+//             </p>
+
+//             <h2 className="section-title">Specialisms:</h2>
+//             <ul className="specialism-list">
+//               {(employee.specialisms || []).length ? (
+//                 employee.specialisms.map((s) => <li key={s}>{s}</li>)
+//               ) : (
+//                 <li>None</li>
+//               )}
+//             </ul>
+//           </div>
+//         </main>
+
+//         <aside className="employee-side">
+//           <div className="side-card">
+//             <h2 className="side-heading">Employee Info</h2>
+//             <ul className="side-list">
+//               <li>ID: {employee.employeeID}</li>
+//             </ul>
+//           </div>
+//         </aside>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default EmployeePage;
+
+
+const previousProjects = employee.previousProjects || [];
+  const currentProjects = employee.currentProjects || [];
+  const futureProjects = employee.futureProjects || [];
+
+  const specialisms = employee.specialisms || [];
+
+  return (
     <div className="detail-page">
       <div className="detail-top-row">
-        <button className="back-button" onClick={() => navigate("/employees")}>
+        <button className="back-button" onClick={() => navigate("/employees/")}>
           Back to Employees
         </button>
       </div>
@@ -182,18 +238,19 @@ function EmployeePage() {
         <main className="employee-main">
           <div className="employee-header-row">
             <h1 className="employee-name">{employee.name}</h1>
+            <button className="pill-button">Edit</button>
           </div>
 
           <div className="employee-body-card">
             <p className="label-line">
               <span className="label">Excluded From AI:</span>{" "}
-              <span>{employee.excludedFromAI ? "Yes" : "No"}</span>
+              <span>{employee.excludedFromAI ? "True" : "False"}</span>
             </p>
 
             <h2 className="section-title">Specialisms:</h2>
             <ul className="specialism-list">
-              {(employee.specialisms || []).length ? (
-                employee.specialisms.map((s) => <li key={s}>{s}</li>)
+              {specialisms.length ? (
+                specialisms.map((s) => <li key={s}>{s}</li>)
               ) : (
                 <li>None</li>
               )}
@@ -203,11 +260,39 @@ function EmployeePage() {
 
         <aside className="employee-side">
           <div className="side-card">
-            <h2 className="side-heading">Employee Info</h2>
+            <h2 className="side-heading">Previous Projects</h2>
             <ul className="side-list">
-              <li>ID: {employee.employeeID}</li>
+              {previousProjects.length ? (
+                previousProjects.map((p) => <li key={p}>{p}</li>)
+              ) : (
+                <li>None</li>
+              )}
             </ul>
           </div>
+
+          <div className="side-card">
+            <h2 className="side-heading">Current Projects</h2>
+            <ul className="side-list">
+              {currentProjects.length ? (
+                currentProjects.map((p) => <li key={p}>{p}</li>)
+              ) : (
+                <li>None</li>
+              )}
+            </ul>
+          </div>
+
+          <div className="side-card">
+            <h2 className="side-heading">Future Projects</h2>
+            <ul className="side-list">
+              {futureProjects.length ? (
+                futureProjects.map((p) => <li key={p}>{p}</li>)
+              ) : (
+                <li>None</li>
+              )}
+            </ul>
+          </div>
+
+          <button className="pill-button side-edit-button">Edit</button>
         </aside>
       </div>
     </div>
