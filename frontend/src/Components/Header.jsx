@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import '../css/Header.css'
 import api from '../services/api'
+import { useNavigate } from "react-router-dom";
 
 
 const Header = ({ isVisible, toggleVisibility }) => {
@@ -11,6 +12,8 @@ const [inputValue, setInputValue] = useState('')
 const [panelPos, setPanelPos] = useState({ x: null, y: null })
 const dragState = useRef(null)
 const inputRef = useRef(null)
+const navigate = useNavigate();
+
 
 
 const startDrag = (e) => {
@@ -106,6 +109,14 @@ const handleResizeEnd = () => {
           <a href="/">
           <h1>Reply <span className='span-1_Comwrap'>Comwrap</span></h1>
           </a>
+          
+          <button
+            className="pill-button"
+            onClick={() => navigate("/employees")}
+          >
+            Employees
+          </button>
+
         </div>
         <div className="Text-top_right">
           <h1>John Doe</h1>
