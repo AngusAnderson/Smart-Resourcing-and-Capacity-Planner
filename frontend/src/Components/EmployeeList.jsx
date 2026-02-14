@@ -1,10 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_List.css";
 
+
+function toSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
 function EmployeeList(){
     const [employees, setEmployees] = useState([]);
+    const [specialisms, setSpecialisms] = useState([]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -15,14 +26,18 @@ function EmployeeList(){
         excludedFromAi: false,
     });
 
+    const canCreate = useMemo(() => formData.name.trim().length > 0, [formData.name]);
+
+
     useEffect(() => {
         fetchEmployees();
+        fetchSpecialisms();
     }, []);
 
     const fetchEmployees = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/employees");
+            const response = await api.get("/employees/");
             setEmployees(response.data);
             setError(null);
         } catch (err) {
@@ -34,11 +49,23 @@ function EmployeeList(){
         }
     };
 
+    const fetchSpecialisms = async () => {
+        try {
+          const res = await api.get("/specialisms/");
+          setSpecialisms(res.data || []);
+        } catch (err) {
+          console.warn("Failed to load specialisms:", err);
+        }
+    };
+    
+
     const handleCreateEmployee = async (e) => {
         e.preventDefault();
+        if (!canCreate) return;
+
         try{
-            await api.post("/employees", {
-                name: formData.name,
+            await api.post("/employees/", {
+                name: formData.name.trim(),
                 specialisms: formData.specialisms,
                 excludedFromAi: formData.excludedFromAi,
             });
@@ -48,54 +75,73 @@ function EmployeeList(){
                 excludedFromAi: false,
             });
             setShowCreateForm(false);
-            fetchEmployees();
+            await fetchEmployees();
         } catch (err) {
             console.error("Error creating employee:", err);
             setError("Failed to create employee.");
         }
     }; 
 
-    const handleDeleteEmployee = async (employeeID) => {
-        if (!window.confirm("Are you sure you want to delete this employee?")) {
-            return;
-        }
-        try {
-            await api.delete(`/employees/${employeeID}`);
-            fetchEmployees();
-        } catch (err) {
-            console.error("Error deleting employee:", err);
-            setError("Failed to delete employee.");
-        }
-    };
+    // const handleDeleteEmployee = async (employeeID) => {
+    //     if (!window.confirm("Are you sure you want to delete this employee?")) {
+    //         return;
+    //     }
+    //     try {
+    //         await api.delete(`/employees/${employeeID}`);
+    //         fetchEmployees();
+    //     } catch (err) {
+    //         console.error("Error deleting employee:", err);
+    //         setError("Failed to delete employee.");
+    //     }
+    // };
 
-    const handleViewEmployee = (slug) => {
-        navigate(`/employee/${slug}`);
-    };
+    // const handleViewEmployee = (slug) => {
+    //     navigate(`/employee/${slug}`);
+    // };
 
-    <button
-        className="btn-secondary"
-        onClick={() => handleViewEmployee(employee.employeeID, employeee.slug)}
-    >
-        View Employee
-    </button>
+    const handleDeleteEmployee = async (employee) => {
+      const slug = toSlug(employee?.name);
+      if (!slug) return;
+
+      if (!window.confirm(`Delete ${employee.name}?`)) return;
+
+      try {
+        await api.delete(`/employees/${slug}/`);
+        await fetchEmployees();
+        setError(null);
+      } catch (err) {
+        console.error("Error deleting employee:", err);
+        setError("Failed to delete employee");
+      }
+   };
+
+    // <button
+    //     className="btn-secondary"
+    //     onClick={() => handleViewEmployee(employee.employeeID, employeee.slug)}
+    // >
+    //     View Employee
+    // </button>
+
+    const handleViewEmployee = (employee) => {
+      const slug = toSlug(employee?.name);
+      if (!slug) return;
+      navigate(`/employees/${slug}`);
+    };
 
     if (loading) {
-        return <div className="employee-list"><p>Loading employees...</p></div>;
+        return <div className="employee-list-page"><p>Loading employees...</p></div>;
     }
 
     if (error) {
-        return <div className="employee-list"><p className="error">{error}</p></div>;
+        return <div className="employee-list-page"><p className="error">{error}</p></div>;
     }
 
     return (
         <div className="employee-list-page">
             <div className="list-header">
                 <h1>Employees</h1>
-                <button
-                    className="btn-primary"
-                    onClick={() => setShowCreateForm(!showCreateForm)}
-                >
-                {showCreateForm ? "Cancel" : "Add Employee"}
+                <button className="btn-primary" onClick={() => setShowCreateForm((v) => !v)}>
+                  {showCreateForm ? "Cancel" : "Add Employee"}
                 </button>
             </div>
 
@@ -109,14 +155,37 @@ function EmployeeList(){
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                // onChange={(e) =>
+                //   setFormData({ ...formData, name: e.target.value })
+                // }
+                // required
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 required
               />
             </div>
 
             <div className="form-group">
+              <label>Specialisms</label>
+              <select
+                multiple
+                value={formData.specialisms}
+                onChange={(e) => {
+                  const values = Array.from(e.target.selectedOptions).map((opt) => opt.value);
+                  setFormData((prev) => ({ ...prev, specialisms: values }));
+                }}
+              >
+                {specialisms.map((s) => (
+                  <option key={s.id ?? s.name} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <small style={{ opacity: 0.8 }}>
+                Hold Ctrl (Windows) or Cmd (Mac) to select multiple.
+              </small>
+            </div>
+
+            {/* <div className="form-group">
               <label>Excluded From AI</label>
               <input
                 type="checkbox"
@@ -128,16 +197,29 @@ function EmployeeList(){
                   })
                 }
               />
+            </div> */}
+
+            <div className="form-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={formData.excludedFromAI}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, excludedFromAI: e.target.checked }))
+                  }
+                />{" "}
+                Excluded From AI
+              </label>
             </div>
 
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary" disabled={!canCreate}>
               Create Employee
             </button>
           </form>
         </div>
       )}
 
-      {employees.length === 0 ? (
+      {/* {employees.length === 0 ? (
         <div className="empty-state">No employees found</div>
       ) : (
         <div className="employees-grid">
@@ -162,7 +244,32 @@ function EmployeeList(){
                 <button
                   className="btn-danger"
                   onClick={() => handleDeleteEmployee(employee.employeeID)}
-                >
+                > */}
+
+
+      {employees.length === 0 ? (
+        <div className="empty-state">No employees found</div>
+      ) : (
+        <div className="employees-grid">
+          {employees.map((employee) => (
+            <div
+              key={employee.employeeID ?? employee.id ?? employee.name}
+              className="employee-card"
+            >
+              <div className="card-content">
+                <h2>{employee.name}</h2>
+                <p className="specialisms">
+                  {(employee.specialisms || []).join(", ") || "No specialisms"}
+                </p>
+                <p className="ai-status">
+                  Excluded from AI: {employee.excludedFromAI ? "Yes" : "No"}
+                </p>
+              </div>
+              <div className="card-actions">
+                <button className="btn-secondary" onClick={() => handleViewEmployee(employee)}>
+                  View
+                </button>
+                <button className="btn-danger" onClick={() => handleDeleteEmployee(employee)}>
                   Delete
                 </button>
               </div>
