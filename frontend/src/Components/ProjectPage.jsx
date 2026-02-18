@@ -32,25 +32,25 @@ function ProjectPage() {
       try {
         setLoading(true);
         const res = await api.get(`/jobcodes/${id}/`);
-        console.log('Fetched project data:', res.data); // Debug log
-        
-        // Map backend data to frontend structure
+        console.log("Fetched project data:", res.data);
+
         const projectData = {
           id: res.data.code,
           name: res.data.code, // or res.data.description if you prefer
           customerName: res.data.customerName,
           businessUnit: res.data.businessUnit,
           description: res.data.description,
-          // employees: res.data.employees,
           startDate: res.data.startDate,
           finishDate: res.data.endDate,
           durationDays: calculateDuration(res.data.startDate, res.data.endDate),
           remainingBudgetDays: res.data.budgetTime,
           budget: res.data.budgetCost,
-          confidenceScore: 0.8, // This might need to come from backend later
-          employees: Array.isArray(res.data.employees) ? res.data.employees : []
+          confidenceScore: 0.8, // placeholder until backend provides it
+          employees: Array.isArray(res.data.employees)
+            ? res.data.employees
+            : []
         };
-        
+
         setProject(projectData);
         setLoading(false);
       } catch (err) {
@@ -116,7 +116,8 @@ function ProjectPage() {
         <main className="project-main">
           <div className="project-header-row">
             <h1 className="project-title">{project.name}</h1>
-            <button className="pill-button"
+            <button
+              className="pill-button"
               onClick={() => {
                 const ids = Array.isArray(project.employees)
                   ? project.employees.map(e => e.id).filter(Boolean)
@@ -129,7 +130,7 @@ function ProjectPage() {
             </button>
           </div>
 
-          <hr className='hr-filter_box'></hr>
+          <hr className="hr-filter_box" />
 
           <div className="project-body-card">
             {isEditing ? (
@@ -141,14 +142,20 @@ function ProjectPage() {
                   <select
                     multiple
                     value={selectedEmployees.map(id => id.toString())}
-                    onChange={(e) => 
+                    onChange={(e) =>
                       setSelectedEmployees(
-                        Array.from(e.target.selectedOptions, option => Number(option.value))
+                        Array.from(
+                          e.target.selectedOptions,
+                          option => Number(option.value)
+                        )
                       )
                     }
                   >
                     {allEmployees.map((emp) => (
-                      <option key={emp.employeeID || emp.id} value={(emp.employeeID || emp.id).toString()}>
+                      <option
+                        key={emp.employeeID || emp.id}
+                        value={(emp.employeeID || emp.id).toString()}
+                      >
                         {emp.name}
                       </option>
                     ))}
@@ -163,34 +170,36 @@ function ProjectPage() {
                 </div>
               </div>
             ) : (
-              <div>
-              <p className="label-line">
-                <span className="label">Customer Name:</span>{" "}
-                <span>{project.customerName}</span>
-              </p>
-              <p className="label-line">
-                <span className="label">Business Unit:</span>{" "}
-                <span>{project.businessUnit}</span>
-              </p>
+              <>
+                <div>
+                  <p className="label-line">
+                    <span className="label">Customer Name:</span>{" "}
+                    <span>{project.customerName}</span>
+                  </p>
+                  <p className="label-line">
+                    <span className="label">Business Unit:</span>{" "}
+                    <span>{project.businessUnit}</span>
+                  </p>
 
-              <h2 className="section-title">Description:</h2>
-              <div className="description-box">
-                <p>{project.description}</p>
-              </div>
+                  <h2 className="section-title">Description:</h2>
+                  <div className="description-box">
+                    <p>{project.description}</p>
+                  </div>
 
-              <div className="assigned-employees">
-                <strong>Assigned Employees:</strong>{" "}
-                {project.employees && project.employees.length > 0
-                  ? project.employees.map(emp => emp.name).join(", ")
-                  :"None"}
-              </div>
-            </div>
+                  <div className="assigned-employees">
+                    <strong>Assigned Employees:</strong>{" "}
+                    {project.employees && project.employees.length > 0
+                      ? project.employees.map(emp => emp.name).join(", ")
+                      : "None"}
+                  </div>
+                </div>
 
-            <h2 className="section-title">Employees:</h2>
-            <div className="description-box">
-              {/* <p>{project.employees}</p> */}
-              {/* Have it so this shows the list of employees working on the project */}
-            </div>
+                <h2 className="section-title">Employees:</h2>
+                <div className="description-box">
+                  {/* Have it so this shows the list of employees working on the project */}
+                </div>
+              </>
+            )}
           </div>
         </main>
 
