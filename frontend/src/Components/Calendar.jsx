@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
-import { createResizePlugin } from '@schedule-x/resize'
-import { createCurrentTimePlugin } from '@schedule-x/current-time'
+import React, { useEffect, useState } from 'react';
+import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react';
+import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
+import { createResizePlugin } from '@schedule-x/resize';
+import { createCurrentTimePlugin } from '@schedule-x/current-time';
 import {
   createViewDay,
   createViewMonthAgenda,
   createViewMonthGrid,
   createViewWeek,
-} from '@schedule-x/calendar'
-import { createEventsServicePlugin } from '@schedule-x/events-service'
-import 'temporal-polyfill/global'
-import '@schedule-x/theme-default/dist/index.css'
-import '../css/Calendar.css'
-import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
-import api from '../services/api'
-import { useNavigate } from 'react-router-dom'
+} from '@schedule-x/calendar';
+import { createEventsServicePlugin } from '@schedule-x/events-service';
+import 'temporal-polyfill/global';
+import '@schedule-x/theme-default/dist/index.css';
+import '../css/Calendar.css';
+import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
+import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
+import { Temporal } from 'temporal-polyfill';
 
 function Calendar({ searchTerm, selectedDate }) {
   const navigate = useNavigate()
@@ -125,24 +127,11 @@ function Calendar({ searchTerm, selectedDate }) {
 
 
   useEffect(() => {
-    const fetchJobCodes = async () => {
+    const load = async () => {
       try {
-        const response = await api.get('/jobcodes/');
-        console.log('API Response:', response.data); // Debug log
-        const eventData = response.data.map((jobcode) => ({
-          id: jobcode.code,
-          title: jobcode.code,
-          start: Temporal.PlainDate.from(jobcode.startDate),
-          end: Temporal.PlainDate.from(jobcode.endDate),
-          customerName: jobcode.customerName,
-          businessUnit: jobcode.businessUnit,
-        }));
+        const eventData = await fetchJobcodesAsEvents();
         setEvents(eventData);
         setLoading(false);
-        //log the jobcode data for debugging
-        response.data.forEach(jobcode => {
-          console.log('Jobcode:', jobcode);
-        });
       } catch (err) {
         console.error('Error fetching jobcodes:', err);
         setError(err.message);
@@ -150,25 +139,24 @@ function Calendar({ searchTerm, selectedDate }) {
       }
     };
 
-    fetchJobCodes();
+    load();
   }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const calendarControls = useState(() => createCalendarControlsPlugin())[0];
-
 
   const calendar = useCalendarApp({
     views: [
       createViewMonthAgenda(),
       createViewDay(),
       createViewWeek(),
-      createViewMonthGrid()
+      createViewMonthGrid(),
     ],
     calendars: {
       Red: {
         colorName: 'Red',
         lightColors: { main: '#f91c45', container: '#ffd2dc', onContainer: '#59000d' },
-        darkColors: { main: '#ffc0cc', onContainer: '#ffdee6', container: '#a24258' }
+        darkColors: { main: '#ffc0cc', onContainer: '#ffdee6', container: '#a24258' },
       },
       Yellow: {
         colorName: 'Yellow',
@@ -178,7 +166,7 @@ function Calendar({ searchTerm, selectedDate }) {
       Green: {
         colorName: 'Green',
         lightColors: { main: '#1cf9b0', container: '#dafff0', onContainer: '#004d3d' },
-        darkColors: { main: '#c0fff5', onContainer: '#e6fff5', container: '#42a297' }
+        darkColors: { main: '#c0fff5', onContainer: '#e6fff5', container: '#42a297' },
       },
       Orange: {
         colorName: 'Orange',
@@ -204,54 +192,102 @@ function Calendar({ searchTerm, selectedDate }) {
 
       // updates events when user moves or resizes in calendar
       onEventUpdate: async (updatedEvent) => {
+        console.log('CALENDAR onEventUpdate fired:', updatedEvent);
+
+        // Capture the full OLD event before Schedule-X re-renders it
+        const oldEvent =
+          (eventsService.get && eventsService.get(updatedEvent.id)) ||
+          (eventsService.getAll &&
+            eventsService.getAll().find((e) => e.id === updatedEvent.id)) ||
+          null;
+
+        if (!oldEvent) {
+          console.warn('No oldEvent found for', updatedEvent.id);
+        } else {
+          console.log(
+            'Old event snapshot:',
+            oldEvent.start.toString(),
+            '->',
+            oldEvent.end.toString()
+          );
+        }
+
         try {
+          // Save new dates to backend
           await api.put(`/jobcodes/${updatedEvent.id}/`, {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
           });
 
-        // Update the event object when it is dragged on the calendar
-        setEvents((prevEvents) =>
-        prevEvents.map((ev) =>
-          ev.id === updatedEvent.id
-            ? { ...ev, start: updatedEvent.start, end: updatedEvent.end }
-            : ev
-          )
-        );
+          const time = Temporal.Now.plainTimeISO().toString().slice(0, 5);
 
-        //logging for debugging
+          if (onFeedItem) {
+            onFeedItem({
+              id: crypto.randomUUID(),
+              projectId: updatedEvent.id,
+              message: `Updated dates for project ${updatedEvent.id}`,
+              completedAt: time,
+              undo: async () => {
+                if (!oldEvent) {
+                  console.warn('Undo: no oldEvent for', updatedEvent.id);
+                  return;
+                }
+
+                console.log(
+                  'UNDO restoring',
+                  updatedEvent.id,
+                  oldEvent.start.toString(),
+                  '->',
+                  oldEvent.end.toString()
+                );
+
+                // Revert backend to old dates
+                await api.put(`/jobcodes/${updatedEvent.id}/`, {
+                  startDate: oldEvent.start.toString(),
+                  endDate: oldEvent.end.toString(),
+                });
+
+                // IMPORTANT: restore the *entire* oldEvent, not updatedEvent with mixed dates
+                if (eventsService.update) {
+                  eventsService.update({ ...oldEvent });
+                } else if (eventsService.remove && eventsService.add) {
+                  eventsService.remove(oldEvent.id);
+                  eventsService.add({ ...oldEvent });
+                }
+              },
+            });
+          }
         } catch (err) {
           console.error('Error updating jobcode:', err);
           setError(err.message);
         }
+
         console.log('Updated Event:', updatedEvent);
       },
-      // Navigate to project page when event is clicked
+
       onEventClick: (calendarEvent) => {
         console.log('Event clicked:', calendarEvent);
-        // Navigate to project page using the event ID (jobcode)
         navigate(`/projects/${calendarEvent.id}`);
-      }
+      },
     },
     plugins: [
       eventsService,
       createDragAndDropPlugin(),
       createResizePlugin(),
       createCurrentTimePlugin(),
-      calendarControls
+      calendarControls,
     ],
-    defaultView: 'monthGrid'
+    defaultView: 'monthGrid',
   });
 
   useEffect(() => {
-
     if (eventsService.getAll) {
-      eventsService.getAll().forEach(ev => eventsService.remove(ev.id));
+      eventsService.getAll().forEach((ev) => eventsService.remove(ev.id));
     }
     if (eventsService.clear) eventsService.clear();
 
     const filteredEvents = searchTerm
-      ? events.filter(event =>
+      ? events.filter((event) =>
           event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
@@ -272,22 +308,17 @@ function Calendar({ searchTerm, selectedDate }) {
     filteredEvents.forEach(event => eventsService.add({...event, calendarId: calendarIdForMonth}));
   }, [searchTerm, eventsService, events, monthDate, targetAllocatedDays, workingDaysInMonth]);
 
-
   useEffect(() => {
     if (selectedDate) {
-      console.log("Big Calendar has received the date:", selectedDate.toString());
+      console.log('Big Calendar has received the date:', selectedDate.toString());
     }
   }, [selectedDate]);
-  
 
   useEffect(() => {
     if (!selectedDate) return;
-    console.log("Big Calendar navigating to:", selectedDate.toString())
-    console.log("Working days from the month of this date:", getWorkingDaysInMonth(selectedDate))
+    console.log('Big Calendar navigating to:', selectedDate.toString());
     calendarControls.setDate(selectedDate);
-    setActiveDate(selectedDate);
-  }, [selectedDate, calendarControls])
-
+  }, [selectedDate, calendarControls]);
 
   return (
     <div className="calendar-big-wrapper">

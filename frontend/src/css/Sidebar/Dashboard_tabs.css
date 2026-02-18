@@ -1,0 +1,90 @@
+.tabs-header {
+    display: flex;
+  }
+
+.tabs-header span {
+    color: #000;
+    font-weight: 100;
+}
+  
+  .tab.active {
+    background: #d0d0d0;
+  }
+  
+  .tabs-body {
+    background: #f5f5f5;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    padding: 24px 32px;
+  }
+
+  .tabs-body span {
+    color: #000;
+    font-weight: 300;
+  }
+
+  .tabs-container {
+    width: 100%;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 0;
+    background: #f2f2f2;
+    font-size: 1.6rem;
+    outline: none;  
+  }
+
+  .tab:focus {
+    outline: none;
+  }
+  
+  .deadlines-list, .feed-list {
+    height: 240px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .deadline-item, .feed-item {
+    margin-bottom: 32px;
+    cursor: pointer;
+
+  }
+  
+  .deadline-title, .feed-title {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: #000;
+  }
+  
+  .deadline-subline {
+    margin-top: 8px;
+    font-size: 14px;
+    padding-left: 20px;
+  }
+  
+  .deadline-date  {
+    margin-left: 8px;
+  }
+
+  .feed-sublime {
+    font-weight: 200;
+  }
+
+  .feed-separator {
+    margin-left: 25px;
+  }
+
+  .feed-undo-button {
+    background: transparent;
+    color: #000;
+    font-weight: 200;
+    outline: none;  
+  }
+  
+  .feed-undo-button:focus {
+    outline: none;
+  }
