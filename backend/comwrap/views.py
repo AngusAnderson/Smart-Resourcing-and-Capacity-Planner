@@ -1,6 +1,26 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Employee, Specialism, JobCode, ForecastEntry
+from .serializers import JobCodeSerializer
+from openai import OpenAI
+
+client = OpenAI()
+
+
+
+@api_view(['POST'])
+def ai_chat(request):
+    messages = (request.data or {}).get("messages", [])
+    if not messages:
+        return Response({"error": "Messages are required"}, status=400)
+
+    response = client.responses.create(
+        model="gpt-5",
+        input=messages,
+    )
+
+    return Response({"reply": response.output_text})
+from .serializers import JobCodeSerializer
 
 @api_view(['GET'])
 def hello_world(request):
@@ -56,6 +76,7 @@ def get_jobcodes(request, code=None):
             "budgetCost": float(jobcode.budgetCost),
             "startDate": jobcode.startDate,
             "endDate": jobcode.endDate,
+            "employees": list(jobcode.employees.values("id", "name"))
         }
         return Response(data)
         
@@ -66,10 +87,34 @@ def get_jobcodes(request, code=None):
             return Response({"error": "Jobcode not found"}, status=404)
         
         data = request.data
+        
+        # Handle many-to-many employees separately
+        employees = data.pop('employees', None)
+        
+        # Update regular fields
         for field, value in data.items():
             setattr(jobcode, field, value)
         jobcode.save()
-        return Response({"message": "Jobcode updated successfully"})
+        
+        # Update employees if provided
+        if employees is not None:
+            if isinstance(employees, list):
+                jobcode.employees.set(employees)
+            jobcode.refresh_from_db()
+        
+        # Return the updated jobcode data
+        response_data = {
+            "code": jobcode.code,
+            "description": jobcode.description,
+            "customerName": jobcode.customerName,
+            "businessUnit": jobcode.businessUnit,
+            "budgetTime": jobcode.budgetTime,
+            "budgetCost": float(jobcode.budgetCost),
+            "startDate": jobcode.startDate,
+            "endDate": jobcode.endDate,
+            "employees": list(jobcode.employees.values("id", "name"))
+        }
+        return Response(response_data)
     if code is None:
         jobcodes = JobCode.objects.all().values()
         return Response(list(jobcodes))
@@ -103,3 +148,21 @@ def get_forecasts(request, forecastID=None):
         "hoursAllocated": float(f.hoursAllocated),
     }
     return Response(data)
+
+@api_view(['GET', 'PATCH'])
+def edit_jobcode(request, code):
+    try:
+        jobcode = JobCode.objects.get(code=code)
+    except JobCode.DoesNotExist:
+        return Response({"error": "Jobcode not found"}, status=404)
+    
+    if request.method == 'GET':
+        serializer = JobCodeSerializer(jobcode)
+        return Response(serializer.data)
+    
+    elif request.method == 'PATCH':
+        serializer = JobCodeSerializer(jobcode, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)

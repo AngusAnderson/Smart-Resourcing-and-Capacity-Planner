@@ -56,7 +56,6 @@ function Mini_Calendar({ setSelectedDate }) {
         } else {
           console.error("setSelectedDate does not exist");
         }
- //   onSelectedDateUpdate: (date) => {
     }},
     plugins: [eventsService]
   })

@@ -19,3 +19,9 @@ env/
 # database files
 *.sqlite3
 backend/db.sqlite3
+
+# testing files
+frontend/coverage
+
+# API key
+backend/.env

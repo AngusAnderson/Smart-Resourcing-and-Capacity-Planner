@@ -1,9 +1,10 @@
-.hero, .calendar-big-wrapper {
+.hero {
   height: 100%;
   width: 100%;
   flex: 1;
   margin: 0 30px 0 0;
 }
+
 .sx-react-calendar-wrapper {
   height: 100vh;
   width: 100%;

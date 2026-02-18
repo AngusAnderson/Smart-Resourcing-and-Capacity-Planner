@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef, useState } from 'react'
-
 import '../css/Header.css'
+import api from '../services/api'
+
 
 const Header = ({ isVisible, toggleVisibility }) => {
 
@@ -43,23 +44,44 @@ useEffect(() => {
   }
 }, [])
 
-const handleInputKeyDown = (e) => {
+const handleInputKeyDown = async (e) => {
   if (e.key !== 'Enter') return
   e.preventDefault()
   const text = inputValue.trim()
   if (!text) return
 
-  setMessages((prev) => [
-    ...prev,
-    { text, role: 'user' },
-    { text: 'OK', role: 'reply' },
-  ])
+  const userMsg = { text, role: 'user' }
+  const thinkingMsg = { text: 'Thinking…', role: 'reply', pending: true }
+
+  const nextMessages = [...messages, userMsg, thinkingMsg]
+  setMessages(nextMessages)
 
   setInputValue('')
-  if (inputRef.current) {
-    inputRef.current.style.height = 'auto'
+  if (inputRef.current) inputRef.current.style.height = 'auto'
+
+  try {
+    const response = await api.post('/ai/chat/', {
+      messages: nextMessages
+        .filter(m => !m.pending)
+        .map(m => ({
+          role: m.role === 'reply' ? 'assistant' : 'user',
+          content: m.text
+        }))
+    })
+    const reply = response.data.reply ?? ''
+
+    setMessages(prev =>
+      prev.map(m => (m.pending ? { text: reply, role: 'reply' } : m))
+    )
+  } catch (err) {
+    setMessages(prev =>
+      prev.map(m =>
+        m.pending ? { text: 'Error: failed to reach AI', role: 'reply' } : m
+      )
+    )
   }
 }
+
 
 const handleInputChange = (e) => {
   setInputValue(e.target.value)
