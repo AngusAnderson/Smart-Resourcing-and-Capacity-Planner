@@ -4,6 +4,7 @@ import axios from "axios";
 import "../css/Employee_Project.css";
 import { getWorkingDaysInMonth } from "../utils/dateUtils";
 import AddForecastModal from "./AddForecastModal";
+import EditForecastModal from "./EditForecastModal";
 
 const mockEmployee = {
   id: 1,
@@ -93,6 +94,24 @@ function EmployeePage() {
     setForecasts((prev) => [...prev, newForecast]);
   };
 
+  const [showEditForecastModal, setShowEditForecastModal] = useState(false);
+  const [editingForecast, setEditingForecast] = useState(null);
+
+  const openEditModal = (forecast) => {
+    setEditingForecast(forecast);
+    setShowEditForecastModal(true);
+  };
+
+  const handleForecastUpdated = (updated) => {
+    // Replace the specific allocation entry matching forecastID & employeeID
+    setForecasts((prev) => prev.map((f) => {
+      if (f.forecastID === updated.forecastID && f.employeeID === updated.employeeID) {
+        return updated;
+      }
+      return f;
+    }));
+  };
+
   if (!employee) return null;
 
   return (
@@ -158,16 +177,16 @@ function EmployeePage() {
                         <thead>
                           <tr>
                             <th>Job Code</th>
-                            <th>Customer</th>
+                            <th>Description</th>
                             <th>Date</th>
                             <th>Days Allocated</th>
                           </tr>
                         </thead>
                         <tbody>
                           {groupedForecasts[monthKey].map((forecast) => (
-                            <tr key={forecast.forecastID}>
-                              <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link">{forecast.jobCode}</Link></td>
-                              <td>{forecast.customer}</td>
+                            <tr key={`${forecast.forecastID}-${forecast.employeeID || 'na'}`} onClick={() => openEditModal(forecast)}>
+                              <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link" onClick={(e) => e.stopPropagation()}>{forecast.jobCode}</Link></td>
+                              <td>{forecast.description}</td>
                               <td>{new Date(forecast.date).toLocaleDateString()}</td>
                               <td>{forecast.daysAllocated}</td>
                             </tr>
@@ -227,6 +246,13 @@ function EmployeePage() {
           employeeID={employee.employeeID}
           onClose={() => setShowAddForecastModal(false)}
           onForecastAdded={handleForecastAdded}
+        />
+      )}
+      {showEditForecastModal && (
+        <EditForecastModal
+          forecast={editingForecast}
+          onClose={() => setShowEditForecastModal(false)}
+          onForecastUpdated={(u) => { handleForecastUpdated(u); setShowEditForecastModal(false); }}
         />
       )}
     </div>

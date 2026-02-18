@@ -2,17 +2,31 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/AddForecastModal.css";
 
-function AddForecastModal({ employeeID, onClose, onForecastAdded }) {
+function EditForecastModal({ forecast, onClose, onForecastUpdated }) {
   const [formData, setFormData] = useState({
     forecastID: "",
     jobCode: "",
     date: new Date().toISOString().split("T")[0],
     description: "",
     daysAllocated: "",
+    employeeID: null,
   });
   const [jobCodes, setJobCodes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (forecast) {
+      setFormData({
+        forecastID: forecast.forecastID,
+        jobCode: forecast.jobCode || "",
+        date: forecast.date ? new Date(forecast.date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        description: forecast.description || "",
+        daysAllocated: forecast.daysAllocated || "",
+        employeeID: forecast.employeeID || null,
+      });
+    }
+  }, [forecast]);
 
   useEffect(() => {
     fetchJobCodes();
@@ -36,60 +50,54 @@ function AddForecastModal({ employeeID, onClose, onForecastAdded }) {
     }));
   };
 
-  const generateForecastID = () => {
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 1000);
-    return `FORECAST-${timestamp}-${random}`;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const dataToSubmit = {
-        ...formData,
-        forecastID: formData.forecastID || generateForecastID(),
-        employeeID: employeeID,
-        daysAllocated: parseFloat(formData.daysAllocated),
+      const payload = {
+        jobCode: formData.jobCode,
+        date: formData.date,
+        description: formData.description,
       };
 
-      const res = await axios.post("/api/forecasts/create/", dataToSubmit);
-      
-      if (res.status === 201) {
-        onForecastAdded(res.data);
-        setFormData({
-          forecastID: "",
-          jobCode: "",
-          date: new Date().toISOString().split("T")[0],
-          description: "",
-          daysAllocated: "",
-        });
-        onClose();
+      // include allocation update if employeeID provided
+      if (formData.employeeID) {
+        payload.employeeID = formData.employeeID;
+        payload.daysAllocated = parseFloat(formData.daysAllocated);
       }
+
+      const res = await axios.patch(`/api/forecasts/${formData.forecastID}/`, payload);
+
+      onForecastUpdated(res.data);
+      onClose();
     } catch (err) {
-      console.error("Failed to create forecast", err);
-      setError(
-        err.response?.data?.error ||
-          "Failed to create forecast. Please try again."
-      );
+      console.error("Failed to update forecast", err);
+      setError(err.response?.data?.error || "Failed to update forecast.");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!forecast) return null;
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Add New Forecast</h2>
+          <h2>Edit Forecast</h2>
           <button className="modal-close" onClick={onClose}>
             ×
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="forecast-form">
+          <div className="form-group">
+            <label>Forecast ID</label>
+            <input type="text" value={formData.forecastID} disabled />
+          </div>
+
           <div className="form-group">
             <label htmlFor="jobCode">Job Code *</label>
             <select
@@ -127,55 +135,31 @@ function AddForecastModal({ employeeID, onClose, onForecastAdded }) {
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              placeholder="Add any notes or details about this forecast"
               rows="3"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="daysAllocated">Days Allocated *</label>
+            <label htmlFor="daysAllocated">Days Allocated</label>
             <input
               type="number"
               id="daysAllocated"
               name="daysAllocated"
               value={formData.daysAllocated}
               onChange={handleInputChange}
-              placeholder="e.g., 5.0"
               step="0.1"
               min="0"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="forecastID">Forecast ID (auto-generated if blank)</label>
-            <input
-              type="text"
-              id="forecastID"
-              name="forecastID"
-              value={formData.forecastID}
-              onChange={handleInputChange}
-              placeholder="Leave blank for auto-generated ID"
             />
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
           <div className="modal-footer">
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={onClose}
-              disabled={loading}
-            >
+            <button type="button" className="cancel-button" onClick={onClose} disabled={loading}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="submit-button"
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Add Forecast"}
+            <button type="submit" className="submit-button" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
@@ -184,4 +168,4 @@ function AddForecastModal({ employeeID, onClose, onForecastAdded }) {
   );
 }
 
-export default AddForecastModal;
+export default EditForecastModal;
