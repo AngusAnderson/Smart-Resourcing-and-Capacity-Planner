@@ -130,7 +130,7 @@ def get_jobcodes(request, code=None):
         jobcodes = JobCode.objects.all().values()
         return Response(list(jobcodes))
 
-@api_view(['GET', 'PATCH'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 def get_forecasts(request, forecastID=None):
     # If an employee_id query param is provided, return allocations for that employee
     employee_id = request.GET.get('employee_id')

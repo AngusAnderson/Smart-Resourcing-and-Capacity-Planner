@@ -277,3 +277,17 @@
 .add-forecast-button:hover {
   background-color: #45a049;
 }
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #c23030;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background-color: rgba(194,48,48,0.08);
+}

@@ -180,15 +180,37 @@ function EmployeePage() {
                             <th>Description</th>
                             <th>Date</th>
                             <th>Days Allocated</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody>
                           {groupedForecasts[monthKey].map((forecast) => (
                             <tr key={`${forecast.forecastID}-${forecast.employeeID || 'na'}`} onClick={() => openEditModal(forecast)}>
                               <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link" onClick={(e) => e.stopPropagation()}>{forecast.jobCode}</Link></td>
-                              <td>{forecast.description}</td>
-                              <td>{new Date(forecast.date).toLocaleDateString()}</td>
-                              <td>{forecast.daysAllocated}</td>
+                                <td>{forecast.description}</td>
+                                <td>{new Date(forecast.date).toLocaleDateString()}</td>
+                                <td>{forecast.daysAllocated}</td>
+                                <td>
+                                  <button
+                                    className="delete-button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!window.confirm('Delete this forecast allocation?')) return;
+                                      // Call DELETE API for this allocation
+                                      axios
+                                        .delete(`/api/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`)
+                                        .then(() => {
+                                          setForecasts((prev) => prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID)));
+                                        })
+                                        .catch((err) => {
+                                          console.error('Failed to delete allocation', err);
+                                          alert('Failed to delete allocation');
+                                        });
+                                    }}
+                                  >
+                                    ×
+                                  </button>
+                                </td>
                             </tr>
                           ))}
                         </tbody>
