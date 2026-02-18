@@ -36,10 +36,13 @@ const Filter_Box = ({ searchTerm, onSearchChange, events, feedItems }) => {
       <OverallProjectProgress />
 
       {/* Dashboard tabs area */}
-      <Dashboard_Tabs
-        deadlines={deadlines}
-        feedItems={feedItems || []}   // pass the prop through
-      />
+      <div className="dashboard">
+        <Dashboard_Tabs
+          deadlines={deadlines}
+          feedItems={feedItems || []}
+        />
+      </div>
+      
     </div>
   );
 };

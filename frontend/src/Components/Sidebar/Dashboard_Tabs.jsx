@@ -32,6 +32,7 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
   };
 
   const handleUndoClick = async (item) => {
+    console.log("FEED undo clicked for", item.projectId);
     try {
       if (item.undo) {
         await item.undo();
@@ -102,17 +103,6 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
                   <span className="feed-time">
                     Completed at {item.completedAt}
                   </span>
-                  <span className="feed-separator"> -- </span>
-                  <button
-                    type="button"
-                    className="feed-undo-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUndoClick(item);
-                    }}
-                  >
-                    Undo
-                  </button>
                 </div>
               </div>
             ))}

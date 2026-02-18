@@ -81,42 +81,84 @@ function Calendar({ searchTerm, selectedDate, onFeedItem }) {
     },
     callbacks: {
       onEventUpdate: async (updatedEvent) => {
-        console.log("CALENDAR onEventUpdate fired:", updatedEvent);
-    
+        console.log('CALENDAR onEventUpdate fired:', updatedEvent);
+
+        // Capture the full OLD event before Schedule-X re-renders it
+        const oldEvent =
+          (eventsService.get && eventsService.get(updatedEvent.id)) ||
+          (eventsService.getAll &&
+            eventsService.getAll().find((e) => e.id === updatedEvent.id)) ||
+          null;
+
+        if (!oldEvent) {
+          console.warn('No oldEvent found for', updatedEvent.id);
+        } else {
+          console.log(
+            'Old event snapshot:',
+            oldEvent.start.toString(),
+            '->',
+            oldEvent.end.toString()
+          );
+        }
+
         try {
+          // Save new dates to backend
           await api.put(`/jobcodes/${updatedEvent.id}/`, {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
           });
-    
-          const time = Temporal.Now.plainTimeISO().toString().slice(0, 5); // "HH:MM"
-    
+
+          const time = Temporal.Now.plainTimeISO().toString().slice(0, 5);
+
           if (onFeedItem) {
-            console.log("CALENDAR calling onFeedItem");
             onFeedItem({
               id: crypto.randomUUID(),
               projectId: updatedEvent.id,
               message: `Updated dates for project ${updatedEvent.id}`,
               completedAt: time,
-              // you can add previousStart/previousEnd later if you want
+              undo: async () => {
+                if (!oldEvent) {
+                  console.warn('Undo: no oldEvent for', updatedEvent.id);
+                  return;
+                }
+
+                console.log(
+                  'UNDO restoring',
+                  updatedEvent.id,
+                  oldEvent.start.toString(),
+                  '->',
+                  oldEvent.end.toString()
+                );
+
+                // Revert backend to old dates
+                await api.put(`/jobcodes/${updatedEvent.id}/`, {
+                  startDate: oldEvent.start.toString(),
+                  endDate: oldEvent.end.toString(),
+                });
+
+                // IMPORTANT: restore the *entire* oldEvent, not updatedEvent with mixed dates
+                if (eventsService.update) {
+                  eventsService.update({ ...oldEvent });
+                } else if (eventsService.remove && eventsService.add) {
+                  eventsService.remove(oldEvent.id);
+                  eventsService.add({ ...oldEvent });
+                }
+              },
             });
-          } else {
-            console.warn("onFeedItem is missing");
           }
         } catch (err) {
-          console.error("Error updating jobcode:", err);
+          console.error('Error updating jobcode:', err);
           setError(err.message);
         }
-    
-        console.log("Updated Event:", updatedEvent);
+
+        console.log('Updated Event:', updatedEvent);
       },
-    
+
       onEventClick: (calendarEvent) => {
-        console.log("Event clicked:", calendarEvent);
+        console.log('Event clicked:', calendarEvent);
         navigate(`/projects/${calendarEvent.id}`);
       },
-    }
-    ,
+    },
     plugins: [
       eventsService,
       createDragAndDropPlugin(),

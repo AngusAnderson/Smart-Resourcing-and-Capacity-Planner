@@ -194,8 +194,12 @@ font-weight: bold;
 /* Media Queries */
 
 /* Small Screens */
-@media (max-width: 1799px) {
+@media (max-height: 1100px) {
   .wrap {
+    display: none;
+  }
+
+  .dashboard {
     display: none;
   }
 }
