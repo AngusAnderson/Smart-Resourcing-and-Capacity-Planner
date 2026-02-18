@@ -85,7 +85,7 @@ class JobCode(models.Model):
         choices=[(k, v) for k, v in JOB_ORIGIN_CHOICES.items()],
         default='A',  # Default to "Order or eq."
         ) #choice of job origin from JOB_ORIGIN_CHOICES mapping
-    budgetTime = models.IntegerField()  # in hours
+    budgetTime = models.IntegerField()  # in days
     budgetCost = models.DecimalField(max_digits=10, decimal_places=2)  # in currency units,or maybe make as string??
     startDate = models.DateField()
     endDate = models.DateField()
@@ -130,10 +130,10 @@ class Forecast(models.Model):
 class ForecastAllocation(models.Model):
     forecast = models.ForeignKey(Forecast, on_delete=models.CASCADE, related_name='allocations')
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='allocations')
-    hoursAllocated = models.DecimalField(max_digits=5, decimal_places=1)
+    daysAllocated = models.DecimalField(max_digits=5, decimal_places=1)
 
     class Meta:
         unique_together = (('forecast', 'employee'),)
 
     def __str__(self):
-        return f"{self.employee.name} - {self.forecast.forecastID}: {self.hoursAllocated} hours"
+        return f"{self.employee.name} - {self.forecast.forecastID}: {self.dayssAllocated} days"

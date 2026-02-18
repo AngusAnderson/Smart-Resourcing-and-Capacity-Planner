@@ -148,7 +148,7 @@ def get_forecasts(request, forecastID=None):
                     "jobCode": a.forecast.jobCode.code,
                     "customer": a.forecast.jobCode.customerName,
                     "date": a.forecast.date,
-                    "hoursAllocated": float(a.hoursAllocated),
+                    "daysAllocated": float(a.daysAllocated),
                     "employeeID": a.employee.id,
                     "employeeName": a.employee.name,
                 })
@@ -163,7 +163,7 @@ def get_forecasts(request, forecastID=None):
                 allocs.append({
                     "employeeID": a.employee.id,
                     "employeeName": a.employee.name,
-                    "hoursAllocated": float(a.hoursAllocated),
+                    "daysAllocated": float(a.daysAllocated),
                 })
             data.append({
                 "forecastID": f.forecastID,
@@ -185,7 +185,7 @@ def get_forecasts(request, forecastID=None):
         allocations.append({
             "employeeID": a.employee.id,
             "employeeName": a.employee.name,
-            "hoursAllocated": float(a.hoursAllocated),
+            "daysAllocated": float(a.daysAllocated),
         })
 
     data = {
@@ -214,3 +214,75 @@ def edit_jobcode(request, code):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+def create_forecast(request):
+    """
+    Create a new forecast and allocation for an employee.
+    Expected JSON:
+    {
+        "forecastID": "unique-id",
+        "jobCode": "JOB_CODE",
+        "date": "YYYY-MM-DD",
+        "employeeID": 1,
+        "daysAllocated": 5.0
+    }
+    """
+    try:
+        forecast_id = request.data.get('forecastID')
+        job_code = request.data.get('jobCode')
+        date = request.data.get('date')
+        employee_id = request.data.get('employeeID')
+        days_allocated = request.data.get('daysAllocated')
+        
+        # Validation
+        if not all([forecast_id, job_code, date, employee_id, days_allocated]):
+            return Response({"error": "Missing required fields"}, status=400)
+        
+        # Get or validate JobCode
+        try:
+            jobcode = JobCode.objects.get(code=job_code)
+        except JobCode.DoesNotExist:
+            return Response({"error": f"JobCode '{job_code}' not found"}, status=404)
+        
+        # Get or validate Employee
+        try:
+            employee = Employee.objects.get(id=employee_id)
+        except Employee.DoesNotExist:
+            return Response({"error": f"Employee with ID {employee_id} not found"}, status=404)
+        
+        # Create or get Forecast
+        forecast, created = Forecast.objects.get_or_create(
+            forecastID=forecast_id,
+            defaults={
+                'jobCode': jobcode,
+                'date': date
+            }
+        )
+        
+        # If forecast already exists, update it
+        if not created:
+            forecast.jobCode = jobcode
+            forecast.date = date
+            forecast.save()
+        
+        # Create or update ForecastAllocation
+        allocation, alloc_created = ForecastAllocation.objects.update_or_create(
+            forecast=forecast,
+            employee=employee,
+            defaults={'daysAllocated': days_allocated}
+        )
+        
+        return Response({
+            "forecastID": forecast.forecastID,
+            "jobCode": forecast.jobCode.code,
+            "customer": forecast.jobCode.customerName,
+            "date": forecast.date,
+            "daysAllocated": float(allocation.daysAllocated),
+            "employeeID": employee.id,
+            "employeeName": employee.name,
+        }, status=201)
+        
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)

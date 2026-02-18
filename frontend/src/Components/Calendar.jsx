@@ -16,6 +16,7 @@ import '../css/Calendar.css'
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
 import api from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import { getWorkingDaysInMonth } from '../utils/dateUtils'
 
 function Calendar({ searchTerm, selectedDate }) {
   const navigate = useNavigate()
@@ -34,32 +35,7 @@ function Calendar({ searchTerm, selectedDate }) {
     }
   }
 
-  function getWorkingDaysInMonth(monthDate) {
-    const firstDay = Temporal.PlainDate.from({
-      year: monthDate.year,
-      month: monthDate.month,
-      day: 1
-    })
 
-    const lastDay = firstDay
-      .add({ months: 1 })
-      .subtract({ days: 1 })
-
-    let workingDays = 0
-    let current = firstDay
-
-    while (Temporal.PlainDate.compare(current, lastDay) <= 0) {
-      const dayOfWeek = current.dayOfWeek // 1 = Monday, 7 = Sunday
-
-      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-        workingDays++
-      }
-
-      current = current.add({ days: 1 })
-    }
-
-    return workingDays
-  }
 
 
   function getActualDaysWorkedInMonth(events, monthDate) {

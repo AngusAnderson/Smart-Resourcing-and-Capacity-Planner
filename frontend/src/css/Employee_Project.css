@@ -257,3 +257,23 @@
   font-size: 14px;
   color: #666;
 }
+
+.forecasts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.forecasts-header .section-title {
+  margin: 0;
+}
+
+.add-forecast-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.add-forecast-button:hover {
+  background-color: #45a049;
+}

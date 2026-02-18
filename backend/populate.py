@@ -63,21 +63,21 @@ FORECASTS = [
         "employee": "Nathan Hutchison",
         "jobcode": "C341-CWPUK-28-7-4",
         "date": date(2025, 11, 20),
-        "hours": 7.5,
+        "days": 7.5,
     },
     {
         "forecastID": "F002",
         "employee": "Jane Smith",
         "jobcode": "C341-CWPUK-28-7-4",
         "date": date(2025, 12, 1),
-        "hours": 5.0,
+        "days": 5.0,
     },
     {
         "forecastID": "F003",
         "employee": "John Doe",
         "jobcode": "RPL-IT-15-3-1",
         "date": date(2025, 12, 5),
-        "hours": 4.0,
+        "days": 4.0,
     },
 ]
 
@@ -142,11 +142,11 @@ def create_forecasts(employee_map, jobcode_map):
             },
         )
 
-        # Create allocation linking the forecast to the employee with hours
+        # Create allocation linking the forecast to the employee with days
         ForecastAllocation.objects.get_or_create(
             forecast=forecast_obj,
             employee=employee_map[f["employee"]],
-            defaults={"hoursAllocated": f["hours"]},
+            defaults={"daysAllocated": f["days"]},
         )
 
 def populate():

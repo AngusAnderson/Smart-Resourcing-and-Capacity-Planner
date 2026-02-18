@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "../css/Employee_Project.css";
+import { getWorkingDaysInMonth } from "../utils/dateUtils";
+import AddForecastModal from "./AddForecastModal";
 
 const mockEmployee = {
   id: 1,
@@ -23,6 +25,7 @@ function EmployeePage() {
   const [employee, setEmployee] = useState(null);
   const [forecasts, setForecasts] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState({});
+  const [showAddForecastModal, setShowAddForecastModal] = useState(false);
 
   useEffect(() => {
     async function fetchEmployee() {
@@ -76,6 +79,20 @@ function EmployeePage() {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
+  const getMonthWorkingDays = (monthKey) => {
+    const [year, month] = monthKey.split('-');
+    const monthDate = {
+      year: parseInt(year),
+      month: parseInt(month)
+    };
+    return getWorkingDaysInMonth(monthDate);
+  };
+
+  const handleForecastAdded = (newForecast) => {
+    // Add the new forecast to the list
+    setForecasts((prev) => [...prev, newForecast]);
+  };
+
   if (!employee) return null;
 
   return (
@@ -108,7 +125,15 @@ function EmployeePage() {
           </div>
 
           <div className="employee-body-card">
-            <h2 className="section-title">Forecasts:</h2>
+            <div className="forecasts-header">
+              <h2 className="section-title">Forecasts:</h2>
+              <button 
+                className="pill-button add-forecast-button"
+                onClick={() => setShowAddForecastModal(true)}
+              >
+                + Add Forecast
+              </button>
+            </div>
             {forecasts.length > 0 ? (
               <div className="forecasts-months">
                 {sortedMonths.map((monthKey) => (
@@ -124,7 +149,7 @@ function EmployeePage() {
                         {getMonthLabel(monthKey)}
                       </span>
                       <span className="month-count">
-                        ({groupedForecasts[monthKey].length} forecast{groupedForecasts[monthKey].length !== 1 ? 's' : ''})
+                        ({groupedForecasts[monthKey].length} forecast{groupedForecasts[monthKey].length !== 1 ? 's' : ''}, {getMonthWorkingDays(monthKey)} working days)
                       </span>
                     </div>
 
@@ -135,7 +160,7 @@ function EmployeePage() {
                             <th>Job Code</th>
                             <th>Customer</th>
                             <th>Date</th>
-                            <th>Hours Allocated</th>
+                            <th>Days Allocated</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -144,14 +169,14 @@ function EmployeePage() {
                               <td><Link to={`/projects/${forecast.jobCode}`} className="job-code-link">{forecast.jobCode}</Link></td>
                               <td>{forecast.customer}</td>
                               <td>{new Date(forecast.date).toLocaleDateString()}</td>
-                              <td>{forecast.hoursAllocated}</td>
+                              <td>{forecast.daysAllocated}</td>
                             </tr>
                           ))}
                         </tbody>
                         <tfoot>
                           <tr>
-                            <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Hours:</td>
-                            <td style={{ fontWeight: 700 }}>{groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.hoursAllocated), 0)}</td>
+                            <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Days:</td>
+                            <td style={{ fontWeight: 700 }}>{groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.daysAllocated), 0)}</td>
                           </tr>
                         </tfoot>
                       </table>
@@ -196,6 +221,14 @@ function EmployeePage() {
           <button className="pill-button side-edit-button">Edit</button>
         </aside>
       </div>
+
+      {showAddForecastModal && (
+        <AddForecastModal
+          employeeID={employee.employeeID}
+          onClose={() => setShowAddForecastModal(false)}
+          onForecastAdded={handleForecastAdded}
+        />
+      )}
     </div>
   );
 }
