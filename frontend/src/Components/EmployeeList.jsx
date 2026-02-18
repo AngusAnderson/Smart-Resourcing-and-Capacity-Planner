@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import "../css/Employee_List.css";
+import "../css/Employee_list.css";
 
 
 function toSlug(value) {
@@ -27,6 +27,17 @@ function EmployeeList(){
     });
 
     const canCreate = useMemo(() => formData.name.trim().length > 0, [formData.name]);
+    const [search, setSearch] = useState("");
+    const filteredEmployees = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return employees;
+
+    return employees.filter((e) => {
+      const name = String(e?.name || "").toLowerCase();
+      const specs = Array.isArray(e?.specialisms) ? e.specialisms.join(" ").toLowerCase() : "";
+      return name.includes(q) || specs.includes(q);
+    });
+  }, [employees, search]);
 
 
     useEffect(() => {
@@ -145,6 +156,16 @@ function EmployeeList(){
                 </button>
             </div>
 
+            <div className="employee-search-row">
+              <input
+                className="employee-search-input"
+                type="text"
+                placeholder="Search employees..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
       {error && <div className="error-message">{error}</div>}
 
       {showCreateForm && (
@@ -247,11 +268,11 @@ function EmployeeList(){
                 > */}
 
 
-      {employees.length === 0 ? (
+      {filteredEmployees.length === 0 ? (
         <div className="empty-state">No employees found</div>
       ) : (
         <div className="employees-grid">
-          {employees.map((employee) => (
+          {filteredEmployees.map((employee) => (
             <div
               key={employee.employeeID ?? employee.id ?? employee.name}
               className="employee-card"

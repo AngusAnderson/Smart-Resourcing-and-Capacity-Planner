@@ -169,3 +169,24 @@
   color: #999999;
   font-size: 16px;
 }
+
+.employee-search-row {
+  margin: 12px 0 18px 0;
+  width: 100%;
+}
+
+.employee-search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.employee-search-input::placeholder {
+  color: #999999;
+}
+
