@@ -10,6 +10,7 @@ urlpatterns = [
     path("jobcodes/<str:code>/", views.get_jobcodes),
     path("jobcodes/<str:code>/edit/", views.edit_jobcode),
     path("forecasts/", views.get_forecasts, name="forecasts"),
+    path("forecasts/create/", views.create_forecast, name="create-forecast"),
     path("forecasts/<str:forecastID>/", views.get_forecasts),
     path("ai/chat/", views.ai_chat, name="ai-chat"),
 ]

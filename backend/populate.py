@@ -5,7 +5,15 @@ from datetime import date
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
 django.setup()
 
-from comwrap.models import Employee, Specialism, JobCode, ForecastEntry, ResourceBusinessUnit, ReplyEntity
+from comwrap.models import (
+    Employee,
+    Specialism,
+    JobCode,
+    Forecast,
+    ForecastAllocation,
+    ResourceBusinessUnit,
+    ReplyEntity,
+)
 
 RESOURCE_BUSINESS_UNIT = ["cwpuk_cwpuk"]
 REPLY_ENTITY = ["Comwrap UK"]
@@ -55,21 +63,21 @@ FORECASTS = [
         "employee": "Nathan Hutchison",
         "jobcode": "C341-CWPUK-28-7-4",
         "date": date(2025, 11, 20),
-        "hours": 7.5,
+        "days": 7.5,
     },
     {
         "forecastID": "F002",
         "employee": "Jane Smith",
         "jobcode": "C341-CWPUK-28-7-4",
         "date": date(2025, 12, 1),
-        "hours": 5.0,
+        "days": 5.0,
     },
     {
         "forecastID": "F003",
         "employee": "John Doe",
         "jobcode": "RPL-IT-15-3-1",
         "date": date(2025, 12, 5),
-        "hours": 4.0,
+        "days": 4.0,
     },
 ]
 
@@ -125,17 +133,27 @@ def create_jobcodes(reply_entity):
 
 def create_forecasts(employee_map, jobcode_map):
     for f in FORECASTS:
-        ForecastEntry.objects.get_or_create(
+        # Create or get the Forecast (one forecast per jobCode/date/forecastID)
+        forecast_obj, _ = Forecast.objects.get_or_create(
             forecastID=f["forecastID"],
+            defaults={
+                "jobCode": jobcode_map[f["jobcode"]],
+                "date": f["date"],
+            },
+        )
+
+        # Create allocation linking the forecast to the employee with days
+        ForecastAllocation.objects.get_or_create(
+            forecast=forecast_obj,
             employee=employee_map[f["employee"]],
-            jobCode=jobcode_map[f["jobcode"]],
-            date=f["date"],
-            hoursAllocated=f["hours"]
+            defaults={"daysAllocated": f["days"]},
         )
 
 def populate():
     print("Clearing data...")
-    ForecastEntry.objects.all().delete()
+    # Remove allocations and forecasts first, then jobcodes/employees/specialisms
+    ForecastAllocation.objects.all().delete()
+    Forecast.objects.all().delete()
     JobCode.objects.all().delete()
     Employee.objects.all().delete()
     Specialism.objects.all().delete()

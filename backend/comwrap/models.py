@@ -86,7 +86,7 @@ class JobCode(models.Model):
         choices=[(k, v) for k, v in JOB_ORIGIN_CHOICES.items()],
         default='A',  # Default to "Order or eq."
         ) #choice of job origin from JOB_ORIGIN_CHOICES mapping
-    budgetTime = models.IntegerField()  # in hours
+    budgetTime = models.IntegerField()  # in days
     budgetCost = models.DecimalField(max_digits=10, decimal_places=2)  # in currency units,or maybe make as string??
     startDate = models.DateField()
     endDate = models.DateField()
@@ -107,12 +107,35 @@ class JobCode(models.Model):
     def __str__(self):
         return f"{self.code}: {self.description}"
     
-class ForecastEntry(models.Model):
+# class ForecastEntry(models.Model):
+#     forecastID = models.CharField(max_length=20, unique=True)
+#     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+#     jobCode = models.ForeignKey(JobCode, on_delete=models.CASCADE)
+#     date = models.DateField()
+#     hoursAllocated = models.DecimalField(max_digits=5, decimal_places=1)
+    
+#     def __str__(self):
+#         return f"{self.employee.name} - {self.jobCode.code} on {self.date}: {self.hoursAllocated} hours"
+
+
+# New models to support many-to-many allocations between forecasts and employees.
+class Forecast(models.Model):
     forecastID = models.CharField(max_length=20, unique=True)
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     jobCode = models.ForeignKey(JobCode, on_delete=models.CASCADE)
     date = models.DateField()
-    hoursAllocated = models.DecimalField(max_digits=5, decimal_places=1)
-    
+    description = models.TextField(blank=True, null=True)
+
     def __str__(self):
-        return f"{self.employee.name} - {self.jobCode.code} on {self.date}: {self.hoursAllocated} hours"
+        return f"{self.jobCode.code} - {self.forecastID} on {self.date}"
+
+
+class ForecastAllocation(models.Model):
+    forecast = models.ForeignKey(Forecast, on_delete=models.CASCADE, related_name='allocations')
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='allocations')
+    daysAllocated = models.DecimalField(max_digits=5, decimal_places=1)
+
+    class Meta:
+        unique_together = (('forecast', 'employee'),)
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.forecast.forecastID}: {self.daysAllocated} days"
