@@ -45,7 +45,6 @@ class Employee(models.Model):
     resourceBU = models.ForeignKey(ResourceBusinessUnit, on_delete=models.CASCADE, default=get_default_resource_bu)  # New field for resource business unit, defaults to cwpuk_cwpuk. 
     excludedFromAI = models.BooleanField()
     slug = models.SlugField(unique=True, blank=True)
-    jobCodes = models.ManyToManyField('JobCode', related_name='employees', blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
