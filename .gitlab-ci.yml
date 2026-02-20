@@ -43,12 +43,7 @@ workflow:
     - when: never
 
 
-variables:
-  # DJANGO_CONFIG: "test"
-  MYSQL_DATABASE: $MYSQL_DB
-  MYSQL_ROOT_PASSWORD: $MYSQL_PASS
-  MYSQL_USER: $MYSQL_USER
-  MYSQL_PASSWORD: $MYSQL_PASS
+
 
 default:
   image: ubuntu:20.04
@@ -77,13 +72,8 @@ frontend-setup:
 migrations:
   stage: build
   image: python:3.12
-  services:
-    - name: mysql:8.0
-      alias: mysql
   script:
     - cd backend
-    - apt-get update -y
-    - apt-get install -y default-mysql-client
     - pip install --upgrade pip
     - pip install -r requirements-ci.txt
     - python manage.py migrate
