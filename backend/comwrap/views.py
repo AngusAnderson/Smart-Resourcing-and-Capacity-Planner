@@ -133,8 +133,9 @@ def get_jobcodes(request, code=None):
         }
         return Response(response_data)
     if code is None:
-        jobcodes = JobCode.objects.all().values()
-        return Response(list(jobcodes))
+        jobcodes = JobCode.objects.all()
+        serializer = JobCodeSerializer(jobcodes, many=True)
+        return Response(serializer.data)
 
 @api_view(['GET', 'PATCH', 'DELETE'])
 def get_forecasts(request, forecastID=None):
