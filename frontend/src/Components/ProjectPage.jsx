@@ -11,6 +11,7 @@ function ProjectPage() {
   const [error, setError] = useState(null);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingSidebar, setIsEditingSidebar] = useState(false);
   const [allEmployees, setAllEmployees] = useState([]);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
 
@@ -62,7 +63,6 @@ function ProjectPage() {
     fetchProject();
   }, [id]);
 
-  // Helper function to calculate duration in days
   function calculateDuration(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -95,6 +95,27 @@ function ProjectPage() {
       }
     } catch (err) {
       console.error("Error saving project changes", err);
+    }
+  };
+
+  const handleSaveSidebar = async () => {
+    try {
+      const updatedData = {
+        startDate: project.startDate,
+        endDate: project.finishDate,
+        budgetTime: project.remainingBudgetDays,
+        budgetCost: project.budget
+      };
+
+      const res = await api.patch(`/jobcodes/${id}/`, updatedData);
+
+      if (res.status === 200) {
+        setIsEditingSidebar(false);
+      } else {
+        console.error("Failed to save sidebar changes");
+      }
+    } catch (err) {
+      console.error("Error saving sidebar changes", err);
     }
   };
 
@@ -136,6 +157,13 @@ function ProjectPage() {
             {isEditing ? (
               <div className="edit-section">
                 <h3>Edit Project</h3>
+
+                <label>Description:</label>
+                <textarea
+                  className="edit-description"
+                  value={project.description}
+                  onChange={(e) => setProject(prev => ({ ...prev, description: e.target.value }))}
+                />
 
                 <label>Assign Employees:</label>
                 {allEmployees.length > 0 ? (
@@ -185,18 +213,13 @@ function ProjectPage() {
                   <div className="description-box">
                     <p>{project.description}</p>
                   </div>
-
-                  <div className="assigned-employees">
-                    <strong>Assigned Employees:</strong>{" "}
-                    {project.employees && project.employees.length > 0
-                      ? project.employees.map(emp => emp.name).join(", ")
-                      : "None"}
-                  </div>
                 </div>
 
                 <h2 className="section-title">Employees:</h2>
                 <div className="description-box">
-                  {/* Have it so this shows the list of employees working on the project */}
+                  {project.employees && project.employees.length > 0
+                    ? project.employees.map(emp => emp.name).join(", ")
+                    : "None"}
                 </div>
               </>
             )}
@@ -204,25 +227,84 @@ function ProjectPage() {
         </main>
 
         <aside className="project-side">
-          <div className="side-card">
-            <h2 className="side-heading">Time:</h2>
-            <p className="label-line">
-              <span className="label">Start Date:</span>{" "}
-              <span>{project.startDate}</span>
-            </p>
-            <p className="label-line">
-              <span className="label">Finish Date:</span>{" "}
-              <span>{project.finishDate}</span>
-            </p>
-            <p className="label-line">
-              <span className="label">Duration (Days):</span>{" "}
-              <span>{project.durationDays}</span>
-            </p>
-            <p className="label-line">
-              <span className="label">Remaining Budget (Days):</span>{" "}
-              <span>{project.remainingBudgetDays}</span>
-            </p>
-          </div>
+          {isEditingSidebar ? (
+            <div className="sidebar-edit-section">
+              <div className="side-card">
+                <h2 className="side-heading">Time:</h2>
+                <label>Start Date:</label>
+                <input
+                  type="date"
+                  value={project.startDate}
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    setProject(prev => ({
+                      ...prev,
+                      startDate: newStart,
+                      durationDays: calculateDuration(newStart, prev.finishDate)
+                    }));
+                  }}
+                />
+                <label>Finish Date:</label>
+                <input
+                  type="date"
+                  value={project.finishDate}
+                  onChange={(e) => {
+                    const newFinish = e.target.value;
+                    setProject(prev => ({
+                      ...prev,
+                      finishDate: newFinish,
+                      durationDays: calculateDuration(prev.startDate, newFinish)
+                    }));
+                  }}
+                />
+                <p className="label-line">
+                  <span className="label">Duration (Days):</span>{" "}
+                  <span>{project.durationDays}</span>
+                </p>
+                <label>Remaining Budget (Days):</label>
+                <input
+                  type="number"
+                  value={project.remainingBudgetDays}
+                  onChange={(e) => setProject(prev => ({ ...prev, remainingBudgetDays: parseFloat(e.target.value) }))}
+                />
+              </div>
+
+              <div className="side-card">
+                <h2 className="side-heading">Finance:</h2>
+                <label>Budget (Cost Currency):</label>
+                <input
+                  type="number"
+                  value={project.budget}
+                  onChange={(e) => setProject(prev => ({ ...prev, budget: parseFloat(e.target.value) }))}
+                />
+              </div>
+
+              <div className="edit-buttons">
+                <button onClick={handleSaveSidebar}>Save</button>
+                <button onClick={() => setIsEditingSidebar(false)}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="side-card">
+                <h2 className="side-heading">Time:</h2>
+                <p className="label-line">
+                  <span className="label">Start Date:</span>{" "}
+                  <span>{project.startDate}</span>
+                </p>
+                <p className="label-line">
+                  <span className="label">Finish Date:</span>{" "}
+                  <span>{project.finishDate}</span>
+                </p>
+                <p className="label-line">
+                  <span className="label">Duration (Days):</span>{" "}
+                  <span>{project.durationDays}</span>
+                </p>
+                <p className="label-line">
+                  <span className="label">Remaining Budget (Days):</span>{" "}
+                  <span>{project.remainingBudgetDays}</span>
+                </p>
+              </div>
 
           <div className="side-card">
             <h2 className="side-heading">Finance:</h2>
@@ -232,12 +314,14 @@ function ProjectPage() {
             </p>
           </div>
 
-          <div className="side-card">
-            <h2 className="side-heading">Confidence Score:</h2>
-            <p className="confidence-value">{project.confidenceScore}</p>
-          </div>
+              <div className="side-card">
+                <h2 className="side-heading">Confidence Score:</h2>
+                <p className="confidence-value">{project.confidenceScore}</p>
+              </div>
 
-          <button className="pill-button side-edit-button">Edit</button>
+              <button className="pill-button side-edit-button" onClick={() => setIsEditingSidebar(true)}>Edit</button>
+            </>
+          )}
         </aside>
       </div>
     </div>
