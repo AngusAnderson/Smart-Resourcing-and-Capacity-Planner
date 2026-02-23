@@ -203,3 +203,137 @@
   color: #000000;
   text-align: center;
 }
+.forecasts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 16px;
+}
+
+.forecasts-table thead {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #000000;
+}
+
+.forecasts-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #000000;
+}
+
+.forecasts-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #000000;
+}
+
+.forecasts-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.job-code-link {
+  color: #ff6666;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.job-code-link:hover {
+  color: #ff4444;
+  text-decoration: underline;
+}
+
+.forecasts-table tfoot {
+  background-color: #f5f5f5;
+  border-top: 2px solid #000000;
+}
+
+.forecasts-table tfoot td {
+  padding: 12px 16px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.forecasts-months {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.month-group {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.month-header {
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.month-header:hover {
+  background-color: #f0f0f0;
+}
+
+.month-toggle {
+  font-size: 12px;
+  color: #666;
+  min-width: 16px;
+  display: inline-block;
+}
+
+.month-label {
+  font-weight: 600;
+  color: #000000;
+  flex: 1;
+}
+
+.month-count {
+  font-size: 14px;
+  color: #666;
+}
+
+.forecasts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.forecasts-header .section-title {
+  margin: 0;
+}
+
+.add-forecast-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.add-forecast-button:hover {
+  background-color: #45a049;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #c23030;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background-color: rgba(194,48,48,0.08);
+}
