@@ -18,6 +18,7 @@ import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
+import { getWorkingDaysInMonth } from '../utils/dateUtils'
 
 function Calendar({ searchTerm, selectedDate }) {
   const navigate = useNavigate()
@@ -36,32 +37,7 @@ function Calendar({ searchTerm, selectedDate }) {
     }
   }
 
-  function getWorkingDaysInMonth(monthDate) {
-    const firstDay = Temporal.PlainDate.from({
-      year: monthDate.year,
-      month: monthDate.month,
-      day: 1
-    })
 
-    const lastDay = firstDay
-      .add({ months: 1 })
-      .subtract({ days: 1 })
-
-    let workingDays = 0
-    let current = firstDay
-
-    while (Temporal.PlainDate.compare(current, lastDay) <= 0) {
-      const dayOfWeek = current.dayOfWeek // 1 = Monday, 7 = Sunday
-
-      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-        workingDays++
-      }
-
-      current = current.add({ days: 1 })
-    }
-
-    return workingDays
-  }
 
 
   function getActualDaysWorkedInMonth(events, monthDate) {
@@ -322,25 +298,6 @@ function Calendar({ searchTerm, selectedDate }) {
 
   return (
     <div className="calendar-big-wrapper">
-      <div className="calendar-header-overlay">
-        <h3>
-          Target allocated days:
-          <select
-            value={targetAllocatedDays ?? workingDaysInMonth}
-            onChange={(e) => setTargetAllocatedDays(Number(e.target.value))}
-          >
-            {options.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-          /{workingDaysInMonth}
-        </h3>
-
-        <h3>Current Allocated Days: {actualDaysWorked}</h3>
-      </div>
-
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
   );
