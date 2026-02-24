@@ -102,7 +102,9 @@ const handleResizeEnd = () => {
   const nextHeight = panelRef.current.offsetHeight
   if (nextWidth === panelSize.width && nextHeight === panelSize.height) return
   setPanelSize({ width: nextWidth, height: nextHeight })
+
 }
+
     return (
         <div className='Header'>
         <div className="Text-top_left">
@@ -119,7 +121,7 @@ const handleResizeEnd = () => {
 
         </div>
         <div className="Text-top_right">
-          <h1>John Doe</h1>
+          <h1>Joe Strummer</h1>
         </div>
 
         <div className="Text-middle">

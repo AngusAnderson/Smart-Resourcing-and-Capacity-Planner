@@ -1,6 +1,12 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Employee, Specialism, JobCode, ForecastEntry
+from .models import (
+    Employee,
+    Specialism,
+    JobCode,
+    Forecast,
+    ForecastAllocation,
+)
 from .serializers import JobCodeSerializer
 from openai import OpenAI
 
@@ -20,7 +26,6 @@ def ai_chat(request):
     )
 
     return Response({"reply": response.output_text})
-from .serializers import JobCodeSerializer
 
 @api_view(['GET'])
 def hello_world(request):
@@ -43,8 +48,10 @@ def get_employees(request, slug=None):
             data = {
                 "employeeID": employee.id,
                 "name": employee.name,
-                "excludedFromAI": employee.excludedFromAI,
-                "specialisms": list(employee.specialisms.values_list("name", flat=True))
+                "resourceBU": employee.resourceBU.name,
+            "excludedFromAI": employee.excludedFromAI,
+                "specialisms": list(employee.specialisms.values_list("name", flat=True)),
+            "jobCodes": list(employee.jobCodes.values_list("code", flat=True))
             }
             return Response(data)
         employees = Employee.objects.all()
@@ -53,8 +60,10 @@ def get_employees(request, slug=None):
             attributes.append({ 
                 "employeeID": e.id,
                 "name": e.name,
-                "excludedFromAI": e.excludedFromAI,
-                "specialisms": list(e.specialisms.values_list("name", flat=True))
+                "resourceBU": e.resourceBU.name,
+            "excludedFromAI": e.excludedFromAI,
+                "specialisms": list(e.specialisms.values_list("name", flat=True)),
+            "jobCodes": list(e.jobCodes.values_list("code", flat=True))
             })
         return Response(attributes)
 
@@ -124,16 +133,24 @@ def get_jobcodes(request, code=None):
         except JobCode.DoesNotExist:
             return Response({"error": "Jobcode not found"}, status=404)
         
+        employees = []
+        try:
+            employees = list(jobcode.employees.values("id", "name"))
+        except AttributeError:
+            pass
+        
         data = {
             "code": jobcode.code,
             "description": jobcode.description,
             "customerName": jobcode.customerName,
             "businessUnit": jobcode.businessUnit,
+            "jobOrigin": jobcode.jobOrigin,
             "budgetTime": jobcode.budgetTime,
             "budgetCost": float(jobcode.budgetCost),
             "startDate": jobcode.startDate,
             "endDate": jobcode.endDate,
-            "employees": list(jobcode.employees.values("id", "name"))
+            "employees": employees,
+            "status": jobcode.status,
         }
         return Response(data)
         
@@ -173,36 +190,145 @@ def get_jobcodes(request, code=None):
         }
         return Response(response_data)
     if code is None:
-        jobcodes = JobCode.objects.all().values()
-        return Response(list(jobcodes))
+        jobcodes = JobCode.objects.all()
+        serializer = JobCodeSerializer(jobcodes, many=True)
+        return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 def get_forecasts(request, forecastID=None):
+    # If an employee_id query param is provided, return allocations for that employee
+    employee_id = request.GET.get('employee_id')
+
     if forecastID is None:
-        forecasts = ForecastEntry.objects.select_related('employee', 'jobCode')
+        if employee_id is not None:
+            allocations = (
+                ForecastAllocation.objects.select_related('forecast__jobCode', 'employee')
+                .filter(employee__id=employee_id)
+            )
+            data = []
+            for a in allocations:
+                data.append({
+                    "forecastID": a.forecast.forecastID,
+                    "jobCode": a.forecast.jobCode.code,
+                    "description": a.forecast.description,
+                    "date": a.forecast.date,
+                    "daysAllocated": float(a.daysAllocated),
+                    "employeeID": a.employee.id,
+                    "employeeName": a.employee.name,
+                })
+            return Response(data)
+
+        # No filter: return all forecasts with their allocations
+        forecasts = Forecast.objects.select_related('jobCode').all()
         data = []
         for f in forecasts:
+            allocs = []
+            for a in f.allocations.select_related('employee').all():
+                allocs.append({
+                    "employeeID": a.employee.id,
+                    "employeeName": a.employee.name,
+                    "daysAllocated": float(a.daysAllocated),
+                })
             data.append({
                 "forecastID": f.forecastID,
-                "employee": f.employee.name,
                 "jobCode": f.jobCode.code,
-                "customer": f.jobCode.customerName,
+                "description": f.description,
+                "date": f.date,
+                "allocations": allocs,
             })
         return Response(data)
-    
+
+    # Single forecast by forecastID
+    # Support PATCH to update forecast and allocation
+    if forecastID is not None and request.method == 'PATCH':
+        try:
+            f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
+        except Forecast.DoesNotExist:
+            return Response({"error": "Forecast not found"}, status=404)
+
+        data = request.data or {}
+        job_code = data.get('jobCode')
+        date = data.get('date')
+        description = data.get('description')
+        employee_id = data.get('employeeID')
+        days_allocated = data.get('daysAllocated')
+
+        # Update jobCode if provided
+        if job_code:
+            try:
+                jc = JobCode.objects.get(code=job_code)
+                f.jobCode = jc
+            except JobCode.DoesNotExist:
+                return Response({"error": f"JobCode '{job_code}' not found"}, status=404)
+
+        # Update date/description if provided
+        if date:
+            f.date = date
+        if description is not None:
+            f.description = description
+
+        f.save()
+
+        # Update allocation for a specific employee if provided
+        if employee_id is not None and days_allocated is not None:
+            try:
+                emp = Employee.objects.get(id=employee_id)
+            except Employee.DoesNotExist:
+                return Response({"error": f"Employee with ID {employee_id} not found"}, status=404)
+
+            allocation, _ = ForecastAllocation.objects.update_or_create(
+                forecast=f,
+                employee=emp,
+                defaults={"daysAllocated": days_allocated},
+            )
+
+            return Response({
+                "forecastID": f.forecastID,
+                "jobCode": f.jobCode.code,
+                "description": f.description,
+                "date": f.date,
+                "daysAllocated": float(allocation.daysAllocated),
+                "employeeID": emp.id,
+                "employeeName": emp.name,
+            })
+
+        # If no allocation update, return full forecast with allocations
+        allocs = []
+        for a in f.allocations.select_related('employee').all():
+            allocs.append({
+                "employeeID": a.employee.id,
+                "employeeName": a.employee.name,
+                "daysAllocated": float(a.daysAllocated),
+            })
+
+        return Response({
+            "forecastID": f.forecastID,
+            "jobCode": f.jobCode.code,
+            "description": f.description,
+            "date": f.date,
+            "allocations": allocs,
+        })
+
+    # GET single forecast
     try:
-        f = ForecastEntry.objects.select_related('employee', 'jobCode').get(forecastID=forecastID)
-    except ForecastEntry.DoesNotExist:
+        f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
+    except Forecast.DoesNotExist:
         return Response({"error": "Forecast not found"}, status=404)
-    
+
+    allocations = []
+    for a in f.allocations.select_related('employee').all():
+        allocations.append({
+            "employeeID": a.employee.id,
+            "employeeName": a.employee.name,
+            "daysAllocated": float(a.daysAllocated),
+        })
+
     data = {
         "forecastID": f.forecastID,
-        "employee": f.employee.name,
-        "employeeID": f.employee.id,
         "jobCode": f.jobCode.code,
-        "description": f.jobCode.description,
+        "description": f.description,
         "date": f.date,
-        "hoursAllocated": float(f.hoursAllocated),
+        "allocations": allocations,
     }
     return Response(data)
 
@@ -223,3 +349,80 @@ def edit_jobcode(request, code):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+def create_forecast(request):
+    """
+    Create a new forecast and allocation for an employee.
+    Expected JSON:
+    {
+        "forecastID": "unique-id",
+        "jobCode": "JOB_CODE",
+        "date": "YYYY-MM-DD",
+        "description": "optional description",
+        "employeeID": 1,
+        "daysAllocated": 5.0
+    }
+    """
+    try:
+        forecast_id = request.data.get('forecastID')
+        job_code = request.data.get('jobCode')
+        date = request.data.get('date')
+        description = request.data.get('description', '')
+        employee_id = request.data.get('employeeID')
+        days_allocated = request.data.get('daysAllocated')
+        
+        # Validation
+        if not all([forecast_id, job_code, date, employee_id, days_allocated]):
+            return Response({"error": "Missing required fields"}, status=400)
+        
+        # Get or validate JobCode
+        try:
+            jobcode = JobCode.objects.get(code=job_code)
+        except JobCode.DoesNotExist:
+            return Response({"error": f"JobCode '{job_code}' not found"}, status=404)
+        
+        # Get or validate Employee
+        try:
+            employee = Employee.objects.get(id=employee_id)
+        except Employee.DoesNotExist:
+            return Response({"error": f"Employee with ID {employee_id} not found"}, status=404)
+        
+        # Create or get Forecast
+        forecast, created = Forecast.objects.get_or_create(
+            forecastID=forecast_id,
+            defaults={
+                'jobCode': jobcode,
+                'date': date,
+                'description': description
+            }
+        )
+        
+        # If forecast already exists, update it
+        if not created:
+            forecast.jobCode = jobcode
+            forecast.date = date
+            forecast.description = description
+            forecast.save()
+        
+        # Create or update ForecastAllocation
+        allocation, alloc_created = ForecastAllocation.objects.update_or_create(
+            forecast=forecast,
+            employee=employee,
+            defaults={'daysAllocated': days_allocated}
+        )
+        
+        return Response({
+            "forecastID": forecast.forecastID,
+            "jobCode": forecast.jobCode.code,
+            "customer": forecast.jobCode.customerName,
+            "date": forecast.date,
+            "description": forecast.description,
+            "daysAllocated": float(allocation.daysAllocated),
+            "employeeID": employee.id,
+            "employeeName": employee.name,
+        }, status=201)
+        
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
