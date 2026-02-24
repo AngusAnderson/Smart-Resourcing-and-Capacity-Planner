@@ -145,3 +145,14 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-group small {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: -2px;
+}
