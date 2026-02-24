@@ -33,11 +33,8 @@ function renderPage() {
   );
 }
 
-// Helper: when form is open there are 2 textboxes (search + name input)
-// This returns the name input in the create form
 function getNameInput() {
   const textboxes = screen.getAllByRole("textbox");
-  // textbox[0] is search bar, textbox[1] is form name input
   return textboxes[1];
 }
 
@@ -54,8 +51,7 @@ describe("EmployeeList", () => {
     vi.clearAllMocks();
   });
 
-  it("shows loading state while employees load", async () => {
-    // Make both calls never resolve so UI stays in loading without extra state updates
+  it("shows loading state", async () => {
     api.get.mockImplementation(() => new Promise(() => {}));
 
     renderPage();
@@ -233,7 +229,6 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    // form hidden initially
     expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
@@ -337,7 +332,6 @@ describe("EmployeeList", () => {
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Jane Developer");
 
-    // multiple select is role "listbox" (not combobox) when multiple={true}
     const select = screen.getByRole("listbox");
     await userEvent.selectOptions(select, ["Backend"]);
 
