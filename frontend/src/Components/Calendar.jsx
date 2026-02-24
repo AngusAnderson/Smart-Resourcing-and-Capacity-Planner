@@ -298,25 +298,6 @@ function Calendar({ searchTerm, selectedDate }) {
 
   return (
     <div className="calendar-big-wrapper">
-      <div className="calendar-header-overlay">
-        <h3>
-          Target allocated days:
-          <select
-            value={targetAllocatedDays ?? workingDaysInMonth}
-            onChange={(e) => setTargetAllocatedDays(Number(e.target.value))}
-          >
-            {options.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-          /{workingDaysInMonth}
-        </h3>
-
-        <h3>Current Allocated Days: {actualDaysWorked}</h3>
-      </div>
-
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
   );
