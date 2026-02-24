@@ -92,8 +92,41 @@ def get_employees(request, slug=None):
         })
     return Response(attributes)
 
-@api_view(['GET', 'PUT', 'PATCH'])
+@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 def get_jobcodes(request, code=None):
+    if request.method == 'POST' and code is None:
+        """Create a new jobcode"""
+        try:
+            data = request.data
+            
+            # Handle employees separately
+            employees = data.pop('employees', [])
+            
+            # Create the jobcode
+            jobcode = JobCode.objects.create(**data)
+            
+            # Add employees if provided
+            if employees:
+                jobcode.employees.set(employees)
+            
+            # Return the created jobcode data
+            response_data = {
+                "code": jobcode.code,
+                "description": jobcode.description,
+                "customerName": jobcode.customerName,
+                "businessUnit": jobcode.businessUnit,
+                "jobOrigin": jobcode.jobOrigin,
+                "budgetTime": jobcode.budgetTime,
+                "budgetCost": float(jobcode.budgetCost),
+                "startDate": jobcode.startDate,
+                "endDate": jobcode.endDate,
+                "employees": list(jobcode.employees.values("id", "name")),
+                "status": jobcode.status,
+            }
+            return Response(response_data, status=201)
+        except Exception as err:
+            return Response({"error": str(err)}, status=400)
+    
     if request.method == 'GET' and code is not None:
         try:
             jobcode = JobCode.objects.get(code=code)
@@ -120,6 +153,15 @@ def get_jobcodes(request, code=None):
             "status": jobcode.status,
         }
         return Response(data)
+    
+    elif request.method == 'DELETE' and code is not None:
+        try:
+            jobcode = JobCode.objects.get(code=code)
+        except JobCode.DoesNotExist:
+            return Response({"error": "Jobcode not found"}, status=404)
+        
+        jobcode.delete()
+        return Response({"message": "Jobcode deleted successfully"}, status=204)
         
     elif request.method in ['PUT', 'PATCH']:
         try:
