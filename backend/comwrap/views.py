@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.utils.text import slugify
 from .models import (
     Employee,
     Specialism,
@@ -36,7 +37,7 @@ def get_specialisms(request):
     specialisms = Specialism.objects.all().values()
     return Response(list(specialisms))
 
-@api_view(['GET'])
+@api_view(['GET', 'PATCH'])
 def get_employees(request, slug=None):
 
     if slug is not None:
@@ -44,7 +45,30 @@ def get_employees(request, slug=None):
             employee = Employee.objects.get(slug=slug)
         except Employee.DoesNotExist:
             return Response({"error": "Employee not found"}, status=404)
-        
+
+        if request.method == 'PATCH':
+            data = request.data or {}
+            name = data.get("name")
+            excluded_from_ai = data.get("excludedFromAI")
+            specialisms = data.get("specialisms")
+
+            if name is not None:
+                employee.name = name
+                employee.slug = slugify(name)
+            if excluded_from_ai is not None:
+                employee.excludedFromAI = excluded_from_ai
+
+            employee.save()
+
+            if specialisms is not None:
+                if isinstance(specialisms, list):
+                    specialism_objs = Specialism.objects.filter(name__in=specialisms)
+                    employee.specialisms.set(specialism_objs)
+                else:
+                    return Response({"error": "specialisms must be a list"}, status=400)
+
+            employee.refresh_from_db()
+
         data = {
             "employeeID": employee.id,
             "name": employee.name,
