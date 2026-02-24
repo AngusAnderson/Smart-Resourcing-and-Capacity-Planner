@@ -1,128 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import "../css/Employee_Project.css";
-
-// // const mockEmployee = {
-// //   id: 1,
-// //   name: "Employee B",
-// //   excludedFromAI: false,
-// //   specialisms: [
-// //     "Frontend Developer",
-// //     "Backend Developer",
-// //     "Edge Delivery Services"
-// //   ],
-// //   previousProjects: ["Project X", "Project Y", "Project Z"],
-// //   currentProjects: ["Project A"],
-// //   futureProjects: ["Project B", "Project C"]
-// // };
-
-// function EmployeePage() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const [employee, setEmployee] = useState(null);
-//   const [error, setError] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   // useEffect(() => {
-//   //   async function fetchEmployee() {
-//   //     try {
-//   //       // we will add this later when backend and frontend are linked
-//   //       // const res = await axios.get(`/api/employees/${id}/`);
-//   //       // setEmployee(res.data);
-//   //       setEmployee(mockEmployee);
-//   //     } catch (err) {
-//   //       console.error("Failed to load employee", err);
-//   //     }
-//   //   }
-//   //   fetchEmployee();
-//   // }, [id]);
-
-//   // if (!employee) return null;
-
-//   useEffect(() => {
-//     fetchEmployee();
-//   }, []);
-//   const fetchEmployee = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await api.get(`/employees/${id}`);
-//       setEmployee(response.data);
-//       setError(null);
-//     } catch (err) {
-//       console.error("Error fetching employee:", err);
-//       setError("Failed to fetch employee.");
-//     }
-
-//   return (
-//     <div className="detail-page">
-//       <div className="detail-top-row">
-//         <button className="back-button" onClick={() => navigate("/")}>
-//           Back to Calendar Page
-//         </button>
-//       </div>
-
-//       <div className="employee-layout">
-//         <main className="employee-main">
-//           <div className="employee-header-row">
-//             <h1 className="employee-name">{employee.name}</h1>
-//             <button className="pill-button">Edit</button>
-//           </div>
-
-//           <div className="employee-body-card">
-//             <p className="label-line">
-//               <span className="label">Excluded From AI:</span>{" "}
-//               <span>{employee.excludedFromAI ? "True" : "False"}</span>
-//             </p>
-
-//             <h2 className="section-title">Specialisms:</h2>
-//             <ul className="specialism-list">
-//               {employee.specialisms.map((s) => (
-//                 <li key={s}>{s}</li>
-//               ))}
-//             </ul>
-//           </div>
-//         </main>
-
-//         <aside className="employee-side">
-//           <div className="side-card">
-//             <h2 className="side-heading">Previous Projects</h2>
-//             <ul className="side-list">
-//               {employee.previousProjects.map((p) => (
-//                 <li key={p}>{p}</li>
-//               ))}
-//             </ul>
-//           </div>
-
-//           <div className="side-card">
-//             <h2 className="side-heading">Current Projects</h2>
-//             <ul className="side-list">
-//               {employee.currentProjects.map((p) => (
-//                 <li key={p}>{p}</li>
-//               ))}
-//             </ul>
-//           </div>
-
-//           <div className="side-card">
-//             <h2 className="side-heading">Future Projects</h2>
-//             <ul className="side-list">
-//               {(employee.futureProjects || []).map((p) => (
-//                 <li key={p}>{p}</li>
-//               ))}
-//             </ul>
-//           </div>
-
-//           <button className="pill-button side-edit-button">Edit</button>
-//         </aside>
-//       </div>
-//     </div>
-//   );
-// }
-// }
-
-// export default EmployeePage;
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -154,19 +29,37 @@ function EmployeePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const [showEditForecastModal, setShowEditForecastModal] = useState(false);
+  const [editingForecast, setEditingForecast] = useState(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchEmployee() {
       try {
+        setLoading(true);
+        setError(null);
+
         const res = await axios.get(`/api/employees/${id}/`);
+        if (cancelled) return;
+
         setEmployee(res.data);
       } catch (err) {
         console.error("Failed to load employee", err);
+        if (cancelled) return;
+        setError("Failed to load employee");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchEmployee();
+
+    if (id) fetchEmployee();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
+
 
   useEffect(() => {
     async function fetchForecasts() {
@@ -222,9 +115,6 @@ function EmployeePage() {
     setForecasts((prev) => [...prev, newForecast]);
   };
 
-  const [showEditForecastModal, setShowEditForecastModal] = useState(false);
-  const [editingForecast, setEditingForecast] = useState(null);
-
   const openEditModal = (forecast) => {
     setEditingForecast(forecast);
     setShowEditForecastModal(true);
@@ -240,17 +130,17 @@ function EmployeePage() {
     }));
   };
 
-  const fetchEmployee = async () => {
+  const handleDeleteAllocation = async (forecast) => {
+    if (!window.confirm("Delete this forecast allocation?")) return;
+
     try {
-      setLoading(true);
-      const res = await api.get(`/employees/${id}/`);
-      setEmployee(res.data);
-      setError(null);
+      await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
+      setForecasts((prev) =>
+        prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
+      );
     } catch (err) {
-      console.error("Error fetching employee:", err);
-      setError("Failed to load employee details");
-    } finally {
-      setLoading(false);
+      console.error("Failed to delete allocation", err);
+      alert("Failed to delete allocation");
     }
   };
 

@@ -23,7 +23,7 @@ function EmployeeList(){
     const [formData, setFormData] = useState({
         name: "",
         specialisms: [],
-        excludedFromAi: false,
+        excludedFromAI: false,
     });
 
     const canCreate = useMemo(() => formData.name.trim().length > 0, [formData.name]);
@@ -78,12 +78,12 @@ function EmployeeList(){
             await api.post("/employees/", {
                 name: formData.name.trim(),
                 specialisms: formData.specialisms,
-                excludedFromAi: formData.excludedFromAi,
+                excludedFromAI: formData.excludedFromAI,
             });
             setFormData({
                 name: "",
                 specialisms: [],
-                excludedFromAi: false,
+                excludedFromAI: false,
             });
             setShowCreateForm(false);
             await fetchEmployees();
@@ -149,6 +149,16 @@ function EmployeeList(){
 
     return (
         <div className="employee-list-page">
+
+          <div className="list-top-bar">
+            <button
+              className="btn-primary"
+              onClick={() => navigate("/")}
+            >
+              Back
+            </button>
+          </div>
+
             <div className="list-header">
                 <h1>Employees</h1>
                 <button className="btn-primary" onClick={() => setShowCreateForm((v) => !v)}>
@@ -176,10 +186,6 @@ function EmployeeList(){
               <input
                 type="text"
                 value={formData.name}
-                // onChange={(e) =>
-                //   setFormData({ ...formData, name: e.target.value })
-                // }
-                // required
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 required
               />
