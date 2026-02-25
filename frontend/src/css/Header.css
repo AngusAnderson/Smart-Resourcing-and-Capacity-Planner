@@ -16,6 +16,9 @@
     top: 0;
     left: 0;
     margin: 10px 0 0 50px;
+    display: flex;
+    margin-left: auto;
+    gap: 100px;
   }
   
   .Text-top_right {

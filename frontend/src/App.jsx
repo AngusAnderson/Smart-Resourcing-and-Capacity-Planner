@@ -5,6 +5,7 @@ import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
 import ProjectPage from './Components/ProjectPage';
+import EmployeeList from './Components/EmployeeList';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
 import { saveFeedItems, loadFeedItems } from './utils/Storage';
@@ -82,6 +83,7 @@ function App() {
               }
             />
             <Route path="/employees/:id" element={<EmployeePage />} />
+            <Route path="/employees" element={<EmployeeList />} />
             <Route path="/projects/:id" element={<ProjectPage refreshKey={dataRefreshKey} />} />
 
           </Routes>

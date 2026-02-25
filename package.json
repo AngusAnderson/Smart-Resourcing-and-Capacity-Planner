@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "jsdom": "^28.1.0",
+    "vitest": "^4.0.18"
+  }
+}
