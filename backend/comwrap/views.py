@@ -10,6 +10,8 @@ from .models import (
 )
 from .serializers import JobCodeSerializer
 from openai import OpenAI
+from datetime import date
+from comwrap.services.excel_export import export_forecast_xlsx
 
 client = OpenAI()
 
@@ -432,6 +434,37 @@ def create_forecast(request):
             "employeeID": employee.id,
             "employeeName": employee.name,
         }, status=201)
+        
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+    
+def export_forecast(request):
+    """
+    Expects JSON body with:
+    {
+        "startMonth": "YYYY-MM-01",
+        "endMonth": "YYYY-MM-01"
+    }
+    Returns an Excel file response with the forecast data for the given month range.
+    """
+    try:
+        start_month_str = request.data.get('startMonth')
+        end_month_str = request.data.get('endMonth')
+        
+        if not start_month_str or not end_month_str:
+            return Response({"error": "startMonth and endMonth are required"}, status=400)
+        
+        start_month = date.fromisoformat(start_month_str)
+        end_month = date.fromisoformat(end_month_str)
+        
+        if start_month.day != 1 or end_month.day != 1:
+            return Response({"error": "startMonth and endMonth should be first of the month"}, status=400)
+        
+        excel_file = export_forecast_xlsx(start_month, end_month)
+        
+        response = Response(excel_file.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=forecast_{start_month_str}_to_{end_month_str}.xlsx'
+        return response
         
     except Exception as e:
         return Response({"error": str(e)}, status=400)
