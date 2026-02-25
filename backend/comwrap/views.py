@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils.text import slugify
+from .ai_service import run_ai_chat
+
 from .models import (
     Employee,
     Specialism,
@@ -14,19 +16,26 @@ from openai import OpenAI
 client = OpenAI()
 
 
-
 @api_view(['POST'])
 def ai_chat(request):
     messages = (request.data or {}).get("messages", [])
     if not messages:
         return Response({"error": "Messages are required"}, status=400)
 
-    response = client.responses.create(
-        model="gpt-5",
-        input=messages,
-    )
+    pending_action = request.session.get("ai_pending_action")
 
-    return Response({"reply": response.output_text})
+    result = run_ai_chat(messages, client=client, pending_action=pending_action)
+
+    if result.pop("clearPendingAction", False):
+        request.session.pop("ai_pending_action", None)
+
+    if "pendingAction" in result:
+        request.session["ai_pending_action"] = result.pop("pendingAction")
+        request.session.modified = True
+
+    return Response(result)
+
+
 
 @api_view(['GET'])
 def hello_world(request):
