@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Temporal } from "temporal-polyfill";
+import CreateProjectModal from "../CreateProjectModal";
 import "../../css/Sidebar/Dashboard_tabs.css";
 
 function formatDueText(end) {
@@ -20,6 +21,7 @@ function formatDisplayDate(end) {
 
 function Dashboard_Tabs({ deadlines, feedItems }) {
   const [activeTab, setActiveTab] = useState("deadlines");
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleDeadlineClick = (id) => {
@@ -40,6 +42,11 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
     } catch (e) {
       console.error("Undo failed", e);
     }
+  };
+
+  const handleProjectCreated = (newProject) => {
+    console.log("New project created:", newProject);
+    setIsCreateProjectModalOpen(false);
   };
 
   return (
@@ -109,6 +116,20 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
           </div>
         )}
       </div>
+
+      <button
+        className="create-project-button"
+        onClick={() => setIsCreateProjectModalOpen(true)}
+      >
+        Create Project
+      </button>
+
+      {isCreateProjectModalOpen && (
+        <CreateProjectModal
+          onClose={() => setIsCreateProjectModalOpen(false)}
+          onProjectCreated={handleProjectCreated}
+        />
+      )}
     </div>
   );
 }

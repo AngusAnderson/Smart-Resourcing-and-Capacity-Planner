@@ -1,5 +1,5 @@
 from django import forms
-from .models import Specialism, Employee, JobCode, ForecastEntry
+from .models import Specialism, Employee, JobCode, Forecast, ForecastAllocation
 
 class SpecialismForm(forms.ModelForm):
 
@@ -33,17 +33,26 @@ class JobCodeForm(forms.ModelForm):
             'endDate': forms.DateInput(attrs= {'type': 'date'})
             }
 
-class ForecastEntryForm(forms.ModelForm):
+class ForecastForm(forms.ModelForm):
 
     class Meta:
-        model = ForecastEntry
+        model = Forecast
         fields = [
             'forecastID', 
-            'employee', 
             'jobCode',
             'date',
-            'hoursAllocated'
+            'description'
             ]
         widgets = {
             'date': forms.DateInput(attrs= {'type': 'date'})
         }
+
+class ForecastAllocationForm(forms.ModelForm):
+
+    class Meta:
+        model = ForecastAllocation
+        fields = [
+            'forecast', 
+            'employee',
+            'daysAllocated'
+            ]

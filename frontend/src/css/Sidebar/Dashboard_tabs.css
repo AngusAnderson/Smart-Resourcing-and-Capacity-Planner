@@ -88,3 +88,30 @@
   .feed-undo-button:focus {
     outline: none;
   }
+
+  .create-project-button {
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 16px;
+    background: #f91c45;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .create-project-button:hover {
+    background: #d91735;
+  }
+
+  .create-project-button:active {
+    background: #b91230;
+  }
+
+  .create-project-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }

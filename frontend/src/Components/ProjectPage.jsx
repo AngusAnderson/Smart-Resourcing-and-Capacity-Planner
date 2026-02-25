@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
 
-function ProjectPage() {
+function ProjectPage({ refreshKey }) {
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
@@ -61,7 +62,8 @@ function ProjectPage() {
       }
     }
     fetchProject();
-  }, [id]);
+  }, [id, refreshKey]);
+
 
   function calculateDuration(startDate, endDate) {
     const start = new Date(startDate);
@@ -119,6 +121,20 @@ function ProjectPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete project " + project.name + "?")) {
+      try {
+        const response = await api.delete(`/jobcodes/${id}/`);
+        console.log("Project deleted successfully");
+        // Navigate immediately after successful deletion
+        navigate("/", { replace: true });
+      } catch (err) {
+        console.error("Error deleting project", err);
+        alert("Failed to delete project. Please try again.");
+      }
+    }
+  };
+
   if (loading) return <div className="detail-page">Loading project...</div>;
   if (error) return <div className="detail-page">Error: {error}</div>;
   if (!project) return null;
@@ -137,7 +153,8 @@ function ProjectPage() {
         <main className="project-main">
           <div className="project-header-row">
             <h1 className="project-title">{project.name}</h1>
-            <button
+            <div className="project-header-buttons">
+              <button
               className="pill-button"
               onClick={() => {
                 const ids = Array.isArray(project.employees)
@@ -149,6 +166,10 @@ function ProjectPage() {
             >
               Edit
             </button>
+            <button className="pill-button delete-button" onClick={handleDelete}>
+              Delete
+            </button>
+            </div>
           </div>
 
           <hr className="hr-filter_box" />

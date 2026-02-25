@@ -5,7 +5,8 @@ import api from '../services/api'
 import { useNavigate } from "react-router-dom";
 
 
-const Header = ({ isVisible, toggleVisibility }) => {
+const Header = ({ isVisible, toggleVisibility, onDataChanged }) => {
+
 
 const[messages, setMessages] = useState([])
 const [inputValue, setInputValue] = useState('')
@@ -13,6 +14,7 @@ const [panelPos, setPanelPos] = useState({ x: null, y: null })
 const dragState = useRef(null)
 const inputRef = useRef(null)
 const navigate = useNavigate();
+
 
 
 
@@ -72,10 +74,19 @@ const handleInputKeyDown = async (e) => {
         }))
     })
     const reply = response.data.reply ?? ''
+    const dataChanged = Boolean(response.data.dataChanged)
+
 
     setMessages(prev =>
       prev.map(m => (m.pending ? { text: reply, role: 'reply' } : m))
     )
+    if (dataChanged && onDataChanged) {
+  await onDataChanged();
+}
+
+
+
+    
   } catch (err) {
     setMessages(prev =>
       prev.map(m =>

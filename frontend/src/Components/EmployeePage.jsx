@@ -31,6 +31,16 @@ function EmployeePage() {
   const navigate = useNavigate();
   const [showEditForecastModal, setShowEditForecastModal] = useState(false);
   const [editingForecast, setEditingForecast] = useState(null);
+  const [allocatedDaysPerMonth, setAllocatedDaysPerMonth] = useState({});
+  const [isEditingEmployee, setIsEditingEmployee] = useState(false);
+  const [employeeForm, setEmployeeForm] = useState({
+    name: "",
+    excludedFromAI: false,
+    specialisms: [],
+  });
+  const [specialismOptions, setSpecialismOptions] = useState([]);
+  const [employeeSaving, setEmployeeSaving] = useState(false);
+  const [employeeSaveError, setEmployeeSaveError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +54,11 @@ function EmployeePage() {
         if (cancelled) return;
 
         setEmployee(res.data);
+        setEmployeeForm({
+          name: res.data.name || "",
+          excludedFromAI: !!res.data.excludedFromAI,
+          specialisms: res.data.specialisms || [],
+        });
       } catch (err) {
         console.error("Failed to load employee", err);
         if (cancelled) return;
@@ -60,6 +75,18 @@ function EmployeePage() {
     };
   }, [id]);
 
+
+  useEffect(() => {
+    async function fetchSpecialisms() {
+      try {
+        const res = await axios.get("/api/specialisms/");
+        setSpecialismOptions(res.data || []);
+      } catch (err) {
+        console.error("Failed to load specialisms", err);
+      }
+    }
+    fetchSpecialisms();
+  }, []);
 
   useEffect(() => {
     async function fetchForecasts() {
@@ -87,6 +114,23 @@ function EmployeePage() {
   }, {});
 
   const sortedMonths = Object.keys(groupedForecasts).sort();
+
+  const getForecastMonthKey = (dateValue) => {
+    const date = new Date(dateValue);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentMonthForecasts = forecasts.filter(
+    (forecast) => getForecastMonthKey(forecast.date) === currentMonthKey
+  );
+  const previousMonthForecasts = forecasts.filter(
+    (forecast) => getForecastMonthKey(forecast.date) < currentMonthKey
+  );
+  const futureMonthForecasts = forecasts.filter(
+    (forecast) => getForecastMonthKey(forecast.date) > currentMonthKey
+  );
 
   const toggleMonth = (monthKey) => {
     setExpandedMonths((prev) => ({
@@ -148,6 +192,59 @@ function EmployeePage() {
   if (error) return <div className="error-message">{error}</div>;
   if (!employee) return <div className="detail-page">Employee not found</div>;
 
+  const getMonthColor = (monthKey) => {
+    const totalDays = groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.daysAllocated), 0);
+    const workingDays = getMonthWorkingDays(monthKey);
+    const allocatedDays = allocatedDaysPerMonth[monthKey] ?? workingDays;
+
+    // Green if total days equals allocated days
+    if (totalDays === allocatedDays) return 'utilization-green';
+    
+    // Red if total days is less than allocated days
+    if (totalDays < allocatedDays) return 'utilization-red';
+    
+    // Yellow if total days is greater than working days
+    if (totalDays > workingDays) return 'utilization-yellow';
+    
+    // Orange if allocated days > total days AND allocated days < working days
+    if (allocatedDays > totalDays && allocatedDays < workingDays) return 'utilization-orange';
+    
+    // Default to orange
+    return 'utilization-orange';
+  };
+
+  const handleAllocatedDaysChange = (monthKey, value) => {
+    setAllocatedDaysPerMonth((prev) => ({
+      ...prev,
+      [monthKey]: parseFloat(value),
+    }));
+  };
+
+  const handleEmployeeSave = async () => {
+    setEmployeeSaving(true);
+    setEmployeeSaveError("");
+    try {
+      const payload = {
+        name: employeeForm.name,
+        excludedFromAI: employeeForm.excludedFromAI,
+        specialisms: employeeForm.specialisms,
+      };
+      const res = await axios.patch(`/api/employees/${id}/`, payload);
+      setEmployee(res.data);
+      setEmployeeForm({
+        name: res.data.name || "",
+        excludedFromAI: !!res.data.excludedFromAI,
+        specialisms: res.data.specialisms || [],
+      });
+      setIsEditingEmployee(false);
+    } catch (err) {
+      console.error("Failed to update employee", err);
+      setEmployeeSaveError(err.response?.data?.error || "Failed to update employee.");
+    } finally {
+      setEmployeeSaving(false);
+    }
+  };
+
   if (!employee) return null;
 
   const previousProjects = employee.previousProjects || [];
@@ -168,23 +265,111 @@ function EmployeePage() {
         <main className="employee-main">
           <div className="employee-header-row">
             <h1 className="employee-name">{employee.name}</h1>
-            <button className="pill-button">Edit</button>
+            <button
+              className="pill-button"
+              onClick={() => {
+                if (isEditingEmployee) {
+                  setEmployeeForm({
+                    name: employee.name || "",
+                    excludedFromAI: !!employee.excludedFromAI,
+                    specialisms: employee.specialisms || [],
+                  });
+                }
+                setIsEditingEmployee((prev) => !prev);
+              }}
+            >
+              {isEditingEmployee ? "Cancel" : "Edit"}
+            </button>
           </div>
 
           <div className="employee-body-card">
-            <p className="label-line">
-              <span className="label">Excluded From AI:</span>{" "}
-              <span>{employee.excludedFromAI ? "True" : "False"}</span>
-            </p>
+            {isEditingEmployee ? (
+              <div className="edit-section">
+                <h3>Edit Employee</h3>
 
-            <h2 className="section-title">Specialisms:</h2>
-            <ul className="specialism-list">
-              {specialisms.length ? (
-                specialisms.map((s) => <li key={s}>{s}</li>)
-              ) : (
-                <li>None</li>
-              )}
-            </ul>
+                <label htmlFor="employeeName">Name:</label>
+                <input
+                  id="employeeName"
+                  type="text"
+                  value={employeeForm.name}
+                  onChange={(e) =>
+                    setEmployeeForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                />
+
+                <label htmlFor="employeeExcluded">Excluded From AI:</label>
+                <input
+                  id="employeeExcluded"
+                  type="checkbox"
+                  checked={employeeForm.excludedFromAI}
+                  onChange={(e) =>
+                    setEmployeeForm((prev) => ({
+                      ...prev,
+                      excludedFromAI: e.target.checked,
+                    }))
+                  }
+                />
+
+                <label htmlFor="employeeSpecialisms">Specialisms:</label>
+                <select
+                  id="employeeSpecialisms"
+                  multiple
+                  value={employeeForm.specialisms}
+                  onChange={(e) =>
+                    setEmployeeForm((prev) => ({
+                      ...prev,
+                      specialisms: Array.from(
+                        e.target.selectedOptions,
+                        (option) => option.value
+                      ),
+                    }))
+                  }
+                >
+                  {specialismOptions.map((s) => (
+                    <option key={s.id || s.name} value={s.name}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+
+                {employeeSaveError && (
+                  <div className="error-message">{employeeSaveError}</div>
+                )}
+
+                <div className="edit-buttons">
+                  <button onClick={handleEmployeeSave} disabled={employeeSaving}>
+                    {employeeSaving ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmployeeForm({
+                        name: employee.name || "",
+                        excludedFromAI: !!employee.excludedFromAI,
+                        specialisms: employee.specialisms || [],
+                      });
+                      setIsEditingEmployee(false);
+                    }}
+                    disabled={employeeSaving}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="label-line">
+                  <span className="label">Excluded From AI:</span>{" "}
+                  <span>{employee.excludedFromAI ? "True" : "False"}</span>
+                </p>
+
+                <h2 className="section-title">Specialisms:</h2>
+                <ul className="specialism-list">
+                  {employee.specialisms.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           <div className="employee-body-card">
@@ -202,7 +387,7 @@ function EmployeePage() {
                 {sortedMonths.map((monthKey) => (
                   <div key={monthKey} className="month-group">
                     <div
-                      className="month-header"
+                      className={`month-header ${getMonthColor(monthKey)}`}
                       onClick={() => toggleMonth(monthKey)}
                     >
                       <span className="month-toggle">
@@ -261,7 +446,23 @@ function EmployeePage() {
                         <tfoot>
                           <tr>
                             <td colSpan="3" style={{ fontWeight: 700, textAlign: "right", paddingRight: "16px" }}>Total Days:</td>
-                            <td style={{ fontWeight: 700 }}>{groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.daysAllocated), 0)}</td>
+                            <td colSpan="2" style={{ fontWeight: 700 }}>
+                              {groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.daysAllocated), 0)} / 
+                              <select
+                                value={allocatedDaysPerMonth[monthKey] ?? getMonthWorkingDays(monthKey)}
+                                onChange={(e) => handleAllocatedDaysChange(monthKey, e.target.value)}
+                                style={{ marginLeft: "8px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #d1d5db" }}
+                              >
+                                {Array.from({ length: getMonthWorkingDays(monthKey) * 2 + 1 }, (_, i) => {
+                                  const value = i / 2;
+                                  return (
+                                  <option key={value} value={value}>
+                                    {value}
+                                  </option>
+                                  );
+                                })}
+                              </select>
+                            </td>
                           </tr>
                         </tfoot>
                       </table>
@@ -279,10 +480,14 @@ function EmployeePage() {
           <div className="side-card">
             <h2 className="side-heading">Previous Projects</h2>
             <ul className="side-list">
-              {previousProjects.length ? (
-                previousProjects.map((p) => <li key={p}>{p}</li>)
+              {previousMonthForecasts.length > 0 ? (
+                previousMonthForecasts.map((forecast) => (
+                  <li key={`${forecast.forecastID}-${forecast.employeeID || 'na'}`}>
+                    {forecast.jobCode} — {forecast.description} ({new Date(forecast.date).toLocaleDateString()})
+                  </li>
+                ))
               ) : (
-                <li>None</li>
+                <li>No previous forecasts.</li>
               )}
             </ul>
           </div>
@@ -290,10 +495,14 @@ function EmployeePage() {
           <div className="side-card">
             <h2 className="side-heading">Current Projects</h2>
             <ul className="side-list">
-              {currentProjects.length ? (
-                currentProjects.map((p) => <li key={p}>{p}</li>)
+              {currentMonthForecasts.length > 0 ? (
+                currentMonthForecasts.map((forecast) => (
+                  <li key={`${forecast.forecastID}-${forecast.employeeID || 'na'}`}>
+                    {forecast.jobCode} — {forecast.description} ({new Date(forecast.date).toLocaleDateString()})
+                  </li>
+                ))
               ) : (
-                <li>None</li>
+                <li>No current forecasts.</li>
               )}
             </ul>
           </div>
@@ -301,15 +510,18 @@ function EmployeePage() {
           <div className="side-card">
             <h2 className="side-heading">Future Projects</h2>
             <ul className="side-list">
-              {futureProjects.length ? (
-                futureProjects.map((p) => <li key={p}>{p}</li>)
+              {futureMonthForecasts.length > 0 ? (
+                futureMonthForecasts.map((forecast) => (
+                  <li key={`${forecast.forecastID}-${forecast.employeeID || 'na'}`}>
+                    {forecast.jobCode} — {forecast.description} ({new Date(forecast.date).toLocaleDateString()})
+                  </li>
+                ))
               ) : (
-                <li>None</li>
+                <li>No future forecasts.</li>
               )}
             </ul>
           </div>
 
-          <button className="pill-button side-edit-button">Edit</button>
         </aside>
       </div>
 

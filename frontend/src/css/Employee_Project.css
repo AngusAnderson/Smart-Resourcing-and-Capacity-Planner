@@ -316,12 +316,12 @@
 }
 
 .add-forecast-button {
-  background-color: #4CAF50;
+  background-color: #3b82f6;
   color: white;
 }
 
 .add-forecast-button:hover {
-  background-color: #45a049;
+  background-color: #2563eb;
 }
 
 .delete-button {
@@ -336,4 +336,35 @@
 
 .delete-button:hover {
   background-color: rgba(194,48,48,0.08);
+}
+
+.month-header {
+  padding: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.month-header:hover {
+  opacity: 0.85;
+}
+
+.utilization-red {
+  background-color: #fee2e2;
+  border-left: 4px solid #dc2626;
+}
+
+.utilization-yellow {
+  background-color: #fef3c7;
+  border-left: 4px solid #eab308;
+}
+
+.utilization-orange {
+  background-color: #fed7aa;
+  border-left: 4px solid #f97316;
+}
+
+.utilization-green {
+  background-color: #dcfce7;
+  border-left: 4px solid #16a34a;
 }
