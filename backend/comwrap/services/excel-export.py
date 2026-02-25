@@ -4,6 +4,7 @@ from datetime import date
 from decimal import Decimal
 
 from io import BytesIO
+from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
@@ -59,6 +60,7 @@ def build_forecast_export(start_month: date, end_month: date):
             "employee",
             "forecast",
             "forecast__jobCode",
+            "forecast__jobCode__replyEntity",
         )
         .order_by("employee__id", "forecast__jobCode__id", "forecast__date")
     )
@@ -100,10 +102,12 @@ def month_label(y, m):
 def export_forecast_xlsx(start_month: date, end_month: date):
     months, employees, data, meta = build_forecast_export(start_month, end_month)
 
-    wb = load_workbook("templates/excel/resource_allocation_template.xlsx")
-    ws = wb["Resource Allocation"]
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    TEMPLATE_PATH = BASE_DIR / "resources" / "excel-templates" / "forecast-template.xlsx"
+    wb = load_workbook(TEMPLATE_PATH)
+    ws = wb.active
 
-    # Find header row by locating "NAME" in column A (recommended)
+    # Find header row by locating "NAME" in column A, usually row 19 in template
     header_row = None
     for r in range(1, 250):
         if ws.cell(r, 1).value == "NAME":
@@ -132,7 +136,7 @@ def export_forecast_xlsx(start_month: date, end_month: date):
     ws.insert_rows(data_row_start, amount=needed)
 
     style_row = data_row_start + needed  # fallback: or point to a known template style row
-    # Better: keep a hidden “sample row” in template at fixed position and copy styles from it.
+    # TODO Better: keep a hidden “sample row” in template at fixed position and copy styles from it.
 
     r = data_row_start
 
@@ -141,12 +145,33 @@ def export_forecast_xlsx(start_month: date, end_month: date):
         block_start = r
 
         for key in keys:
-            jc = meta[key]["jobcode"]
+            emp = meta[key]["employee"]
+            jc  = meta[key]["jobcode"]
 
-            # Static columns (adjust to your template columns)
-            ws.cell(r, 1).value = getattr(emp, "name", str(emp))  # A NAME
-            ws.cell(r, 9).value = getattr(jc, "code", jc.id)      # I job code
-            ws.cell(r, 10).value = getattr(jc, "description", "") # J desc
+            # A: NAME (choose the best display you have)
+            ws.cell(r, 1).value = getattr(emp, "name", None) or str(emp)
+
+            # B: RESOURCE BU
+            ws.cell(r, 2).value = getattr(emp, "resourceBU", "")
+
+            # C: CUSTOMER
+            ws.cell(r, 3).value = getattr(jc, "customerName", "")
+
+            # D: REPLY ENTITY (FK/object -> readable string)
+            reply_entity = getattr(jc, "replyEntity", None)
+            ws.cell(r, 4).value = str(reply_entity) if reply_entity is not None else ""
+
+            # E: BUSINESS UNIT
+            ws.cell(r, 5).value = getattr(jc, "businessUnit", "")
+
+            # F: JOB ORIGIN
+            ws.cell(r, 6).value = getattr(jc, "jobOrigin", "")
+
+            # I: JOB S-ORD CODE
+            ws.cell(r, 9).value = getattr(jc, "code", "")
+
+            # J: JOB DESCRIPTION
+            ws.cell(r, 10).value = getattr(jc, "description", "")
 
             # Month cells
             for i, mk in enumerate(months):
