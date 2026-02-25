@@ -253,7 +253,7 @@ function Calendar({ searchTerm, selectedDate }) {
       createCurrentTimePlugin(),
       calendarControls,
     ],
-    defaultView: 'monthGrid',
+    defaultView: 'month-grid',
   });
 
   useEffect(() => {

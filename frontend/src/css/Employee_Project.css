@@ -368,3 +368,13 @@
   background-color: #dcfce7;
   border-left: 4px solid #16a34a;
 }
+
+.project-forecast-listing {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.project-forecast-item {
+  min-height: auto;
+}
