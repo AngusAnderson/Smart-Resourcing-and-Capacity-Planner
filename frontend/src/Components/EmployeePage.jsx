@@ -21,12 +21,16 @@ const mockEmployee = {
 };
 
 function EmployeePage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams(); // id is the employee slug
   const [employee, setEmployee] = useState(null);
   const [forecasts, setForecasts] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState({});
   const [showAddForecastModal, setShowAddForecastModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [showEditForecastModal, setShowEditForecastModal] = useState(false);
+  const [editingForecast, setEditingForecast] = useState(null);
   const [allocatedDaysPerMonth, setAllocatedDaysPerMonth] = useState({});
   const [isEditingEmployee, setIsEditingEmployee] = useState(false);
   const [employeeForm, setEmployeeForm] = useState({
@@ -39,9 +43,16 @@ function EmployeePage() {
   const [employeeSaveError, setEmployeeSaveError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchEmployee() {
       try {
+        setLoading(true);
+        setError(null);
+
         const res = await axios.get(`/api/employees/${id}/`);
+        if (cancelled) return;
+
         setEmployee(res.data);
         setEmployeeForm({
           name: res.data.name || "",
@@ -50,10 +61,20 @@ function EmployeePage() {
         });
       } catch (err) {
         console.error("Failed to load employee", err);
+        if (cancelled) return;
+        setError("Failed to load employee");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchEmployee();
+
+    if (id) fetchEmployee();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
+
 
   useEffect(() => {
     async function fetchSpecialisms() {
@@ -138,9 +159,6 @@ function EmployeePage() {
     setForecasts((prev) => [...prev, newForecast]);
   };
 
-  const [showEditForecastModal, setShowEditForecastModal] = useState(false);
-  const [editingForecast, setEditingForecast] = useState(null);
-
   const openEditModal = (forecast) => {
     setEditingForecast(forecast);
     setShowEditForecastModal(true);
@@ -155,6 +173,24 @@ function EmployeePage() {
       return f;
     }));
   };
+
+  const handleDeleteAllocation = async (forecast) => {
+    if (!window.confirm("Delete this forecast allocation?")) return;
+
+    try {
+      await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
+      setForecasts((prev) =>
+        prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
+      );
+    } catch (err) {
+      console.error("Failed to delete allocation", err);
+      alert("Failed to delete allocation");
+    }
+  };
+
+  if (loading) return <div className="detail-page">Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!employee) return <div className="detail-page">Employee not found</div>;
 
   const getMonthColor = (monthKey) => {
     const totalDays = groupedForecasts[monthKey].reduce((sum, f) => sum + parseFloat(f.daysAllocated), 0);
@@ -211,11 +247,17 @@ function EmployeePage() {
 
   if (!employee) return null;
 
+  const previousProjects = employee.previousProjects || [];
+  const currentProjects = employee.currentProjects || [];
+  const futureProjects = employee.futureProjects || [];
+
+  const specialisms = employee.specialisms || [];
+
   return (
     <div className="detail-page">
       <div className="detail-top-row">
-        <button className="back-button" onClick={() => navigate("/")}>
-          Back to Calendar Page
+        <button className="back-button" onClick={() => navigate("/employees/")}>
+          Back to Employees
         </button>
       </div>
 

@@ -19,7 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 
-function Calendar({ searchTerm, selectedDate }) {
+function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
+
   const navigate = useNavigate()
   const calendarIds = ["Red", "Yellow", "Green", "Orange"];
 
@@ -31,27 +32,13 @@ function Calendar({ searchTerm, selectedDate }) {
 
 
 
-  const [events, setEvents] = useState([]);
+  const [localEvents, setLocalEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
 
 
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const eventData = await fetchJobcodesAsEvents();
-        setEvents(eventData);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching jobcodes:', err);
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const calendarControls = useState(() => createCalendarControlsPlugin())[0];
@@ -184,12 +171,13 @@ function Calendar({ searchTerm, selectedDate }) {
     if (eventsService.clear) eventsService.clear();
 
     const filteredEvents = searchTerm
-      ? events.filter((event) =>
+      ? localEvents.filter((event) =>
+
           event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : events;
+      : localEvents;
 
     filteredEvents.forEach((event) => {
       eventsService.add({ ...event, calendarId: getRandomCalendarId() });
