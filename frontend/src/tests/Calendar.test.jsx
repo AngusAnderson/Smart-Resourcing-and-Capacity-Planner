@@ -75,8 +75,6 @@ describe("Calendar (smoke)", () => {
   test("renders calendar shell and loads events", async () => {
     render(<Calendar searchTerm="" selectedDate={null} />);
 
-    expect(screen.getByText(/target allocated days/i)).toBeInTheDocument();
-    expect(screen.getByText(/current allocated days/i)).toBeInTheDocument();
     expect(screen.getByTestId("schedulex-calendar")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -84,9 +82,9 @@ describe("Calendar (smoke)", () => {
     });
   });
 
-  test("renders working-days select", () => {
-    render(<Calendar searchTerm="" selectedDate={null} />);
+//   test("renders working-days select", () => {
+//     render(<Calendar searchTerm="" selectedDate={null} />);
 
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
-  });
+//     expect(screen.getByRole("combobox")).toBeInTheDocument();
+//   });
 });

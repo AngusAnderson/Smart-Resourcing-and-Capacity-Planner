@@ -18,61 +18,14 @@ import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
-import { getWorkingDaysInMonth } from '../utils/dateUtils'
 
 function Calendar({ searchTerm, selectedDate }) {
   const navigate = useNavigate()
   const calendarIds = ["Red", "Yellow", "Green", "Orange"];
 
-  function getCalendarIdForAllocation(actualDaysWorked, targetAllocatedDays, workingDaysInMonth) {
-    
-    if (actualDaysWorked === targetAllocatedDays){
-      return calendarIds[2]
-    } else if (actualDaysWorked > targetAllocatedDays && actualDaysWorked <= workingDaysInMonth){
-      return calendarIds[3]
-    } else if (actualDaysWorked < targetAllocatedDays){
-      return calendarIds[0]
-    } else if (actualDaysWorked > workingDaysInMonth){
-      return calendarIds[1]
-    }
-  }
-
-
-
-
-  function getActualDaysWorkedInMonth(events, monthDate) {
-    const days = new Set();
-
-    //for each event (jobcode)
-    events.forEach((event) => {
-      let start = event.start;
-      let end = event.end;
-
-      // Ensure Temporal.PlainDate
-      if (!(start instanceof Temporal.PlainDate)) {
-        start = Temporal.PlainDate.from(start);
-      }
-      if (!(end instanceof Temporal.PlainDate)) {
-        end = Temporal.PlainDate.from(end);
-      }
-
-      let current = start;
-
-      while (Temporal.PlainDate.compare(current, end) <= 0) {
-        // Check if this day is within the month we're calculating
-        if (
-          current.year === monthDate.year &&
-          current.month === monthDate.month
-        ) {
-          const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
-            days.add(current.toString());
-        }
-
-        current = current.add({ days: 1 });
-      }
-    });
-
-    return days.size;
+  function getRandomCalendarId() {
+    const randomIndex = Math.floor(Math.random() * calendarIds.length);
+    return calendarIds[randomIndex];
   }
 
 
@@ -81,24 +34,6 @@ function Calendar({ searchTerm, selectedDate }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
-  const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
-  const monthDate = activeDate
-
-  useEffect(() => {
-    console.log("Active month for calculations:", activeDate.toString());
-  }, [activeDate]);
-
-
-
-  const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
-  const options = [];
-  for (let v = 0; v <= workingDaysInMonth; v += 0.5){
-    options.push(Number(v.toFixed(1)));
-  }
-
-  const actualDaysWorked = getActualDaysWorkedInMonth(events, monthDate);
 
 
 
@@ -151,20 +86,6 @@ function Calendar({ searchTerm, selectedDate }) {
       }
     },
     callbacks: {
-
-      //Refreshes colour logic when arrows used to navigate to a different date
-      onRangeUpdate: ({ start, end }) => {
-        const startPlain = start.toPlainDate();
-        const endPlain = end?.toPlainDate?.() ?? startPlain;
-
-        // calculate middle date of the dates in the calendar's view 
-        const daysBetween = startPlain.until(endPlain).days;
-        const mid = startPlain.add({ days: Math.floor(daysBetween / 2) });
-
-        setActiveDate(
-          Temporal.PlainDate.from({ year: mid.year, month: mid.month, day: 1 })
-        );
-      },
 
       // updates events when user moves or resizes in calendar
       onEventUpdate: async (updatedEvent) => {
@@ -270,19 +191,10 @@ function Calendar({ searchTerm, selectedDate }) {
         )
       : events;
 
-
-    const actualDaysWorked = getActualDaysWorkedInMonth(events, monthDate);
-    const targetDaysToUse = targetAllocatedDays ?? workingDaysInMonth;
-    const calendarIdForMonth = getCalendarIdForAllocation(actualDaysWorked, targetDaysToUse, workingDaysInMonth);
-
-
-    console.log('Actual days:', actualDaysWorked);
-    console.log('Target days:', targetDaysToUse);
-    console.log('Calendar colour:', calendarIdForMonth);
-
-
-    filteredEvents.forEach(event => eventsService.add({...event, calendarId: calendarIdForMonth}));
-  }, [searchTerm, eventsService, events, monthDate, targetAllocatedDays, workingDaysInMonth]);
+    filteredEvents.forEach((event) => {
+      eventsService.add({ ...event, calendarId: getRandomCalendarId() });
+    });
+  }, [searchTerm, eventsService, events]);
 
   useEffect(() => {
     if (selectedDate) {
