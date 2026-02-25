@@ -24,8 +24,16 @@ Rules:
 - Be concise, but for detail requests include all important fields returned by the tool.
 - When returning project or employee details, include the key fields explicitly (code/name, description, customer, status, start date, end date, assigned employees if available).
 - When listing forecasts, include date, forecast ID, and employee allocations.
+- For questions about who works on a project, use list_employees_for_jobcode with the exact project code.
+- Function call arguments must be strict JSON matching the tool schema. Do not use prose or code fences.
+
 
 """
+def _read(obj, key, default=None):
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    return getattr(obj, key, default)
+
 
 def _latest_user_text(messages):
     for msg in reversed(messages or []):
@@ -37,10 +45,12 @@ def _make_confirmation_message(call_name, call_arguments):
     return f"I can perform '{call_name}'. Type 'confirm' to proceed or 'cancel' to abort."
 
 def _get_function_calls(response):
-    output = getattr(response, "output", None)
-    if not isinstance(output, list):
+    output = _read(response, "output", None)
+    if not isinstance(output, (list, tuple)):
         return []
-    return [item for item in output if getattr(item, "type", None) == "function_call"]
+
+    return [item for item in output if _read(item, "type") == "function_call"]
+
 
 def _looks_like_filler(text):
     if not text:
@@ -49,6 +59,110 @@ def _looks_like_filler(text):
     markers = ["the end", "done", "final", "stopping", "goodbye"]
     hits = sum(t.count(m) for m in markers)
     return len(t) > 1200 and hits > 15
+
+def _extract_reply_text(response):
+    text = _read(response, "output_text", None)
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+
+    output = _read(response, "output", []) or []
+    if not isinstance(output, (list, tuple)):
+        output = [output]
+
+    parts = []
+    for item in output:
+        item_type = _read(item, "type")
+
+        
+        if item_type in {"output_text", "text"}:
+            direct = _read(item, "text", "") or _read(item, "value", "")
+            if isinstance(direct, dict):
+                direct = direct.get("value") or direct.get("text") or ""
+            elif not isinstance(direct, str):
+                direct = _read(direct, "value", "") or _read(direct, "text", "")
+            if direct:
+                parts.append(direct)
+            continue
+
+        
+        if item_type not in {"message", "output_message"}:
+            continue
+
+        content_items = _read(item, "content", []) or []
+        if not isinstance(content_items, (list, tuple)):
+            content_items = [content_items]
+
+        for content in content_items:
+            ctype = _read(content, "type")
+            if ctype not in {"output_text", "text"}:
+                continue
+
+            value = _read(content, "text", None)
+            if value is None:
+                value = _read(content, "value", "")
+
+            if isinstance(value, dict):
+                value = value.get("value") or value.get("text") or ""
+            elif not isinstance(value, str):
+                value = _read(value, "value", "") or _read(value, "text", "")
+
+            if value:
+                parts.append(value)
+
+    return "\n".join(p.strip() for p in parts if isinstance(p, str) and p.strip()).strip()
+
+def _format_tool_result_fallback(results):
+    if not results:
+        return ""
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+
+        tool = result.get("tool")
+    result = results[0]
+    
+
+    
+
+    if tool == "get_jobcode_details" and result.get("ok"):
+        job = result.get("jobcode", {})
+        employees = job.get("employees", [])
+        employee_names = ", ".join(e.get("name", "") for e in employees if e.get("name")) or "None"
+
+        return (
+            f"Project details for {job.get('code', 'unknown')}:\n"
+            f"- Description: {job.get('description', '')}\n"
+            f"- Customer: {job.get('customerName', '')}\n"
+            f"- Business unit: {job.get('businessUnit', '')}\n"
+            f"- Status: {job.get('status', '')}\n"
+            f"- Start date: {job.get('startDate', '')}\n"
+            f"- End date: {job.get('endDate', '')}\n"
+            f"- Employees: {employee_names}"
+        )
+
+    if tool == "list_employees_for_jobcode" and result.get("ok"):
+        job = result.get("jobcode", {})
+        employees = result.get("employees", [])
+        if not employees:
+            return f"No employees are assigned to {job.get('code', 'this project')}."
+
+        lines = [f"Employees assigned to {job.get('code', 'project')}:"]
+
+        for e in employees:
+            lines.append(f"- {e.get('name', 'Unknown')} (ID: {e.get('id', 'N/A')})")
+        return "\n".join(lines)
+
+    if tool == "search_jobcodes" and result.get("ok"):
+        matches = result.get("results", [])
+        if not matches:
+            return "No matching projects were found."
+        lines = ["Matching projects:"]
+        for m in matches[:10]:
+            lines.append(f"- {m.get('code', '')}: {m.get('description', '')}")
+        return "\n".join(lines)
+
+    return ""
+
 
 def run_ai_chat(messages, *, client, pending_action=None):
     """
@@ -62,6 +176,7 @@ def run_ai_chat(messages, *, client, pending_action=None):
             "reply": "I can't access timesheets yet.. I can currently help with projects, employees, forecasts, project dates, status changes, and employee assignment.",
             "dataChanged": False,
         }
+    
 
 
     if pending_action:
@@ -102,25 +217,41 @@ def run_ai_chat(messages, *, client, pending_action=None):
         input=messages,
         tools=AI_TOOL_DEFINITIONS,
         instructions=SYSTEM_INSTRUCTIONS,
-        max_output_tokens=300,
+        max_output_tokens=900,
+        reasoning={"effort": "low"},
     )
 
 
     
+    last_tool_results = []
 
     for _ in range(3):
         function_calls = _get_function_calls(response)
         if not function_calls:
-            reply = response.output_text or ""
+            
+            if hasattr(response, "model_dump"):
+                print("DEBUG response dump:", response.model_dump())
+
+            reply = _extract_reply_text(response)
+            if not reply:
+                reply = _format_tool_result_fallback(last_tool_results)
+
+
             if _looks_like_filler(reply):
                 reply = "I could not complete that request with the tools currently available. Please rephrase, or ask for a supported action (projects, employees, forecasts, dates, status, assignment)."
+            if not reply:
+                reply = "I couldn't produce a readable answer for that request. Please try rephrasing or use the exact project code."
+            
             return {"reply": reply, "dataChanged": data_changed}
+        
+           
 
 
 
         tool_outputs = []
         for call in function_calls:
-            pending_args = call.arguments
+            call_name = _read(call, "name")
+            pending_args = _read(call, "arguments")
             if isinstance(pending_args, str):
                 try:
                     pending_args = json.loads(pending_args)
@@ -143,6 +274,8 @@ def run_ai_chat(messages, *, client, pending_action=None):
 
             try:
                 result = execute_ai_tool(call.name, pending_args)
+                last_tool_results.append(result)
+
                 if call.name in WRITE_TOOL_NAMES and result.get("ok"):
                     data_changed = True
 
@@ -162,7 +295,8 @@ def run_ai_chat(messages, *, client, pending_action=None):
             previous_response_id=response.id,
             input=tool_outputs,
             instructions=SYSTEM_INSTRUCTIONS,
-            max_output_tokens=300,
+            max_output_tokens=900,
+            reasoning={"effort": "low"},
         )
 
 

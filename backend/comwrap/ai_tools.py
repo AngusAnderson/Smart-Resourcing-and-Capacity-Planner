@@ -136,8 +136,23 @@ AI_TOOL_DEFINITIONS = [
             "additionalProperties": False,
         },
     },
+    {
+        "type": "function",
+        "name": "list_employees_for_jobcode",
+        "description": "List employees assigned to a project/job code by exact code.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "Exact job code"}
+            },
+            "required": ["code"],
+            "additionalProperties": False,
+        },
+    },
+
 
 ]
+
 
 
 def _parse_tool_arguments(arguments):
@@ -436,6 +451,31 @@ def assign_employee_to_jobcode(arguments):
             "name": employee.name,
         },
     }
+def list_employees_for_jobcode(arguments):
+    data = _parse_tool_arguments(arguments)
+    code = (data.get("code") or data.get("jobCode") or data.get("job_code") or "").strip()
+
+
+    if not code:
+        raise AIToolError("code is required.")
+
+    try:
+        jobcode = JobCode.objects.get(code=code)
+    except JobCode.DoesNotExist as exc:
+        raise AIToolError(f"JobCode '{code}' not found.") from exc
+
+    employees = list(jobcode.employees.values("id", "name"))
+
+    return {
+        "ok": True,
+        "tool": "list_employees_for_jobcode",
+        "jobcode": {
+            "code": jobcode.code,
+            "description": jobcode.description,
+        },
+        "count": len(employees),
+        "employees": employees,
+    }
 
 TOOL_EXECUTORS = {
     "search_jobcodes": search_jobcodes,
@@ -446,6 +486,8 @@ TOOL_EXECUTORS = {
     "list_forecasts_for_jobcode": list_forecasts_for_jobcode,
     "update_jobcode_status": update_jobcode_status,
     "assign_employee_to_jobcode": assign_employee_to_jobcode,
+    "list_employees_for_jobcode": list_employees_for_jobcode,
+
 }
 
 
