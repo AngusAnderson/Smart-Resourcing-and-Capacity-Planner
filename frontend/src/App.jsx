@@ -5,6 +5,7 @@ import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
 import ProjectPage from './Components/ProjectPage';
+import EmployeeList from './Components/EmployeeList';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
 import { saveFeedItems, loadFeedItems } from './utils/Storage';
@@ -19,6 +20,9 @@ function App() {
 
   const [feedItems, setFeedItems] = useState(() => loadFeedItems());
 
+  const [dataRefreshKey, setDataRefreshKey] = useState(0);
+
+
   const addFeedItem = (item) => {
     setFeedItems((prev) => {
       const next = [item, ...prev].slice(0, 10);
@@ -27,29 +31,35 @@ function App() {
       return next;
     });
   };
+  const loadEvents = async () => {
+  try {
+    const data = await fetchJobcodesAsEvents();
+    setEvents(data);
+    setDataRefreshKey(prev => prev + 1);
+  } catch (e) {
+    console.error('Error loading jobcodes', e);
+  }
+};
+
+
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
 
   useEffect(() => {
     saveFeedItems(feedItems);
   }, [feedItems]);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await fetchJobcodesAsEvents();
-        setEvents(data);
-      } catch (e) {
-        console.error('Error loading jobcodes', e);
-      }
-    };
-    load();
-  }, []);
+  
 
   return (
     <Router>
       <link rel="icon" href="../src/assets/favicon.ico" />
       <title>Comwrap Reply</title>
 
-      <Header isVisible={isVisible} toggleVisibility={toggleVisibility} />
+      <Header isVisible={isVisible} toggleVisibility={toggleVisibility} onDataChanged={loadEvents}/>
+
 
       <div className="container">
         <Sidebar
@@ -73,7 +83,9 @@ function App() {
               }
             />
             <Route path="/employees/:id" element={<EmployeePage />} />
-            <Route path="/projects/:id" element={<ProjectPage />} />
+            <Route path="/employees" element={<EmployeeList />} />
+            <Route path="/projects/:id" element={<ProjectPage refreshKey={dataRefreshKey} />} />
+
           </Routes>
         </div>
       </div>

@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
 
-function ProjectPage() {
+function ProjectPage({ refreshKey }) {
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
@@ -61,7 +62,8 @@ function ProjectPage() {
       }
     }
     fetchProject();
-  }, [id]);
+  }, [id, refreshKey]);
+
 
   function calculateDuration(startDate, endDate) {
     const start = new Date(startDate);
