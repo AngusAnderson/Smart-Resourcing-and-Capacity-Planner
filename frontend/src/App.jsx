@@ -85,7 +85,7 @@ function App() {
             />
             <Route path="/employees/:id" element={<EmployeePage />} />
             <Route path="/employees" element={<EmployeeList />} />
-            <Route path="/projects/:id" element={<ProjectPage refreshKey={dataRefreshKey} />} />
+            <Route path="/projects/:code" element={<ProjectPage refreshKey={dataRefreshKey} />} />
             <Route path="/projects" element={<ProjectList />} />
 
           </Routes>

@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils.text import slugify
 from .ai_service import run_ai_chat
+from rest_framework import status
 
 from .models import (
     Employee,
@@ -230,10 +231,12 @@ def get_jobcodes(request, code=None):
         try:
             jobcode = JobCode.objects.get(code=code)
         except JobCode.DoesNotExist:
-            return Response({"error": "Jobcode not found"}, status=404)
+            return Response({"error": "Jobcode not found"}, status=status.HTTP_404_NOT_FOUND)
+
         
         jobcode.delete()
-        return Response({"message": "Jobcode deleted successfully"}, status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
         
     elif request.method in ['PUT', 'PATCH']:
         try:

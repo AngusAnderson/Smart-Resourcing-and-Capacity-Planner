@@ -5,7 +5,7 @@ import "../css/Employee_Project.css";
 
 function ProjectPage({ refreshKey }) {
 
-  const { id } = useParams();
+  const { code } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,12 +33,12 @@ function ProjectPage({ refreshKey }) {
     async function fetchProject() {
       try {
         setLoading(true);
-        const res = await api.get(`/jobcodes/${id}/`);
+        const res = await api.get(`/jobcodes/${encodeURIComponent(code)}/`);
         console.log("Fetched project data:", res.data);
 
         const projectData = {
           id: res.data.code,
-          name: res.data.code, // or res.data.description if you prefer
+          name: res.data.code,
           customerName: res.data.customerName,
           businessUnit: res.data.businessUnit,
           description: res.data.description,
@@ -62,7 +62,7 @@ function ProjectPage({ refreshKey }) {
       }
     }
     fetchProject();
-  }, [id, refreshKey]);
+  }, [code, refreshKey]);
 
 
   function calculateDuration(startDate, endDate) {
@@ -84,7 +84,7 @@ function ProjectPage({ refreshKey }) {
 
       console.log("Employee IDs being sent:", selectedEmployees);
 
-      const res = await api.patch(`/jobcodes/${id}/`, updatedData);
+      const res = await api.patch(`/jobcodes/${encodeURIComponent(code)}/`, updatedData);
 
       if (res.status === 200 && res.data.employees) {
         setProject(prev => ({
@@ -109,7 +109,7 @@ function ProjectPage({ refreshKey }) {
         budgetCost: project.budget
       };
 
-      const res = await api.patch(`/jobcodes/${id}/`, updatedData);
+      const res = await api.patch(`/jobcodes/${encodeURIComponent(code)}/`, updatedData);
 
       if (res.status === 200) {
         setIsEditingSidebar(false);
@@ -124,9 +124,8 @@ function ProjectPage({ refreshKey }) {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete project " + project.name + "?")) {
       try {
-        const response = await api.delete(`/jobcodes/${id}/`);
+        const response = await api.delete(`/jobcodes/${encodeURIComponent(code)}/`);
         console.log("Project deleted successfully");
-        // Navigate immediately after successful deletion
         navigate("/", { replace: true });
       } catch (err) {
         console.error("Error deleting project", err);
