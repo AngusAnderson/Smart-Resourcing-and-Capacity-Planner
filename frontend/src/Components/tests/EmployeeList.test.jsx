@@ -281,7 +281,7 @@ describe("EmployeeList", () => {
       expect(api.post).toHaveBeenCalledWith("/employees/", {
         name: "Test User",
         specialisms: [],
-        excludedFromAi: false,
+        excludedFromAI: false,
       });
     });
   });
@@ -341,7 +341,7 @@ describe("EmployeeList", () => {
       expect(api.post).toHaveBeenCalledWith("/employees/", {
         name: "Jane Developer",
         specialisms: ["Backend"],
-        excludedFromAi: false,
+        excludedFromAI: false,
       });
     });
   });
