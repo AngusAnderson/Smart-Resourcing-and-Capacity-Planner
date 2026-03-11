@@ -16,7 +16,6 @@ import '../css/Calendar.css';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 
 function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
@@ -29,11 +28,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
     return calendarIds[randomIndex];
   }
 
-
-
-
-  const [localEvents, setLocalEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
 
@@ -170,19 +164,19 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
     }
     if (eventsService.clear) eventsService.clear();
 
+    const eventsToRender = Array.isArray(appEvents) ? appEvents : [];
     const filteredEvents = searchTerm
-      ? localEvents.filter((event) =>
-
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
+      ? eventsToRender.filter((event) =>
+          (event.title ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.customerName ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.businessUnit ?? '').toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : localEvents;
+      : eventsToRender;
 
     filteredEvents.forEach((event) => {
       eventsService.add({ ...event, calendarId: getRandomCalendarId() });
     });
-  }, [searchTerm, eventsService, events]);
+  }, [searchTerm, eventsService, appEvents]);
 
   useEffect(() => {
     if (selectedDate) {
