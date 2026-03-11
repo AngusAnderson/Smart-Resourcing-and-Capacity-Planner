@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path("hello/", views.hello_world, name="hello"),
     path("specialisms/", views.get_specialisms, name="specialisms"), 
@@ -13,4 +14,5 @@ urlpatterns = [
     path("forecasts/create/", views.create_forecast, name="create-forecast"),
     path("forecasts/<str:forecastID>/", views.get_forecasts),
     path("ai/chat/", views.ai_chat, name="ai-chat"),
+    path('login/', views.login_view, name='login'),
 ]

@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils.text import slugify
 from .ai_service import run_ai_chat
+from django.contrib.auth import authenticate
 
 from .models import (
     Employee,
@@ -599,3 +600,23 @@ def create_forecast(request):
         
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+    
+@api_view(['POST'])
+def login_view(request):
+    # We use 'username' because your DB table uses 'SH09' as the username
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return Response({"error": "Please provide both username and password"}, status=400)
+
+    user = authenticate(username=email, password=password)
+
+    if user is not None:
+        # For now, we return success. In a production app, you'd return a token here.
+        return Response({
+            "message": "Login successful",
+            "email": user.email
+        }, status=200)
+    else:
+        return Response({"error": "Invalid credentials"}, status=401)

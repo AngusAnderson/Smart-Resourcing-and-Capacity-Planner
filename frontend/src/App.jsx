@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useToggle from './functions/useToggle';
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar/Sidebar';
@@ -6,89 +7,128 @@ import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
 import ProjectPage from './Components/ProjectPage';
 import EmployeeList from './Components/EmployeeList';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './Components/LoginPage';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
 import { saveFeedItems, loadFeedItems } from './utils/Storage';
 
 function App() {
-  const [isVisible, toggleVisibility] = useToggle(false);
+  // --- Auth State with Persistence ---
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
 
+  // --- Existing States ---
+  const [isVisible, toggleVisibility] = useToggle(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
-
   const [events, setEvents] = useState([]);
-
   const [feedItems, setFeedItems] = useState(() => loadFeedItems());
-
   const [dataRefreshKey, setDataRefreshKey] = useState(0);
 
+  // --- Auth Handlers ---
+  const handleLoginSuccess = (userData) => {
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userEmail', userData?.email || '');
+    setIsAuthenticated(true);
+  };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    setIsAuthenticated(false);
+  };
+
+  // --- Logic Helpers ---
   const addFeedItem = (item) => {
     setFeedItems((prev) => {
       const next = [item, ...prev].slice(0, 10);
-      console.log("APP addFeedItem prev:", prev, "next:", next);
       saveFeedItems(next);
       return next;
     });
   };
+
   const loadEvents = async () => {
-  try {
-    const data = await fetchJobcodesAsEvents();
-    setEvents(data);
-    setDataRefreshKey(prev => prev + 1);
-  } catch (e) {
-    console.error('Error loading jobcodes', e);
-  }
-};
+    if (!isAuthenticated) return;
+    
+    try {
+      const data = await fetchJobcodesAsEvents();
+      setEvents(data);
+      setDataRefreshKey(prev => prev + 1);
+    } catch (e) {
+      console.error('Error loading jobcodes', e);
+    }
+  };
 
-
+  // --- Effects ---
   useEffect(() => {
     loadEvents();
-  }, []);
-
+  }, [isAuthenticated]);
 
   useEffect(() => {
     saveFeedItems(feedItems);
   }, [feedItems]);
 
-  
-
   return (
     <Router>
-      <link rel="icon" href="../src/assets/favicon.ico" />
-      <title>Comwrap Reply</title>
-
-      <Header isVisible={isVisible} toggleVisibility={toggleVisibility} onDataChanged={loadEvents}/>
-
-
-      <div className="container">
-        <Sidebar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          setSelectedDate={setSelectedDate}
-          events={events}
-          feedItems={feedItems}
+      <Routes>
+        {/* 1. LOGIN ROUTE */}
+        <Route 
+          path="/login" 
+          element={
+            isAuthenticated ? 
+            <Navigate replace to="/" /> : 
+            <LoginPage onLogin={handleLoginSuccess} />
+          } 
         />
-        <div className="main">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Calendar
-                  searchTerm={searchTerm}
-                  selectedDate={selectedDate}
-                  events={events}
-                  onFeedItem={addFeedItem}
-                />
-              }
-            />
-            <Route path="/employees/:id" element={<EmployeePage />} />
-            <Route path="/employees" element={<EmployeeList />} />
-            <Route path="/projects/:id" element={<ProjectPage refreshKey={dataRefreshKey} />} />
 
-          </Routes>
-        </div>
-      </div>
+        {/* 2. PROTECTED APP SHELL */}
+        <Route
+          path="/*"
+          element={
+            isAuthenticated ? (
+              <div className="app-wrapper">
+                <Header 
+                  isVisible={isVisible} 
+                  toggleVisibility={toggleVisibility} 
+                  onDataChanged={loadEvents}
+                  onLogout={handleLogout} 
+                />
+                <div className="container">
+                  <Sidebar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    setSelectedDate={setSelectedDate}
+                    events={events}
+                    feedItems={feedItems}
+                  />
+                  <div className="main">
+                    <Routes>
+                      <Route
+                        path="/"
+                        element={
+                          <Calendar
+                            searchTerm={searchTerm}
+                            selectedDate={selectedDate}
+                            events={events}
+                            onFeedItem={addFeedItem}
+                          />
+                        }
+                      />
+                      <Route path="/employees/:id" element={<EmployeePage />} />
+                      <Route path="/employees" element={<EmployeeList />} />
+                      <Route path="/projects/:id" element={<ProjectPage refreshKey={dataRefreshKey} />} />
+                      {/* Catch-all for authenticated users */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Navigate replace to="/login" />
+            )
+          }
+        />
+      </Routes>
     </Router>
   );
 }

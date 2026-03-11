@@ -125,7 +125,7 @@ const handleResizeEnd = () => {
           
           <button
             className="pill-button"
-            onClick={() => navigate("/employees")}
+            onClick={() => navigate("/employees") }
           >
             Employees
           </button>
