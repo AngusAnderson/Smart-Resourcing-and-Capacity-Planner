@@ -17,6 +17,11 @@ function App() {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
   // --- Existing States ---
   const [isVisible, toggleVisibility] = useToggle(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,14 +33,17 @@ function App() {
   // --- Auth Handlers ---
   const handleLoginSuccess = (userData) => {
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', userData?.email || '');
+    localStorage.setItem('user', JSON.stringify(userData));
+    setCurrentUser(userData);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
+    localStorage.removeItem('user');
+    
     setIsAuthenticated(false);
+    setCurrentUser(null);
   };
 
   // --- Logic Helpers ---
@@ -92,6 +100,7 @@ function App() {
                   toggleVisibility={toggleVisibility} 
                   onDataChanged={loadEvents}
                   onLogout={handleLogout} 
+                  user={currentUser}
                 />
                 <div className="container">
                   <Sidebar

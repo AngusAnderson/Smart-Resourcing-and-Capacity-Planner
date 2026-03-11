@@ -21,10 +21,8 @@ const LoginPage = ({ onLogin }) => {
       if (response.status === 200) {
         console.log("Login Success:", response.data);
         
-        // 1. Tell App.jsx we are logged in
-        onLogin(); 
+        onLogin(response.data);
         
-        // 2. (Optional) Store session info
         localStorage.setItem('userEmail', response.data.email);
       }
     } catch (error) {

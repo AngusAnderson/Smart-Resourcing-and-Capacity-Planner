@@ -603,7 +603,6 @@ def create_forecast(request):
     
 @api_view(['POST'])
 def login_view(request):
-    # We use 'username' because your DB table uses 'SH09' as the username
     email = request.data.get('email')
     password = request.data.get('password')
 
@@ -613,10 +612,11 @@ def login_view(request):
     user = authenticate(username=email, password=password)
 
     if user is not None:
-        # For now, we return success. In a production app, you'd return a token here.
         return Response({
             "message": "Login successful",
-            "email": user.email
+            "email": user.email,
+            "firstName": user.first_name,
+            "lastName": user.last_name
         }, status=200)
     else:
         return Response({"error": "Invalid credentials"}, status=401)
