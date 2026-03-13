@@ -12,6 +12,10 @@ from .models import (
 )
 from .serializers import JobCodeSerializer
 from openai import OpenAI
+from datetime import date
+from comwrap.services.excel_export import export_forecast_xlsx
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_GET
 
 client = OpenAI()
 
@@ -599,3 +603,44 @@ def create_forecast(request):
         
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+    
+@require_GET
+def export_forecast(request):
+    """
+    GET /api/export/forecast-allocations.xlsx?start=YYYY-MM&end=YYYY-MM
+    Returns an Excel file for the given month range (inclusive).
+    """
+    start_s = request.GET.get("start")
+    end_s = request.GET.get("end")
+    if not start_s or not end_s:
+        return HttpResponseBadRequest("Missing start/end query params. Use start=YYYY-MM&end=YYYY-MM.")
+
+    def parse_yyyymm(s: str) -> date:
+        try:
+            y, m = s.split("-")
+            return date(int(y), int(m), 1)
+        except Exception:
+            raise ValueError
+    try:
+        start_month = parse_yyyymm(start_s)
+        end_month = parse_yyyymm(end_s)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid date format. Use YYYY-MM.")
+    
+    if end_month < start_month:
+        return HttpResponseBadRequest("End month must be after start month.")
+    
+    #make sure that the range is not too large (e.g. max 36 months) to prevent generating huge files
+    diff = (end_month.year - start_month.year) * 12 + (end_month.month - start_month.month)
+    if diff > 35:
+        return HttpResponseBadRequest("Range too large (max 36 months).")
+    
+    resp = export_forecast_xlsx(start_month, end_month)
+    response = HttpResponse(
+        resp,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    filename = f"forecast_allocations_{start_month.strftime('%Y%m')}_{end_month.strftime('%Y%m')}.xlsx"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
