@@ -141,10 +141,10 @@ function ProjectPage({ refreshKey }) {
   console.log("PROJECT EMPLOYEES:", project?.employees);
 
   return (
-    <div className="detail-page">
+     <div className="detail-page">
       <div className="detail-top-row">
-        <button className="back-button" onClick={() => navigate("/")}>
-          Back to Calendar Page
+        <button className="back-button" onClick={() => navigate("/projects/")}>
+          Back to Projects
         </button>
       </div>
 
