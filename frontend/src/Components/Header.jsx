@@ -130,6 +130,12 @@ const handleResizeEnd = () => {
             Employees
           </button>
 
+          <button 
+            className="pill-button"
+            onClick={() => navigate("/projects")}>
+            Projects
+          </button>
+
         </div>
         <div className="Text-top_right">
           <h1>Joe Strummer</h1>

@@ -21,7 +21,7 @@ const mockEmployee = {
 };
 
 function EmployeePage() {
-  const { id } = useParams(); // id is the employee slug
+  const { id } = useParams(); 
   const [employee, setEmployee] = useState(null);
   const [forecasts, setForecasts] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState({});
@@ -155,7 +155,6 @@ function EmployeePage() {
   };
 
   const handleForecastAdded = (newForecast) => {
-    // Add the new forecast to the list
     setForecasts((prev) => [...prev, newForecast]);
   };
 
@@ -165,7 +164,6 @@ function EmployeePage() {
   };
 
   const handleForecastUpdated = (updated) => {
-    // Replace the specific allocation entry matching forecastID & employeeID
     setForecasts((prev) => prev.map((f) => {
       if (f.forecastID === updated.forecastID && f.employeeID === updated.employeeID) {
         return updated;
