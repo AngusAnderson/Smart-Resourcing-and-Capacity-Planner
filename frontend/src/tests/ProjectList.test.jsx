@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import ProjectList from "../ProjectList";
-import api from "../../services/api";
+import ProjectList from "../Components/ProjectList";
+import api from "../services/api";
 
-vi.mock("../CreateProjectModal", () => ({
+vi.mock("../Components/CreateProjectModal", () => ({
   default: () => <div data-testid="create-project-modal">CreateProjectModal</div>,
 }));
 
@@ -23,7 +23,7 @@ vi.mock("react-router-dom", async () => {
 const apiGetMock = vi.fn();
 const apiDeleteMock = vi.fn();
 
-vi.mock("../../services/api", () => ({
+vi.mock("../services/api", () => ({
   default: {
     get: (...args) => apiGetMock(...args),
     delete: (...args) => apiDeleteMock(...args),
