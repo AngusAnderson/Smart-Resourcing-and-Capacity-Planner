@@ -33,6 +33,8 @@
 
 stages:
     - build
+    - lint
+    - test
 
 workflow:
   rules:
@@ -59,14 +61,49 @@ default:
       - ~/.cache/pip/
 
 frontend-setup:
-  image: node:20
   stage: build
+  image: node:20
   script:
     - cd frontend
     - npm ci
     - npm run build
     - npm test
 #    - npm run lint
+
+frontend-lint:
+  stage: lint
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+frontend-test:
+  stage: test
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run test -- --run
+
+
+backend-lint:
+  stage: lint
+  image: python:3.12
+  script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements-ci.txt
+    - flake8 .
+
+backend-security:
+  stage: lint
+  image: python:3.12
+  script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements-ci.txt
+    - bandit -r .
 
 
 migrations:
