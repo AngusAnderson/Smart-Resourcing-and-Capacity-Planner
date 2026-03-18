@@ -7,4 +7,4 @@ sqlparse==0.4.4
 python-dotenv
 openai
 openpyxl
-rest_framework_simplejwt
+djangorestframework-simplejwt>=5.3.0,<6.0.0
