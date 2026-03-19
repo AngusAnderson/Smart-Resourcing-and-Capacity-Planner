@@ -74,9 +74,17 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
+### To create an admin account
+```
+python manage.py createsuperuser
+```
+Then enter the email and password
 
 #### The backend server will be found at:
 http://localhost:8000
+
+### Admin page will be found at:
+http://127.0.0.1:8000/admin/comwrap/
 
 ***
 
@@ -107,6 +115,5 @@ http://localhost:5173
 
 ## Usage
 
-Once both servers are running
-1. Open the frontend server @ http://localhost:5173
-2. Games Game
+# Once both servers are running
+Open the frontend server @ http://localhost:5173 to launch the website
