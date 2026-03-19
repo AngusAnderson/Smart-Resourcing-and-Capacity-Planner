@@ -8,7 +8,7 @@ function monthDiff(startYYYYMM, endYYYYMM) {
 
 export default function SidebarExportButton({
   exportUrl,
-  label = "Export Excel",
+  label = "Export",
 }) {
   const EXPORT_URL = exportUrl ?? "/api/export/forecast-allocations.xlsx";
 
@@ -103,7 +103,7 @@ export default function SidebarExportButton({
         }}
       >
         <span>{label}</span>
-        <span style={{ color: "#6b7280", fontWeight: 700 }}>⬇︎</span>
+        <span style={{ color: "#6b7280", fontWeight: 700 }}></span>
       </button>
 
       {/* Simple modal/panel */}
