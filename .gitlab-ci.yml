@@ -32,9 +32,9 @@
 
 
 stages:
-    - build
     - lint
     - test
+    - build
 
 workflow:
   rules:
@@ -94,7 +94,8 @@ backend-lint:
     - cd backend
     - pip install --upgrade pip
     - pip install -r requirements-ci.txt
-    - flake8 .
+    - pip install ruff
+    - ruff check comwrap
 
 backend-security:
   stage: lint
