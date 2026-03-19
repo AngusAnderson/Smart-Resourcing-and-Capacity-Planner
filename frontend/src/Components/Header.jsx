@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import '../css/Header.css'
 import api from '../services/api'
 import { useNavigate } from "react-router-dom";
+import SidebarExportButton from './Sidebar/Export_Card';
 
 
 const Header = ({ user, onLogout, isVisible, toggleVisibility, onDataChanged }) => {
@@ -133,6 +134,10 @@ const handleResizeEnd = () => {
           <button className="logout-button" onClick={onLogout}>
           Logout
         </button>
+
+        <div className="export">
+          <SidebarExportButton/>
+        </div>
 
 
           <button 

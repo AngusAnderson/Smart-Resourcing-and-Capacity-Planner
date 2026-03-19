@@ -17,7 +17,7 @@ const Sidebar = ({ searchTerm, onSearchChange, setSelectedDate, events, feedItem
           <Filter_Box searchTerm={searchTerm} onSearchChange={onSearchChange} events={events} feedItems={feedItems}/>
           </div>
           {/* Code for export button in the sidebar */}
-          <SidebarExportButton/>
+          
         </div>
     )
 }
