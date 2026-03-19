@@ -87,18 +87,18 @@ const LoginPage = ({ onLogin }) => {
   </button>
 </div>
 
-          <div className="form-footer">
+          {/* <div className="form-footer">
             <label className="checkbox-container">
               <input className='RM-Checkbox' type="checkbox" />
               <span className="checkmark"></span>
               Remember me
             </label>
             <a href="#" className="forgot-link">Forgot Password?</a>
-          </div>
+          </div> */}
 
           <div className="action-buttons">
           <button type="submit" className="login-btn">Login</button>
-            <button type="button" className="signup-btn">Sign Up</button>
+            {/* <button type="button" className="signup-btn">Sign Up</button> */}
           </div>
         </form>
       </div>
