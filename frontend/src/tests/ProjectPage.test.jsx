@@ -3,10 +3,10 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import api from "../../services/api";
-import ProjectPage from "../ProjectPage";
+import api from "../services/api";
+import ProjectPage from "../Components/ProjectPage";
 
-vi.mock("../../services/api", () => ({
+vi.mock("../services/api", () => ({
   __esModule: true,
   default: {
     get: vi.fn(),
@@ -25,11 +25,11 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-function renderProjectPage(id = "JOB-001") {
+function renderProjectPage(code = "JOB-001") {
   return render(
-    <MemoryRouter initialEntries={[`/projects/${id}`]}>
+    <MemoryRouter initialEntries={[`/projects/${code}`]}>
       <Routes>
-        <Route path="/projects/:id" element={<ProjectPage refreshKey={0} />} />
+        <Route path="/projects/:code" element={<ProjectPage refreshKey={0} />} />
       </Routes>
     </MemoryRouter>
   );
