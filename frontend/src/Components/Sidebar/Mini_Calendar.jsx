@@ -4,10 +4,10 @@ import '../../css/Sidebar/Mini_Calendar.css'
 
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
 import {
-  createViewDay,
+  // createViewDay,
   createViewMonthAgenda,
-  createViewMonthGrid,
-  createViewWeek,
+  // createViewMonthGrid,
+  // createViewWeek,
 } from '@schedule-x/calendar'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
 import 'temporal-polyfill/global'

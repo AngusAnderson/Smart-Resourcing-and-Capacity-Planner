@@ -10,8 +10,8 @@ from openpyxl.utils import get_column_letter
 from copy import copy
 
 from django.http import HttpResponse
-from django.db.models import Prefetch
-from django.utils.timezone import make_naive
+# from django.db.models import Prefetch
+# from django.utils.timezone import make_naive
 from openpyxl.cell.cell import MergedCell
 
 from comwrap.models import ForecastAllocation  # adjust import

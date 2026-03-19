@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import ProjectList from "../Components/ProjectList";
-import api from "../services/api";
+//import api from "../services/api";
 
 vi.mock("../Components/CreateProjectModal", () => ({
   default: () => <div data-testid="create-project-modal">CreateProjectModal</div>,

@@ -16,7 +16,7 @@ import '../css/Calendar.css';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
+// import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 import { getWorkingDaysInMonth } from '../utils/dateUtils'
 
@@ -66,7 +66,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
           current.year === monthDate.year &&
           current.month === monthDate.month
         ) {
-          const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
+          //const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
             days.add(current.toString());
         }
 
@@ -81,12 +81,14 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
 
 
   const [localEvents, setLocalEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  //const [loading, setLoading] = useState(true);
+  //const [error, setError] = useState(null);
+  const [setError] = useState(null);
   
 
   const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
-  const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
+  //const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
+  const [targetAllocatedDays] = useState(null);
   const monthDate = activeDate
   
   useEffect(() => {
@@ -107,7 +109,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
     options.push(Number(v.toFixed(1)));
   }
 
-  const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
+  //const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
 
 
 
