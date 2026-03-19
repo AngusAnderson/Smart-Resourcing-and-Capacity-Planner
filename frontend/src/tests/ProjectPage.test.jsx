@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
@@ -228,8 +228,7 @@ describe("ProjectPage - CRUD Operations", () => {
         return Promise.resolve({ data: [] });
       });
 
-      const updatedEmployees = [1, 3]; 
-      api.patch.mockImplementation((url, data) => {
+      api.patch.mockImplementation((url) => {
         if (url === "/jobcodes/JOB-001/") {
           return Promise.resolve({
             status: 200,
