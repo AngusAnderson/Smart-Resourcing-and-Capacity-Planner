@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import replyLogo from '../assets/ReplyLogo.png';
 import '../css/LoginPage.css'; 
-import { login } from '../services/authService';
+//import { login } from '../services/authService';
 import api from '../services/api';
 
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  //const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
