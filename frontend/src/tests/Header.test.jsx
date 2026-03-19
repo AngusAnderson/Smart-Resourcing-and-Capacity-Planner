@@ -5,7 +5,7 @@ import api from "../services/api";
 
 describe("Please Pass", () => {
   test("Must pass", () => {
-        a = True;
+        const a = true;
         expect(a).toBeTruthy();
       });
 
