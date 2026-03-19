@@ -32,9 +32,6 @@ const Filter_Box = ({ searchTerm, onSearchChange, events, feedItems }) => {
       <hr className="hr-filter_box" />
       <div className="white-space-filter_box"></div>
 
-      <h1 className="h1-filter_box">Overall Project Progress</h1>
-      <OverallProjectProgress />
-
       {/* Dashboard tabs area */}
       <div className="dashboard">
         <Dashboard_Tabs

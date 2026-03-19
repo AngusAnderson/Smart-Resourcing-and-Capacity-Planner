@@ -16,10 +16,29 @@
     top: 0;
     left: 0;
     margin: 10px 0 0 50px;
+    padding-left: 40px;
     display: flex;
     margin-left: auto;
     gap: 100px;
   }
+
+  .button-access-ai {
+    margin: 0;
+  }
+
+  @media (max-height: 1100px) {
+    .Text-middle {
+      margin: 0 auto;
+      margin-right: 50px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: bold;
+    }
+  }
+
   
   .Text-top_right {
     position: absolute;

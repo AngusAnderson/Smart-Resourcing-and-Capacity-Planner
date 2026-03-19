@@ -61,6 +61,13 @@ vi.mock("../utils/Storage", () => ({
 describe("App", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    window.localStorage.setItem("isLoggedIn", "true");
+    window.localStorage.setItem(
+      "user",
+      JSON.stringify({ firstName: "Test", lastName: "User" })
+    );
+
     window.history.pushState({}, "", "/");
     loadFeedItems.mockReturnValue([]);
     fetchJobcodesAsEvents.mockResolvedValue([]);
@@ -98,6 +105,7 @@ describe("App", () => {
   });
 
   test("renders employee route component", () => {
+    window.localStorage.setItem("isLoggedIn", "true");
     window.history.pushState({}, "", "/employees/123");
 
     render(<App />);
