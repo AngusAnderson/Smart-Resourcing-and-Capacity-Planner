@@ -44,6 +44,7 @@ class Employee(models.Model):
     specialisms = models.ManyToManyField(Specialism, related_name='employees')
     resourceBU = models.ForeignKey(ResourceBusinessUnit, on_delete=models.CASCADE, default=get_default_resource_bu)  # New field for resource business unit, defaults to cwpuk_cwpuk. 
     excludedFromAI = models.BooleanField()
+    allocatedDaysPerMonth = models.JSONField(default=dict, blank=True)
     slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
