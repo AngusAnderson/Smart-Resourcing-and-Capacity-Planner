@@ -17,6 +17,7 @@ from datetime import date
 from comwrap.services.excel_export import export_forecast_xlsx
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_GET
+from django.contrib.auth import authenticate
 
 client = OpenAI()
 
@@ -555,3 +556,23 @@ def export_forecast(request):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
 
+@api_view(['POST'])
+def login_view(request):
+
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return Response({"error": "Please provide both username and password"}, status=400)
+
+    user = authenticate(username=email, password=password)
+
+    if user is not None:
+        return Response({
+            "message": "Login successful",
+            "email": user.email,
+            "firstName": user.first_name,
+            "lastName": user.last_name
+        }, status=200)
+    else:
+        return Response({"error": "Invalid credentials"}, status=401)

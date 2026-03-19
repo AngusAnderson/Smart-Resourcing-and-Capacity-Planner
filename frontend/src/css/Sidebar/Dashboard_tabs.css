@@ -41,11 +41,11 @@
     outline: none;
   }
   
-  .deadlines-list, .feed-list {
+  /* .deadlines-list, .feed-list {
     height: 240px;
     overflow-y: auto;
     padding-right: 4px;
-  }
+  } */
 
   .deadline-item, .feed-item {
     margin-bottom: 32px;
@@ -114,4 +114,24 @@
   .create-project-button:disabled {
     background: #ccc;
     cursor: not-allowed;
+  }
+
+  /* Small Screen */
+
+  @media (max-height: 1100px) {
+    .deadlines-list, .feed-list {
+      height: 100px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+  }
+
+  /* Large Screen  */
+
+  @media (min-width: 1800px) {
+    .deadlines-list, .feed-list {
+      height: 300px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
   }
