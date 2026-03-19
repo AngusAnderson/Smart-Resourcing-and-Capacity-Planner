@@ -8,8 +8,14 @@
 }
 
 .h1-filter_box {
-text-align: center;
-font-weight: bold;
+  text-align: center;
+  font-weight: bold;
+}
+
+.h1-filter_box-2 {
+  margin-top: 40px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .search-box {
@@ -199,8 +205,12 @@ font-weight: bold;
     display: none;
   }
 
-  .dashboard {
-    display: none;
+  .h1-filter_box {
+    margin: 0;
+  }
+
+  .search-box {
+    margin: 10px auto;
   }
 }
 
@@ -214,5 +224,10 @@ font-weight: bold;
     color: #000;
     margin-top: 50px;
     padding-left: 30px;
+  }
+  
+  .dashboard {
+    margin-top: 60px;
+    height: 350px;
   }
 }

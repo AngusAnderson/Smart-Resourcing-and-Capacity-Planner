@@ -3,9 +3,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import '../css/Header.css'
 import api from '../services/api'
 import { useNavigate } from "react-router-dom";
+import SidebarExportButton from './Sidebar/Export_Card';
 
 
-const Header = ({ isVisible, toggleVisibility, onDataChanged }) => {
+const Header = ({ user, onLogout, isVisible, toggleVisibility, onDataChanged }) => {
 
 
 const[messages, setMessages] = useState([])
@@ -87,7 +88,7 @@ const handleInputKeyDown = async (e) => {
 
 
     
-  } catch (err) {
+  } catch{
     setMessages(prev =>
       prev.map(m =>
         m.pending ? { text: 'Error: failed to reach AI', role: 'reply' } : m
@@ -130,9 +131,24 @@ const handleResizeEnd = () => {
             Employees
           </button>
 
+          <button className="logout-button" onClick={onLogout}>
+          Logout
+        </button>
+
+        <div className="export">
+          <SidebarExportButton/>
+        </div>
+
+
+          <button 
+            className="pill-button"
+            onClick={() => navigate("/projects")}>
+            Projects
+          </button>
+
         </div>
         <div className="Text-top_right">
-          <h1>Joe Strummer</h1>
+          <h1>{user.firstName} {user.lastName}</h1>
         </div>
 
         <div className="Text-middle">

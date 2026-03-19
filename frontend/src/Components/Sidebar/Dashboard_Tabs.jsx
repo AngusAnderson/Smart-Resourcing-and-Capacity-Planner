@@ -33,16 +33,16 @@ function Dashboard_Tabs({ deadlines, feedItems }) {
     navigate(`/projects/${projectId}`);
   };
 
-  const handleUndoClick = async (item) => {
-    console.log("FEED undo clicked for", item.projectId);
-    try {
-      if (item.undo) {
-        await item.undo();
-      }
-    } catch (e) {
-      console.error("Undo failed", e);
-    }
-  };
+  // const handleUndoClick = async (item) => {
+  //   console.log("FEED undo clicked for", item.projectId);
+  //   try {
+  //     if (item.undo) {
+  //       await item.undo();
+  //     }
+  //   } catch (e) {
+  //     console.error("Undo failed", e);
+  //   }
+  // };
 
   const handleProjectCreated = (newProject) => {
     console.log("New project created:", newProject);

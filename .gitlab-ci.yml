@@ -32,6 +32,8 @@
 
 
 stages:
+    - lint
+    - test
     - build
 
 workflow:
@@ -59,14 +61,50 @@ default:
       - ~/.cache/pip/
 
 frontend-setup:
-  image: node:20
   stage: build
+  image: node:20
   script:
     - cd frontend
     - npm ci
     - npm run build
     - npm test
 #    - npm run lint
+
+frontend-lint:
+  stage: lint
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+frontend-test:
+  stage: test
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run test -- --run
+
+
+backend-lint:
+  stage: lint
+  image: python:3.12
+  script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements-ci.txt
+    - pip install ruff
+    - ruff check comwrap
+
+backend-security:
+  stage: lint
+  image: python:3.12
+  script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements-ci.txt
+    - bandit -r ./comwrap -x ./comwrap/tests,./comwrap/migrations
 
 
 migrations:

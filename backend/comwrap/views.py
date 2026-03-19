@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils.text import slugify
 from .ai_service import run_ai_chat
+from rest_framework import status
 
 from .models import (
     Employee,
@@ -12,6 +13,11 @@ from .models import (
 )
 from .serializers import JobCodeSerializer
 from openai import OpenAI
+from datetime import date
+from comwrap.services.excel_export import export_forecast_xlsx
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_GET
+from django.contrib.auth import authenticate
 
 client = OpenAI()
 
@@ -46,94 +52,6 @@ def get_specialisms(request):
     specialisms = Specialism.objects.all().values()
     return Response(list(specialisms))
 
-# @api_view(['GET', 'POST', 'DELETE', 'PATCH'])
-# def get_employees(request, slug=None):
-    # if request.method == 'GET' :
-    #     if slug is not None:
-    #         try:
-    #             employee = Employee.objects.get(slug=slug)
-    #         except Employee.DoesNotExist:
-    #             return Response({"error": "Employee not found"}, status=404)
-    
-    #         if request.method == 'PATCH':
-    #             data = request.data or {}
-    #             name = data.get("name")
-    #             excluded_from_ai = data.get("excludedFromAI")
-    #             specialisms = data.get("specialisms")
-
-    #         if name is not None:
-    #             employee.name = name
-    #             employee.slug = slugify(name)
-    #         if excluded_from_ai is not None:
-    #             employee.excludedFromAI = excluded_from_ai
-
-    #         employee.save()
-
-    #         if specialisms is not None:
-    #             if isinstance(specialisms, list):
-    #                 specialism_objs = Specialism.objects.filter(name__in=specialisms)
-    #                 employee.specialisms.set(specialism_objs)
-    #             else:
-    #                 return Response({"error": "specialisms must be a list"}, status=400)
-
-    #         employee.refresh_from_db()
-
-    #     data = {
-    #             "employeeID": employee.id,
-    #             "name": employee.name,
-    #             "resourceBU": employee.resourceBU.name,
-    #         "excludedFromAI": employee.excludedFromAI,
-    #             "specialisms": list(employee.specialisms.values_list("name", flat=True)),
-    #         "jobCodes": list(employee.jobCodes.values_list("code", flat=True))
-    #         }
-    #     return Response(data)
-    # employees = Employee.objects.all()
-    # attributes = []
-    # for e in employees:
-    #         attributes.append({ 
-    #             "employeeID": e.id,
-    #             "name": e.name,
-    #             "resourceBU": e.resourceBU.name,
-    #         "excludedFromAI": e.excludedFromAI,
-    #             "specialisms": list(e.specialisms.values_list("name", flat=True)),
-    #         "jobCodes": list(e.jobCodes.values_list("code", flat=True))
-    #         })
-    # return Response(attributes)
-
-    # elif request.method == 'POST':
-    #     name = request.data.get("name")
-    #     specialisms = request.data.get("specialisms", [])
-    #     excludedFromAI = request.data.get("excludedFromAI", False)
-
-    #     if not name:
-    #         return Response({"error": "Name is required"}, status=400)
-        
-    #     try:
-    #         employee = Employee.objects.create(name=name, excludedFromAI=excludedFromAI)
-    #         specialism_objects = Specialism.objects.filter(name__in=specialisms)
-    #         employee.specialisms.set(specialism_objects)
-
-    #         return Response({
-    #             "message": "Employee created successfully", 
-    #             "employeeID": employee.id,
-    #             "name": employee.name,
-    #             "excludedFromAI": employee.excludedFromAI,
-    #             "specialisms": list(employee.specialisms.values_list("name", flat=True))
-    #             }, status=201)
-    #     except Exception as e:
-    #         return Response({"error": str(e)}, status=500)
-        
-    # elif request.method == 'DELETE':
-    #     if slug is None:
-    #         return Response({"error": "Slug is required"}, status=400)
-    #     try:
-    #         employee = Employee.objects.get(slug=slug)
-    #         employee.delete()
-    #         return Response({"message": "Employee deleted successfully"})
-    #     except Employee.DoesNotExist:
-    #         return Response({"error": "Employee not found"}, status=404)
-
-#@api_view(['GET', 'POST', 'DELETE', 'PATCH'])
 @api_view(['GET', 'POST', 'DELETE', 'PATCH']) 
 def get_employees(request, slug=None):
 
@@ -155,7 +73,6 @@ def get_employees(request, slug=None):
             }
             return Response(data)
 
-        # GET all employees
         employees = Employee.objects.all()
         attributes = []
         for e in employees:
@@ -171,7 +88,6 @@ def get_employees(request, slug=None):
         return Response(attributes)
 
 
-    # -------------------- POST --------------------
     elif request.method == 'POST':
         name = request.data.get("name")
         specialisms = request.data.get("specialisms", [])
@@ -202,7 +118,6 @@ def get_employees(request, slug=None):
             return Response({"error": str(e)}, status=500)
 
 
-    # -------------------- PATCH --------------------
     elif request.method == 'PATCH':
         if slug is None:
             return Response({"error": "Slug is required"}, status=400)
@@ -253,7 +168,6 @@ def get_employees(request, slug=None):
         })
 
 
-    # -------------------- DELETE --------------------
     elif request.method == 'DELETE':
         if slug is None:
             return Response({"error": "Slug is required"}, status=400)
@@ -332,10 +246,12 @@ def get_jobcodes(request, code=None):
         try:
             jobcode = JobCode.objects.get(code=code)
         except JobCode.DoesNotExist:
-            return Response({"error": "Jobcode not found"}, status=404)
+            return Response({"error": "Jobcode not found"}, status=status.HTTP_404_NOT_FOUND)
+
         
         jobcode.delete()
-        return Response({"message": "Jobcode deleted successfully"}, status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
         
     elif request.method in ['PUT', 'PATCH']:
         try:
@@ -609,3 +525,64 @@ def create_forecast(request):
         
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+    
+@require_GET
+def export_forecast(request):
+    """
+    GET /api/export/forecast-allocations.xlsx?start=YYYY-MM&end=YYYY-MM
+    Returns an Excel file for the given month range (inclusive).
+    """
+    start_s = request.GET.get("start")
+    end_s = request.GET.get("end")
+    if not start_s or not end_s:
+        return HttpResponseBadRequest("Missing start/end query params. Use start=YYYY-MM&end=YYYY-MM.")
+
+    def parse_yyyymm(s: str) -> date:
+        try:
+            y, m = s.split("-")
+            return date(int(y), int(m), 1)
+        except Exception:
+            raise ValueError
+    try:
+        start_month = parse_yyyymm(start_s)
+        end_month = parse_yyyymm(end_s)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid date format. Use YYYY-MM.")
+    
+    if end_month < start_month:
+        return HttpResponseBadRequest("End month must be after start month.")
+    
+    #make sure that the range is not too large (e.g. max 36 months) to prevent generating huge files
+    diff = (end_month.year - start_month.year) * 12 + (end_month.month - start_month.month)
+    if diff > 35:
+        return HttpResponseBadRequest("Range too large (max 36 months).")
+    
+    resp = export_forecast_xlsx(start_month, end_month)
+    response = HttpResponse(
+        resp,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    filename = f"forecast_allocations_{start_month.strftime('%Y%m')}_{end_month.strftime('%Y%m')}.xlsx"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+@api_view(['POST'])
+def login_view(request):
+
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return Response({"error": "Please provide both username and password"}, status=400)
+
+    user = authenticate(username=email, password=password)
+
+    if user is not None:
+        return Response({
+            "message": "Login successful",
+            "email": user.email,
+            "firstName": user.first_name,
+            "lastName": user.last_name
+        }, status=200)
+    else:
+        return Response({"error": "Invalid credentials"}, status=401)

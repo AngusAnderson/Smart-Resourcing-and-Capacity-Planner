@@ -3,10 +3,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import api from "../../services/api";
-import EmployeeList from "../EmployeeList";
+import api from "../services/api";
+import EmployeeList from "../Components/EmployeeList";
 
-vi.mock("../../services/api", () => ({
+vi.mock("../services/api", () => ({
   __esModule: true,
   default: {
     get: vi.fn(),

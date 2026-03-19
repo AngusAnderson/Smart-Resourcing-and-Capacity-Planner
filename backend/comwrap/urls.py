@@ -13,4 +13,6 @@ urlpatterns = [
     path("forecasts/create/", views.create_forecast, name="create-forecast"),
     path("forecasts/<str:forecastID>/", views.get_forecasts),
     path("ai/chat/", views.ai_chat, name="ai-chat"),
+    path("export/forecast-allocations.xlsx", views.export_forecast, name="export-forecast-allocations"),
+    path('login/', views.login_view, name='login'),
 ]

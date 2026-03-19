@@ -93,23 +93,6 @@ function EmployeeList(){
         }
     }; 
 
-    // const handleDeleteEmployee = async (employeeID) => {
-    //     if (!window.confirm("Are you sure you want to delete this employee?")) {
-    //         return;
-    //     }
-    //     try {
-    //         await api.delete(`/employees/${employeeID}`);
-    //         fetchEmployees();
-    //     } catch (err) {
-    //         console.error("Error deleting employee:", err);
-    //         setError("Failed to delete employee.");
-    //     }
-    // };
-
-    // const handleViewEmployee = (slug) => {
-    //     navigate(`/employee/${slug}`);
-    // };
-
     const handleDeleteEmployee = async (employee) => {
       const slug = toSlug(employee?.name);
       if (!slug) return;
@@ -125,13 +108,6 @@ function EmployeeList(){
         setError("Failed to delete employee");
       }
    };
-
-    // <button
-    //     className="btn-secondary"
-    //     onClick={() => handleViewEmployee(employee.employeeID, employeee.slug)}
-    // >
-    //     View Employee
-    // </button>
 
     const handleViewEmployee = (employee) => {
       const slug = toSlug(employee?.name);
@@ -212,20 +188,6 @@ function EmployeeList(){
               </small>
             </div>
 
-            {/* <div className="form-group">
-              <label>Excluded From AI</label>
-              <input
-                type="checkbox"
-                checked={formData.excludedFromAI}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    excludedFromAI: e.target.checked,
-                  })
-                }
-              />
-            </div> */}
-
             <div className="form-group">
               <label>
                 <input
@@ -245,34 +207,6 @@ function EmployeeList(){
           </form>
         </div>
       )}
-
-      {/* {employees.length === 0 ? (
-        <div className="empty-state">No employees found</div>
-      ) : (
-        <div className="employees-grid">
-          {employees.map((employee) => (
-            <div key={employee.employeeID} className="employee-card">
-              <div className="card-content">
-                <h2>{employee.name}</h2>
-                <p className="specialisms">
-                  {employee.specialisms.join(", ")}
-                </p>
-                <p className="ai-status">
-                  Excluded from AI: {employee.excludedFromAI ? "Yes" : "No"}
-                </p>
-              </div>
-              <div className="card-actions">
-                <button
-                  className="btn-secondary"
-                  onClick={() => handleViewEmployee(employee.name.toLowerCase().replace(/\s+/g, "-"))}
-                >
-                  View
-                </button>
-                <button
-                  className="btn-danger"
-                  onClick={() => handleDeleteEmployee(employee.employeeID)}
-                > */}
-
 
       {filteredEmployees.length === 0 ? (
         <div className="empty-state">No employees found</div>

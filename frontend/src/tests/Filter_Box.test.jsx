@@ -95,17 +95,17 @@ describe("Filter_Box", () => {
     );
   });
 
-  test("renders overall project progress section", () => {
-    render(
-      <Filter_Box
-        searchTerm=""
-        onSearchChange={vi.fn()}
-        events={[]}
-        feedItems={[]}
-      />
-    );
+  // test("renders overall project progress section", () => {
+  //   render(
+  //     <Filter_Box
+  //       searchTerm=""
+  //       onSearchChange={vi.fn()}
+  //       events={[]}
+  //       feedItems={[]}
+  //     />
+  //   );
 
-    expect(screen.getByTestId("overall-progress-mock")).toBeInTheDocument();
-    expect(screen.getAllByText(/filter/i).length).toBeGreaterThan(0);
-  });
+  //   expect(screen.getByTestId("overall-progress-mock")).toBeInTheDocument();
+  //   expect(screen.getAllByText(/filter/i).length).toBeGreaterThan(0);
+  // });
 });

@@ -6,22 +6,22 @@ import { getWorkingDaysInMonth } from "../utils/dateUtils";
 import AddForecastModal from "./AddForecastModal";
 import EditForecastModal from "./EditForecastModal";
 
-const mockEmployee = {
-  id: 1,
-  name: "Employee B",
-  excludedFromAI: false,
-  specialisms: [
-    "Frontend Developer",
-    "Backend Developer",
-    "Edge Delivery Services"
-  ],
-  previousProjects: ["Project X", "Project Y", "Project Z"],
-  currentProjects: ["Project A"],
-  futureProjects: ["Project B", "Project C"]
-};
+// const mockEmployee = {
+//   id: 1,
+//   name: "Employee B",
+//   excludedFromAI: false,
+//   specialisms: [
+//     "Frontend Developer",
+//     "Backend Developer",
+//     "Edge Delivery Services"
+//   ],
+//   previousProjects: ["Project X", "Project Y", "Project Z"],
+//   currentProjects: ["Project A"],
+//   futureProjects: ["Project B", "Project C"]
+// };
 
 function EmployeePage() {
-  const { id } = useParams(); // id is the employee slug
+  const { id } = useParams(); 
   const [employee, setEmployee] = useState(null);
   const [forecasts, setForecasts] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState({});
@@ -156,7 +156,6 @@ function EmployeePage() {
   };
 
   const handleForecastAdded = (newForecast) => {
-    // Add the new forecast to the list
     setForecasts((prev) => [...prev, newForecast]);
   };
 
@@ -166,7 +165,6 @@ function EmployeePage() {
   };
 
   const handleForecastUpdated = (updated) => {
-    // Replace the specific allocation entry matching forecastID & employeeID
     setForecasts((prev) => prev.map((f) => {
       if (f.forecastID === updated.forecastID && f.employeeID === updated.employeeID) {
         return updated;
@@ -175,19 +173,19 @@ function EmployeePage() {
     }));
   };
 
-  const handleDeleteAllocation = async (forecast) => {
-    if (!window.confirm("Delete this forecast allocation?")) return;
+  // const handleDeleteAllocation = async (forecast) => {
+  //   if (!window.confirm("Delete this forecast allocation?")) return;
 
-    try {
-      await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
-      setForecasts((prev) =>
-        prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
-      );
-    } catch (err) {
-      console.error("Failed to delete allocation", err);
-      alert("Failed to delete allocation");
-    }
-  };
+  //   try {
+  //     await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
+  //     setForecasts((prev) =>
+  //       prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
+  //     );
+  //   } catch (err) {
+  //     console.error("Failed to delete allocation", err);
+  //     alert("Failed to delete allocation");
+  //   }
+  // };
 
   if (loading) return <div className="detail-page">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -263,11 +261,11 @@ function EmployeePage() {
 
   if (!employee) return null;
 
-  const previousProjects = employee.previousProjects || [];
-  const currentProjects = employee.currentProjects || [];
-  const futureProjects = employee.futureProjects || [];
+  // const previousProjects = employee.previousProjects || [];
+  // const currentProjects = employee.currentProjects || [];
+  // const futureProjects = employee.futureProjects || [];
 
-  const specialisms = employee.specialisms || [];
+  // const specialisms = employee.specialisms || [];
 
   return (
     <div className="detail-page">

@@ -16,6 +16,7 @@ import '../css/Calendar.css';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+// import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 
 function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
@@ -30,6 +31,31 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
 
   const [error, setError] = useState(null);
   
+
+  const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
+  //const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
+  const [targetAllocatedDays] = useState(null);
+  const monthDate = activeDate
+  
+  useEffect(() => {
+    if (Array.isArray(appEvents)) {
+      setLocalEvents(appEvents);
+    }
+  }, [appEvents]);
+
+  useEffect(() => {
+    console.log("Active month for calculations:", activeDate.toString());
+  }, [activeDate]);
+
+
+
+  const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
+  const options = [];
+  for (let v = 0; v <= workingDaysInMonth; v += 0.5){
+    options.push(Number(v.toFixed(1)));
+  }
+
+  //const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
 
 
 
