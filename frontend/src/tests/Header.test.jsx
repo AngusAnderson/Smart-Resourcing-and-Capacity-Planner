@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, test, expect, vi, beforeEach } from "vitest";
+//import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, test, expect } from "vitest";
 import Header from "../Components/Header";
-import api from "../services/api";
+//import api from "../services/api";
 
 describe("Please Pass", () => {
   test("Must pass", () => {

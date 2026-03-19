@@ -88,7 +88,7 @@ const handleInputKeyDown = async (e) => {
 
 
     
-  } catch (err) {
+  } catch{
     setMessages(prev =>
       prev.map(m =>
         m.pending ? { text: 'Error: failed to reach AI', role: 'reply' } : m

@@ -106,7 +106,7 @@ function ProjectList() {
       ) : (
         <div className="projects-grid">
           {filteredProjects.map((project) => {
-            const id = project?.code ?? project?.id;
+            //const id = project?.code ?? project?.id;
 
             return (
               <div

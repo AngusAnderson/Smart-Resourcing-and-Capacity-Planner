@@ -250,7 +250,7 @@ def run_ai_chat(messages, *, client, pending_action=None):
 
         tool_outputs = []
         for call in function_calls:
-            call_name = _read(call, "name")
+            # call_name = _read(call, "name")
             pending_args = _read(call, "arguments")
             if isinstance(pending_args, str):
                 try:
