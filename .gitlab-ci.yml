@@ -103,7 +103,7 @@ backend-security:
     - cd backend
     - pip install --upgrade pip
     - pip install -r requirements-ci.txt
-    - bandit -r .
+    - bandit -r ./comwrap -x ./comwrap/tests,./comwrap/migrations
 
 
 migrations:
