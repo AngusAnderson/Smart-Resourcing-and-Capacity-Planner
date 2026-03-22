@@ -76,7 +76,7 @@ function ProjectPage({ refreshKey }) {
 
         const res = await api.get("/forecasts/");
         const projectForecasts = Array.isArray(res.data)
-          ? res.data.filter((forecast) => String(forecast.jobCode) === String(id))
+          ? res.data.filter((forecast) => String(forecast.jobCode) === String(code))
           : [];
 
         const sortedForecasts = projectForecasts.sort(
@@ -93,7 +93,7 @@ function ProjectPage({ refreshKey }) {
     }
 
     fetchProjectForecasts();
-  }, [id]);
+  }, [code]);
 
   function calculateDuration(startDate, endDate) {
     const start = new Date(startDate);

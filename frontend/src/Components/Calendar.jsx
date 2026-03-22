@@ -30,32 +30,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
   }
 
   const [error, setError] = useState(null);
-  
-
-  const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
-  //const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
-  const [targetAllocatedDays] = useState(null);
-  const monthDate = activeDate
-  
-  useEffect(() => {
-    if (Array.isArray(appEvents)) {
-      setLocalEvents(appEvents);
-    }
-  }, [appEvents]);
-
-  useEffect(() => {
-    console.log("Active month for calculations:", activeDate.toString());
-  }, [activeDate]);
-
-
-
-  const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
-  const options = [];
-  for (let v = 0; v <= workingDaysInMonth; v += 0.5){
-    options.push(Number(v.toFixed(1)));
-  }
-
-  //const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
 
 
 
