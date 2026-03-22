@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
@@ -174,6 +174,22 @@ function ProjectPage({ refreshKey }) {
     }
   };
 
+  const employeesFromForecasts = useMemo(() => {
+    const seen = new Set();
+    const result = [];
+    forecasts.forEach(forecast => {
+      if (Array.isArray(forecast.allocations)) {
+        forecast.allocations.forEach(allocation => {
+          if (!seen.has(allocation.employeeID)) {
+            seen.add(allocation.employeeID);
+            result.push({ id: allocation.employeeID, name: allocation.employeeName });
+          }
+        });
+      }
+    });
+    return result;
+  }, [forecasts]);
+
   if (loading) return <div className="detail-page">Loading project...</div>;
   if (error) return <div className="detail-page">Error: {error}</div>;
   if (!project) return null;
@@ -277,9 +293,11 @@ function ProjectPage({ refreshKey }) {
 
                 <h2 className="section-title">Employees:</h2>
                 <div className="description-box">
-                  {project.employees && project.employees.length > 0
-                    ? project.employees.map(emp => emp.name).join(", ")
-                    : "None"}
+                  {forecastsLoading
+                    ? "Loading..."
+                    : employeesFromForecasts.length > 0
+                      ? employeesFromForecasts.map(emp => emp.name).join(", ")
+                      : "None"}
                 </div>
 
                 <h2 className="section-title">Forecasts:</h2>
