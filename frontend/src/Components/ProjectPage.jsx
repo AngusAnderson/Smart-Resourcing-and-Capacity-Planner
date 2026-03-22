@@ -164,9 +164,9 @@ function ProjectPage({ refreshKey }) {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete project " + project.name + "?")) {
       try {
-        //const response = await api.delete(`/jobcodes/${encodeURIComponent(code)}/`);
+        await api.delete(`/jobcodes/${encodeURIComponent(code)}/`);
         console.log("Project deleted successfully");
-        navigate("/", { replace: true });
+        navigate("/projects/", { replace: true });
       } catch (err) {
         console.error("Error deleting project", err);
         alert("Failed to delete project. Please try again.");

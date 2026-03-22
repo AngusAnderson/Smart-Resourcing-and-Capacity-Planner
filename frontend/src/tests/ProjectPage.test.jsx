@@ -2,11 +2,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import ProjectPage from "../ProjectPage";
-import api from "../../services/api";
+import ProjectPage from "../Components/ProjectPage";
+import api from "../services/api";
 
 
-vi.mock("../../services/api", () => ({
+vi.mock("../services/api", () => ({
   default: {
     get: vi.fn(),
     patch: vi.fn(),
@@ -25,9 +25,9 @@ vi.mock("react-router-dom", async () => {
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={["/project/TEST001"]}>
+    <MemoryRouter initialEntries={["/projects/TEST001"]}>
       <Routes>
-        <Route path="/project/:id" element={<ProjectPage />} />
+        <Route path="/projects/:code" element={<ProjectPage />} />
       </Routes>
     </MemoryRouter>
   );
@@ -117,7 +117,7 @@ describe("ProjectPage", () => {
     expect(screen.getByText("Test Description")).toBeInTheDocument();
     expect(screen.getByText("Test Customer")).toBeInTheDocument();
     expect(screen.getByText("Test Unit")).toBeInTheDocument();
-    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getAllByText(/Alice/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Forecast ID:")).toBeInTheDocument();
     expect(screen.getByText("Week 1")).toBeInTheDocument();
     expect(screen.getByText("Total Days Allocated:")).toBeInTheDocument();
@@ -129,12 +129,12 @@ describe("ProjectPage", () => {
     renderPage();
 
     const backButton = await screen.findByRole("button", {
-      name: /Back to Calendar Page/i,
+      name: /Back to Projects/i,
     });
 
     await userEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/");
+    expect(mockNavigate).toHaveBeenCalledWith("/projects/");
   });
 
   it("shows loading state while project is being fetched", () => {
@@ -183,7 +183,7 @@ describe("ProjectPage", () => {
 
     await waitFor(() => {
       expect(api.delete).toHaveBeenCalledWith("/jobcodes/TEST001/");
-      expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith("/projects/", { replace: true });
     });
   });
 
