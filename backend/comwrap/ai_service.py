@@ -42,7 +42,39 @@ def _latest_user_text(messages):
     return ""
 
 def _make_confirmation_message(call_name, call_arguments):
-    return f"I can perform '{call_name}'. Type 'confirm' to proceed or 'cancel' to abort."
+    args = call_arguments if isinstance(call_arguments, dict) else {}
+
+    if call_name == "update_jobcode_status":
+        code = args.get("code", "(unknown project)")
+        raw_status = str(args.get("status", "")).upper()
+        status_label = {"O": "Open", "B": "Blocked", "C": "Closed"}.get(raw_status, raw_status or "(unknown)")
+        return (
+            f"I'm ready to update project {code} status in the database to {status_label} ({raw_status}). "
+            "Type 'confirm' to apply this change or 'cancel' to abort."
+        )
+
+    if call_name == "update_jobcode_dates":
+        code = args.get("code", "(unknown project)")
+        start_date = args.get("startDate", "(missing)")
+        end_date = args.get("endDate", "(missing)")
+        return (
+            f"I'm ready to update project {code} dates in the database: "
+            f"start {start_date}, end {end_date}. "
+            "Type 'confirm' to apply this change or 'cancel' to abort."
+        )
+
+    if call_name == "assign_employee_to_jobcode":
+        code = args.get("code", "(unknown project)")
+        employee_id = args.get("employeeID", "(missing)")
+        return (
+            f"I'm ready to assign employee {employee_id} to project {code} in the database. "
+            "Type 'confirm' to apply this change or 'cancel' to abort."
+        )
+
+    return (
+        f"I'm ready to run '{call_name}' and apply changes in the database. "
+        "Type 'confirm' to proceed or 'cancel' to abort."
+    )
 
 def _get_function_calls(response):
     output = _read(response, "output", None)
