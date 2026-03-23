@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react';
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
 import { createResizePlugin } from '@schedule-x/resize';
@@ -16,23 +16,19 @@ import '../css/Calendar.css';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-// import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
 
+
+const CALENDAR_IDS = ["Red", "Yellow", "Green", "Orange"];
+
 function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
+  const navigate = useNavigate();
+  
 
-  const navigate = useNavigate()
-  const calendarIds = ["Red", "Yellow", "Green", "Orange"];
-
-  function getRandomCalendarId() {
-    const randomIndex = Math.floor(Math.random() * calendarIds.length);
-    return calendarIds[randomIndex];
-  }
-
-  const [error, setError] = useState(null);
-
-
-
+  const getRandomCalendarId = useCallback(() => {
+    const randomIndex = Math.floor(Math.random() * CALENDAR_IDS.length);
+    return CALENDAR_IDS[randomIndex];
+  }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const calendarControls = useState(() => createCalendarControlsPlugin())[0];
@@ -53,7 +49,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       Yellow: {
         colorName: 'Yellow',
         lightColors: { main: '#facc15', container: '#fef3c7', onContainer: '#78350f' },
-        darkColors: { main: '#fde047', container: '#92400e', onContainer: '#fff7ed' }
+        darkColors: { main: '#fde047', container: '#92400e', onContainer: '#fff7ed' },
       },
       Green: {
         colorName: 'Green',
@@ -63,16 +59,13 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       Orange: {
         colorName: 'Orange',
         lightColors: { main: '#fb923c', container: '#ffedd5', onContainer: '#7c2d12' },
-        darkColors: { main: '#fdba74', container: '#9a3412', onContainer: '#fff7ed' }
-      }
+        darkColors: { main: '#fdba74', container: '#9a3412', onContainer: '#fff7ed' },
+      },
     },
     callbacks: {
-
-      // updates events when user moves or resizes in calendar
       onEventUpdate: async (updatedEvent) => {
         console.log('CALENDAR onEventUpdate fired:', updatedEvent);
 
-        // Capture the full OLD event before Schedule-X re-renders it
         const oldEvent =
           (eventsService.get && eventsService.get(updatedEvent.id)) ||
           (eventsService.getAll &&
@@ -91,7 +84,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
         }
 
         try {
-          // Save new dates to backend
           await api.put(`/jobcodes/${updatedEvent.id}/`, {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
@@ -119,13 +111,11 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
                   oldEvent.end.toString()
                 );
 
-                // Revert backend to old dates
                 await api.put(`/jobcodes/${updatedEvent.id}/`, {
                   startDate: oldEvent.start.toString(),
                   endDate: oldEvent.end.toString(),
                 });
 
-                // IMPORTANT: restore the *entire* oldEvent, not updatedEvent with mixed dates
                 if (eventsService.update) {
                   eventsService.update({ ...oldEvent });
                 } else if (eventsService.remove && eventsService.add) {
@@ -137,7 +127,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
           }
         } catch (err) {
           console.error('Error updating jobcode:', err);
-          setError(err.message);
         }
 
         console.log('Updated Event:', updatedEvent);
@@ -176,7 +165,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
     filteredEvents.forEach((event) => {
       eventsService.add({ ...event, calendarId: getRandomCalendarId() });
     });
-  }, [searchTerm, eventsService, appEvents]);
+  }, [searchTerm, eventsService, appEvents, getRandomCalendarId]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -195,7 +184,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
   );
-
 }
 
 export default Calendar;
