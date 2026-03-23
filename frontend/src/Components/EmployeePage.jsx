@@ -54,6 +54,7 @@ function EmployeePage() {
         if (cancelled) return;
 
         setEmployee(res.data);
+        setAllocatedDaysPerMonth(res.data.allocatedDaysPerMonth || {});
         setEmployeeForm({
           name: res.data.name || "",
           excludedFromAI: !!res.data.excludedFromAI,
@@ -211,11 +212,26 @@ function EmployeePage() {
     return 'utilization-orange';
   };
 
-  const handleAllocatedDaysChange = (monthKey, value) => {
-    setAllocatedDaysPerMonth((prev) => ({
-      ...prev,
-      [monthKey]: parseFloat(value),
-    }));
+  const handleAllocatedDaysChange = async (monthKey, value) => {
+    const parsedValue = parseFloat(value);
+    const updatedAllocations = {
+      ...allocatedDaysPerMonth,
+      [monthKey]: parsedValue,
+    };
+
+    setAllocatedDaysPerMonth(updatedAllocations);
+
+    try {
+      const res = await axios.patch(`/api/employees/${id}/`, {
+        allocatedDaysPerMonth: updatedAllocations,
+      });
+      setEmployee((prev) => ({
+        ...prev,
+        allocatedDaysPerMonth: res.data.allocatedDaysPerMonth || updatedAllocations,
+      }));
+    } catch (err) {
+      console.error("Failed to save allocated days per month", err);
+    }
   };
 
   const handleEmployeeSave = async () => {

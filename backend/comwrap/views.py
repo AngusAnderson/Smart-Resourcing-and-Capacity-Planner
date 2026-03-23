@@ -67,6 +67,7 @@ def get_employees(request, slug=None):
                 "name": employee.name,
                 "resourceBU": employee.resourceBU.name,
                 "excludedFromAI": employee.excludedFromAI,
+                "allocatedDaysPerMonth": employee.allocatedDaysPerMonth,
                 "specialisms": list(employee.specialisms.values_list("name", flat=True)),
                 "jobCodes": list(employee.jobCodes.values_list("code", flat=True))
             }
@@ -80,6 +81,7 @@ def get_employees(request, slug=None):
                 "name": e.name,
                 "resourceBU": e.resourceBU.name,
                 "excludedFromAI": e.excludedFromAI,
+                "allocatedDaysPerMonth": e.allocatedDaysPerMonth,
                 "specialisms": list(e.specialisms.values_list("name", flat=True)),
                 "jobCodes": list(e.jobCodes.values_list("code", flat=True))
             })
@@ -108,6 +110,7 @@ def get_employees(request, slug=None):
                 "employeeID": employee.id,
                 "name": employee.name,
                 "excludedFromAI": employee.excludedFromAI,
+                "allocatedDaysPerMonth": employee.allocatedDaysPerMonth,
                 "specialisms": list(employee.specialisms.values_list("name", flat=True))
             }, status=201)
 
@@ -129,6 +132,7 @@ def get_employees(request, slug=None):
         name = data.get("name")
         excluded_from_ai = data.get("excludedFromAI")
         specialisms = data.get("specialisms")
+        allocated_days_per_month = data.get("allocatedDaysPerMonth")
 
         if name is not None:
             employee.name = name
@@ -136,6 +140,11 @@ def get_employees(request, slug=None):
 
         if excluded_from_ai is not None:
             employee.excludedFromAI = excluded_from_ai
+
+        if allocated_days_per_month is not None:
+            if not isinstance(allocated_days_per_month, dict):
+                return Response({"error": "allocatedDaysPerMonth must be an object"}, status=400)
+            employee.allocatedDaysPerMonth = allocated_days_per_month
 
         employee.save()
 
@@ -153,6 +162,7 @@ def get_employees(request, slug=None):
             "name": employee.name,
             "resourceBU": employee.resourceBU.name,
             "excludedFromAI": employee.excludedFromAI,
+            "allocatedDaysPerMonth": employee.allocatedDaysPerMonth,
             "specialisms": list(employee.specialisms.values_list("name", flat=True)),
             "jobCodes": list(employee.jobCodes.values_list("code", flat=True))
         })

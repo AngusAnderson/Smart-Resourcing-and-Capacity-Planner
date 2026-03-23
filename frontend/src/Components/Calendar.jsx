@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react';
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
 import { createResizePlugin } from '@schedule-x/resize';
@@ -16,103 +16,19 @@ import '../css/Calendar.css';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-// import { fetchJobcodesAsEvents } from '../services/Job_Codes_API';
 import { Temporal } from 'temporal-polyfill';
-import { getWorkingDaysInMonth } from '../utils/dateUtils'
+
+
+const CALENDAR_IDS = ["Red", "Yellow", "Green", "Orange"];
 
 function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
-
-  const navigate = useNavigate()
-  const calendarIds = ["Red", "Yellow", "Green", "Orange"];
-
-  function getCalendarIdForAllocation(actualDaysWorked, targetAllocatedDays, workingDaysInMonth) {
-    
-    if (actualDaysWorked === targetAllocatedDays){
-      return calendarIds[2]
-    } else if (actualDaysWorked > targetAllocatedDays && actualDaysWorked <= workingDaysInMonth){
-      return calendarIds[3]
-    } else if (actualDaysWorked < targetAllocatedDays){
-      return calendarIds[0]
-    } else if (actualDaysWorked > workingDaysInMonth){
-      return calendarIds[1]
-    }
-  }
-
-
-
-
-  function getActualDaysWorkedInMonth(localEvents, monthDate) {
-    const days = new Set();
-
-    //for each event (jobcode)
-    localEvents.forEach((event) => {
-
-      let start = event.start;
-      let end = event.end;
-
-      // Ensure Temporal.PlainDate
-      if (!(start instanceof Temporal.PlainDate)) {
-        start = Temporal.PlainDate.from(start);
-      }
-      if (!(end instanceof Temporal.PlainDate)) {
-        end = Temporal.PlainDate.from(end);
-      }
-
-      let current = start;
-
-      while (Temporal.PlainDate.compare(current, end) <= 0) {
-        // Check if this day is within the month we're calculating
-        if (
-          current.year === monthDate.year &&
-          current.month === monthDate.month
-        ) {
-          //const dow = current.dayOfWeek; // 1 = Monday, 7 = Sunday
-            days.add(current.toString());
-        }
-
-        current = current.add({ days: 1 });
-      }
-    });
-
-    return days.size;
-  }
-
-
-
-
-  const [localEvents, setLocalEvents] = useState([]);
-  //const [loading, setLoading] = useState(true);
-  //const [error, setError] = useState(null);
-  const [setError] = useState(null);
+  const navigate = useNavigate();
   
 
-  const [activeDate, setActiveDate] = useState(selectedDate ?? Temporal.Now.plainDateISO());
-  //const [targetAllocatedDays, setTargetAllocatedDays] = useState(null);
-  const [targetAllocatedDays] = useState(null);
-  const monthDate = activeDate
-  
-  useEffect(() => {
-    if (Array.isArray(appEvents)) {
-      setLocalEvents(appEvents);
-    }
-  }, [appEvents]);
-
-  useEffect(() => {
-    console.log("Active month for calculations:", activeDate.toString());
-  }, [activeDate]);
-
-
-
-  const workingDaysInMonth = getWorkingDaysInMonth(monthDate);
-  const options = [];
-  for (let v = 0; v <= workingDaysInMonth; v += 0.5){
-    options.push(Number(v.toFixed(1)));
-  }
-
-  //const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
-
-
-
+  const getRandomCalendarId = useCallback(() => {
+    const randomIndex = Math.floor(Math.random() * CALENDAR_IDS.length);
+    return CALENDAR_IDS[randomIndex];
+  }, []);
 
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const calendarControls = useState(() => createCalendarControlsPlugin())[0];
@@ -133,7 +49,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       Yellow: {
         colorName: 'Yellow',
         lightColors: { main: '#facc15', container: '#fef3c7', onContainer: '#78350f' },
-        darkColors: { main: '#fde047', container: '#92400e', onContainer: '#fff7ed' }
+        darkColors: { main: '#fde047', container: '#92400e', onContainer: '#fff7ed' },
       },
       Green: {
         colorName: 'Green',
@@ -143,30 +59,13 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       Orange: {
         colorName: 'Orange',
         lightColors: { main: '#fb923c', container: '#ffedd5', onContainer: '#7c2d12' },
-        darkColors: { main: '#fdba74', container: '#9a3412', onContainer: '#fff7ed' }
-      }
+        darkColors: { main: '#fdba74', container: '#9a3412', onContainer: '#fff7ed' },
+      },
     },
     callbacks: {
-
-      //Refreshes colour logic when arrows used to navigate to a different date
-      onRangeUpdate: ({ start, end }) => {
-        const startPlain = start.toPlainDate();
-        const endPlain = end?.toPlainDate?.() ?? startPlain;
-
-        // calculate middle date of the dates in the calendar's view 
-        const daysBetween = startPlain.until(endPlain).days;
-        const mid = startPlain.add({ days: Math.floor(daysBetween / 2) });
-
-        setActiveDate(
-          Temporal.PlainDate.from({ year: mid.year, month: mid.month, day: 1 })
-        );
-      },
-
-      // updates events when user moves or resizes in calendar
       onEventUpdate: async (updatedEvent) => {
         console.log('CALENDAR onEventUpdate fired:', updatedEvent);
 
-        // Capture the full OLD event before Schedule-X re-renders it
         const oldEvent =
           (eventsService.get && eventsService.get(updatedEvent.id)) ||
           (eventsService.getAll &&
@@ -185,7 +84,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
         }
 
         try {
-          // Save new dates to backend
           await api.put(`/jobcodes/${updatedEvent.id}/`, {
             startDate: updatedEvent.start.toString(),
             endDate: updatedEvent.end.toString(),
@@ -213,13 +111,11 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
                   oldEvent.end.toString()
                 );
 
-                // Revert backend to old dates
                 await api.put(`/jobcodes/${updatedEvent.id}/`, {
                   startDate: oldEvent.start.toString(),
                   endDate: oldEvent.end.toString(),
                 });
 
-                // IMPORTANT: restore the *entire* oldEvent, not updatedEvent with mixed dates
                 if (eventsService.update) {
                   eventsService.update({ ...oldEvent });
                 } else if (eventsService.remove && eventsService.add) {
@@ -231,7 +127,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
           }
         } catch (err) {
           console.error('Error updating jobcode:', err);
-          setError(err.message);
         }
 
         console.log('Updated Event:', updatedEvent);
@@ -249,7 +144,7 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       createCurrentTimePlugin(),
       calendarControls,
     ],
-    defaultView: 'monthGrid',
+    defaultView: 'month-grid',
   });
 
   useEffect(() => {
@@ -258,29 +153,19 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
     }
     if (eventsService.clear) eventsService.clear();
 
+    const eventsToRender = Array.isArray(appEvents) ? appEvents : [];
     const filteredEvents = searchTerm
-      ? localEvents.filter((event) =>
-
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.businessUnit.toLowerCase().includes(searchTerm.toLowerCase())
+      ? eventsToRender.filter((event) =>
+          (event.title ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.customerName ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.businessUnit ?? '').toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : localEvents;
+      : eventsToRender;
 
-
-
-    const actualDaysWorked = getActualDaysWorkedInMonth(localEvents, monthDate);
-    const targetDaysToUse = targetAllocatedDays ?? workingDaysInMonth;
-    const calendarIdForMonth = getCalendarIdForAllocation(actualDaysWorked, targetDaysToUse, workingDaysInMonth);
-
-
-    console.log('Actual days:', actualDaysWorked);
-    console.log('Target days:', targetDaysToUse);
-    console.log('Calendar colour:', calendarIdForMonth);
-
-
-    filteredEvents.forEach(event => eventsService.add({...event, calendarId: calendarIdForMonth}));
-  }, [searchTerm, eventsService, localEvents, monthDate, targetAllocatedDays, workingDaysInMonth]);
+    filteredEvents.forEach((event) => {
+      eventsService.add({ ...event, calendarId: getRandomCalendarId() });
+    });
+  }, [searchTerm, eventsService, appEvents, getRandomCalendarId]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -299,7 +184,6 @@ function Calendar({ searchTerm, selectedDate, events: appEvents, onFeedItem }) {
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
   );
-
 }
 
 export default Calendar;
