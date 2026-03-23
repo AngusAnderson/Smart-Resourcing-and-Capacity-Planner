@@ -196,38 +196,27 @@
 /* End filter box */
 
 
-
-/* Media Queries */
-
-/* Small Screens */
-@media (max-height: 1100px) {
   .wrap {
     display: none;
   }
 
   .h1-filter_box {
     margin: 0;
+    padding: 6px 1rem;
   }
 
   .search-box {
     margin: 10px auto;
   }
-}
 
-/* Large Screens */
-@media (min-width: 1800px) {
-  .filter-box {
-    height: 53%;
-  }
-
-  .wrap {
-    color: #000;
-    margin-top: 50px;
-    padding-left: 30px;
-  }
   
+
+  @media screen and (min-height: 1101px) {
   .dashboard {
-    margin-top: 60px;
-    height: 350px;
+      margin-top: 3rem;
+    }
+
+    .hr-filter_box {
+      margin: 2rem auto;
+    }
   }
-}

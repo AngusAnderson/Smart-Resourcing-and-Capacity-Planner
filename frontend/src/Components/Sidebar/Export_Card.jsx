@@ -85,28 +85,16 @@ export default function SidebarExportButton({
 
   return (
     <>
-      {/* Sidebar button */}
-      <button
-        onClick={() => setOpen(true)}
-        style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 10,
-          padding: "10px 12px",
-          borderRadius: 10,
-          border: "1px solid #e5e7eb",
-          background: "#f91c45",
-          cursor: "pointer",
-          fontWeight: 600,
+      <a
+        href="#export"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
         }}
       >
         <span>{label}</span>
-        <span style={{ color: "#6b7280", fontWeight: 700 }}></span>
-      </button>
+      </a>
 
-      {/* Simple modal/panel */}
       {open && (
         <div
           onClick={() => !loading && setOpen(false)}
@@ -119,6 +107,7 @@ export default function SidebarExportButton({
             justifyContent: "center",
             padding: 16,
             zIndex: 50,
+            color: "#111",
           }}
         >
           <div
@@ -126,9 +115,10 @@ export default function SidebarExportButton({
             style={{
               width: "min(520px, 100%)",
               borderRadius: 14,
-              background: "#f91c45",
+              background: "#fff",
               border: "1px solid #e5e7eb",
               padding: 16,
+              color: "#111",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -136,7 +126,7 @@ export default function SidebarExportButton({
                 <div style={{ fontSize: 16, fontWeight: 700 }}>
                   Export forecast allocations
                 </div>
-                <div style={{ marginTop: 4, color: "white", fontSize: 13 }}>
+                <div style={{ marginTop: 4, color: "#111", fontSize: 13 }}>
                   Choose a month range (YYYY-MM).
                 </div>
               </div>
@@ -157,7 +147,7 @@ export default function SidebarExportButton({
 
             <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
               <label style={{ flex: 1, display: "grid", gap: 6 }}>
-                <span style={{ fontSize: 12, color: "white" }}>
+                <span style={{ fontSize: 12, color: "#111" }}>
                   Start month
                 </span>
                 <input
@@ -174,7 +164,7 @@ export default function SidebarExportButton({
               </label>
 
               <label style={{ flex: 1, display: "grid", gap: 6 }}>
-                <span style={{ fontSize: 12, color: "white" }}>End month</span>
+                <span style={{ fontSize: 12, color: "#111" }}>End month</span>
                 <input
                   type="month"
                   value={end}

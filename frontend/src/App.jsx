@@ -11,6 +11,7 @@ import ProjectList from './Components/ProjectList';
 import LoginPage from './Components/LoginPage';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
 import { saveFeedItems, loadFeedItems } from './utils/Storage';
+import Navbar from './Components/navbar';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -98,45 +99,56 @@ function App() {
           element={
             isAuthenticated ? (
               <div className="app-wrapper">
-                <Header
+                {/* <Header
                   isVisible={isVisible}
                   toggleVisibility={toggleVisibility}
                   onDataChanged={loadEvents}
                   onLogout={handleLogout}
                   user={currentUser}
-                />
-                <div className="container">
-                  <Sidebar
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    setSelectedDate={setSelectedDate}
-                    events={events}
-                    feedItems={feedItems}
-                  />
-                  <div className="main">
-                    <Routes>
-                      <Route
-                        path="/"
-                        element={
-                          <Calendar
-                            searchTerm={searchTerm}
-                            selectedDate={selectedDate}
-                            events={events}
-                            onFeedItem={addFeedItem}
-                          />
-                        }
-                      />
-                      <Route path="/employees/:id" element={<EmployeePage />} />
-                      <Route path="/employees" element={<EmployeeList />} />
+                /> */}
 
-                      <Route
-                        path="/projects/:code"
-                        element={<ProjectPage refreshKey={dataRefreshKey} />}
-                      />
-                      {/* Project list */}
-                      <Route path="/projects" element={<ProjectList />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
+                <Navbar
+                  isVisible={isVisible}
+                  toggleVisibility={toggleVisibility}
+                  onDataChanged={loadEvents}
+                  onLogout={handleLogout}
+                  user={currentUser}
+                
+                />
+                <div className="outer">
+                  <div className="container">
+                    <Sidebar
+                      searchTerm={searchTerm}
+                      onSearchChange={setSearchTerm}
+                      setSelectedDate={setSelectedDate}
+                      events={events}
+                      feedItems={feedItems}
+                    />
+                    <div className="main">
+                      <Routes>
+                        <Route
+                          path="/"
+                          element={
+                            <Calendar
+                              searchTerm={searchTerm}
+                              selectedDate={selectedDate}
+                              events={events}
+                              onFeedItem={addFeedItem}
+                            />
+                          }
+                        />
+                        <Route path="/employees/:id" element={<EmployeePage />} />
+                        <Route path="/employees" element={<EmployeeList />} />
+
+                        <Route
+                          path="/projects/:code"
+                          element={<ProjectPage refreshKey={dataRefreshKey} />}
+                        />
+                        {/* Project list */}
+                        <Route path="/projects" element={<ProjectList />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </div>
                   </div>
                 </div>
               </div>
