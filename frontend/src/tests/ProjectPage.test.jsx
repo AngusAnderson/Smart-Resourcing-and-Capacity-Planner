@@ -1,16 +1,14 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import api from "../services/api";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ProjectPage from "../Components/ProjectPage";
+import api from "../services/api";
+
 
 vi.mock("../services/api", () => ({
-  __esModule: true,
   default: {
     get: vi.fn(),
-    post: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),
   },
@@ -25,408 +23,251 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-function renderProjectPage(code = "JOB-001") {
+function renderPage() {
   return render(
-    <MemoryRouter initialEntries={[`/projects/${code}`]}>
+    <MemoryRouter initialEntries={["/projects/TEST001"]}>
       <Routes>
-        <Route path="/projects/:code" element={<ProjectPage refreshKey={0} />} />
+        <Route path="/projects/:code" element={<ProjectPage />} />
       </Routes>
     </MemoryRouter>
   );
 }
 
-const mockProjectData = {
-  code: "JOB-001",
-  description: "Test Project",
-  customerName: "Customer X",
-  businessUnit: "Engineering",
-  jobOrigin: "A",
-  budgetTime: 10,
-  budgetCost: 1000.0,
-  startDate: "2026-02-01",
-  endDate: "2026-02-28",
-  employees: [
-    { id: 1, name: "Alice" },
-    { id: 2, name: "Bob" },
-  ],
-  status: "O",
-};
+describe("ProjectPage", () => {
+  let confirmSpy;
 
-const mockEmployeesData = [
-  { employeeID: 1, name: "Alice", specialisms: ["Backend"], excludedFromAI: false },
-  { employeeID: 2, name: "Bob", specialisms: ["Frontend"], excludedFromAI: false },
-  { employeeID: 3, name: "Charlie", specialisms: ["Backend"], excludedFromAI: false },
-];
-
-describe("ProjectPage - CRUD Operations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
+    confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe("Read Project", () => {
-    it("should successfully load project data from API", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(api.get).toHaveBeenCalledWith("/jobcodes/JOB-001/");
-      });
-
-      expect(await screen.findByText(/Test Project/i)).toBeInTheDocument();
-    });
-
-    it("should transform API data correctly including calculated fields", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Customer X")).toBeInTheDocument();
-      });
-
-      expect(screen.getByText("Engineering")).toBeInTheDocument(); 
-      expect(screen.getByText("Test Project")).toBeInTheDocument();
-      
-      expect(api.get).toHaveBeenCalledWith("/employees/");
-    });
-
-    it("should display assigned employees", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText(/Alice/)).toBeInTheDocument();
-      });
-      expect(screen.getByText(/Bob/)).toBeInTheDocument();
-    });
-
-    it("should show error when project fetch fails", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.reject(new Error("Failed to load project"));
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to load project/i)).toBeInTheDocument();
-      });
-    });
-
-    it("should show loading state initially", async () => {
-      api.get.mockImplementation(() => new Promise(() => {})); 
-
-      renderProjectPage();
-
-      expect(screen.queryByText(/Failed to load project/i)).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Update Project", () => {
-    it("should enter edit mode when edit button is clicked", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      const editButtons = screen.getAllByRole("button");
-      const editButton = editButtons.find(btn => btn.textContent.toLowerCase().includes("edit"));
-      
-      if (editButton) {
-        await userEvent.click(editButton);
-      }
-    });
-
-    it("should update project description", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      api.patch.mockImplementation((url, data) => {
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({
-            status: 200,
-            data: {
-              ...mockProjectData,
-              description: data.description || mockProjectData.description,
-              employees: data.employees || mockProjectData.employees,
-            },
-          });
-        }
-        return Promise.resolve({ status: 200, data: {} });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      expect(api.patch).not.toHaveBeenCalled(); 
-    });
-
-    it("should update project employees", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      api.patch.mockImplementation((url) => {
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({
-            status: 200,
-            data: {
-              ...mockProjectData,
-              employees: [
-                { id: 1, name: "Alice" },
-                { id: 3, name: "Charlie" },
-              ],
-            },
-          });
-        }
-        return Promise.resolve({ status: 200, data: {} });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText(/Alice/)).toBeInTheDocument();
-      });
-
-      expect(screen.getByText("Engineering")).toBeInTheDocument();
-    });
-
-    it("should show error when update fails", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      api.patch.mockImplementation(() => {
-        return Promise.reject(new Error("Failed to update project"));
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      expect(api.patch).not.toHaveBeenCalled(); 
-    });
-
-    it("should cancel edits when cancel button is clicked", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      expect(screen.getByText("Customer X")).toBeInTheDocument();
-    });
-  });
-
-  describe("Delete Project", () => {
-    it("should initiate project deletion when delete button is clicked", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      const buttons = screen.getAllByRole("button");
-      const deleteButton = buttons.find(btn => btn.textContent.toLowerCase().includes("delete"));
-
-      if (deleteButton) {
-        await userEvent.click(deleteButton);
-        expect(confirmSpy).toHaveBeenCalled();
-      }
-
-      confirmSpy.mockRestore();
-    });
-
-    it("should process project deletion after confirmation", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      const deleteResponse = { status: 204, data: { message: "Jobcode deleted successfully" } };
-      api.delete.mockResolvedValue(deleteResponse);
-
-      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      const buttons = screen.getAllByRole("button");
-      const deleteButton = buttons.find(btn => btn.textContent.toLowerCase().includes("delete"));
-
-      if (deleteButton) {
-        await userEvent.click(deleteButton);
-        
-        await waitFor(() => {
-          if (api.delete.mock.calls.length > 0) {
-            expect(api.delete).toHaveBeenCalled();
-          }
+    api.get.mockImplementation((url) => {
+      if (url === "/employees/") {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+          ],
         });
       }
 
-      confirmSpy.mockRestore();
-    });
-
-    it("should handle deletion error gracefully", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      api.delete.mockRejectedValue(new Error("Failed to delete project"));
-
-      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      const buttons = screen.queryAllByRole("button");
-      const deleteButton = buttons.find(btn => btn.textContent?.toLowerCase().includes("delete"));
-
-      if (deleteButton) {
-        await userEvent.click(deleteButton);
+      if (url === "/jobcodes/TEST001/") {
+        return Promise.resolve({
+          data: {
+            code: "Test Project",
+            customerName: "Test Customer",
+            businessUnit: "Test Unit",
+            description: "Test Description",
+            startDate: "2025-01-01",
+            endDate: "2025-01-10",
+            budgetTime: 12,
+            budgetCost: 5000,
+            employees: [{ id: 1, name: "Alice" }],
+          },
+        });
       }
 
-      confirmSpy.mockRestore();
-    });
-
-    it("should not delete project if confirmation is cancelled", async () => {
-      api.get.mockImplementation((url) => {
-        if (url === "/employees/") {
-          return Promise.resolve({ data: mockEmployeesData });
-        }
-        if (url === "/jobcodes/JOB-001/") {
-          return Promise.resolve({ data: mockProjectData });
-        }
-        return Promise.resolve({ data: [] });
-      });
-
-      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
-
-      renderProjectPage();
-
-      await waitFor(() => {
-        expect(screen.getByText("Test Project")).toBeInTheDocument();
-      });
-
-      const buttons = screen.getAllByRole("button");
-      const deleteButton = buttons.find(btn => btn.textContent.toLowerCase().includes("delete"));
-
-      if (deleteButton) {
-        await userEvent.click(deleteButton);
-
-        expect(api.delete).not.toHaveBeenCalled();
+      if (url === "/forecasts/") {
+        return Promise.resolve({
+          data: [
+            {
+              forecastID: 10,
+              jobCode: "TEST001",
+              date: "2025-01-05",
+              description: "Week 1",
+              allocations: [
+                { employeeID: 1, employeeName: "Alice", daysAllocated: 2 },
+                { employeeID: 2, employeeName: "Bob", daysAllocated: 1 },
+              ],
+            },
+            {
+              forecastID: 11,
+              jobCode: "OTHER",
+              date: "2025-01-06",
+              description: "Other project",
+              allocations: [],
+            },
+          ],
+        });
       }
 
-      confirmSpy.mockRestore();
+      return Promise.reject(new Error(`Unhandled URL: ${url}`));
     });
+
+    api.patch.mockResolvedValue({
+      status: 200,
+      data: {
+        employees: [
+          { id: 1, name: "Alice" },
+          { id: 2, name: "Bob" },
+        ],
+      },
+    });
+
+    api.delete.mockResolvedValue({ status: 204 });
+  });
+
+  afterEach(() => {
+    confirmSpy?.mockRestore();
+  });
+
+  it("renders project details and project forecasts", async () => {
+    renderPage();
+
+    expect(await screen.findByText("Test Project")).toBeInTheDocument();
+    expect(screen.getByText("Test Description")).toBeInTheDocument();
+    expect(screen.getByText("Test Customer")).toBeInTheDocument();
+    expect(screen.getByText("Test Unit")).toBeInTheDocument();
+    expect(screen.getAllByText(/Alice/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("Forecast ID:")).toBeInTheDocument();
+    expect(screen.getByText("Week 1")).toBeInTheDocument();
+    expect(screen.getByText("Total Days Allocated:")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.queryByText("Other project")).not.toBeInTheDocument();
+  });
+
+  it("navigates back to calendar page on button click", async () => {
+    renderPage();
+
+    const backButton = await screen.findByRole("button", {
+      name: /Back to Projects/i,
+    });
+
+    await userEvent.click(backButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith("/projects/");
+  });
+
+  it("shows loading state while project is being fetched", () => {
+    api.get.mockImplementation((url) => {
+      if (url === "/employees/") {
+        return Promise.resolve({ data: [] });
+      }
+      if (url === "/jobcodes/TEST001/") {
+        return new Promise(() => {});
+      }
+      if (url === "/forecasts/") {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.reject(new Error(`Unhandled URL: ${url}`));
+    });
+
+    renderPage();
+
+    expect(screen.getByText("Loading project...")).toBeInTheDocument();
+  });
+
+  it("shows an error when project fetch fails", async () => {
+    api.get.mockImplementation((url) => {
+      if (url === "/employees/") {
+        return Promise.resolve({ data: [] });
+      }
+      if (url === "/jobcodes/TEST001/") {
+        return Promise.reject(new Error("Network error"));
+      }
+      if (url === "/forecasts/") {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.reject(new Error(`Unhandled URL: ${url}`));
+    });
+
+    renderPage();
+
+    expect(await screen.findByText("Error: Network error")).toBeInTheDocument();
+  });
+
+  it("deletes project after confirmation and navigates home", async () => {
+    renderPage();
+
+    await screen.findByText("Test Project");
+    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith("/jobcodes/TEST001/");
+      expect(mockNavigate).toHaveBeenCalledWith("/projects/", { replace: true });
+    });
+  });
+
+  it("does not delete when confirmation is cancelled", async () => {
+    confirmSpy.mockReturnValue(false);
+
+    renderPage();
+
+    await screen.findByText("Test Project");
+    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+    expect(api.delete).not.toHaveBeenCalled();
+  });
+
+  it("edits details and saves employee assignments", async () => {
+    renderPage();
+
+    await screen.findByText("Test Project");
+    await userEvent.click(screen.getAllByRole("button", { name: "Edit" })[0]);
+
+    const descriptionInput = screen.getByRole("textbox");
+    await userEvent.clear(descriptionInput);
+    await userEvent.type(descriptionInput, "Updated description");
+
+    const employeeSelect = screen.getByRole("listbox");
+    await userEvent.selectOptions(employeeSelect, ["1", "2"]);
+
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith("/jobcodes/TEST001/", {
+        employees: [1, 2],
+        description: "Updated description",
+        startDate: "2025-01-01",
+        endDate: "2025-01-10",
+      });
+    });
+  });
+
+  it("edits sidebar values and saves time/finance updates", async () => {
+    renderPage();
+
+    await screen.findByText("Test Project");
+    await userEvent.click(screen.getAllByRole("button", { name: "Edit" })[1]);
+
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    const numberInputs = document.querySelectorAll('input[type="number"]');
+
+    fireEvent.change(dateInputs[0], { target: { value: "2025-01-02" } });
+    fireEvent.change(dateInputs[1], { target: { value: "2025-01-12" } });
+    fireEvent.change(numberInputs[0], { target: { value: "20" } });
+    fireEvent.change(numberInputs[1], { target: { value: "6000" } });
+
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith("/jobcodes/TEST001/", {
+        startDate: "2025-01-02",
+        endDate: "2025-01-12",
+        budgetTime: 20,
+        budgetCost: 6000,
+      });
+    });
+  });
+
+  it("cancels sidebar editing without saving", async () => {
+    renderPage();
+
+    await screen.findByText("Test Project");
+    await userEvent.click(screen.getAllByRole("button", { name: "Edit" })[1]);
+
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument();
+    });
+    expect(api.patch).not.toHaveBeenCalledWith(
+      "/jobcodes/TEST001/",
+      expect.objectContaining({
+        budgetTime: expect.any(Number),
+        budgetCost: expect.any(Number),
+      })
+    );
   });
 });

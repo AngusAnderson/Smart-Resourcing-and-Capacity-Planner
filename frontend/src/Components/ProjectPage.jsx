@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../css/Employee_Project.css";
@@ -8,6 +8,9 @@ function ProjectPage({ refreshKey }) {
   const { code } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
+  const [forecasts, setForecasts] = useState([]);
+  const [forecastsLoading, setForecastsLoading] = useState(false);
+  const [forecastsError, setForecastsError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -65,12 +68,49 @@ function ProjectPage({ refreshKey }) {
   }, [code, refreshKey]);
 
 
+  useEffect(() => {
+    async function fetchProjectForecasts() {
+      try {
+        setForecastsLoading(true);
+        setForecastsError(null);
+
+        const res = await api.get("/forecasts/");
+        const projectForecasts = Array.isArray(res.data)
+          ? res.data.filter((forecast) => String(forecast.jobCode) === String(code))
+          : [];
+
+        const sortedForecasts = projectForecasts.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
+
+        setForecasts(sortedForecasts);
+      } catch (err) {
+        console.error("Failed to load project forecasts", err);
+        setForecastsError("Failed to load forecasts.");
+      } finally {
+        setForecastsLoading(false);
+      }
+    }
+
+    fetchProjectForecasts();
+  }, [code]);
+
   function calculateDuration(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  }
+
+  function getTotalAllocatedDays(forecast) {
+    if (Array.isArray(forecast.allocations) && forecast.allocations.length > 0) {
+      return forecast.allocations.reduce(
+        (sum, allocation) => sum + Number(allocation.daysAllocated || 0),
+        0
+      );
+    }
+    return Number(forecast.daysAllocated || 0);
   }
 
   const handleSave = async () => {
@@ -124,15 +164,31 @@ function ProjectPage({ refreshKey }) {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete project " + project.name + "?")) {
       try {
-        //const response = await api.delete(`/jobcodes/${encodeURIComponent(code)}/`);
+        await api.delete(`/jobcodes/${encodeURIComponent(code)}/`);
         console.log("Project deleted successfully");
-        navigate("/", { replace: true });
+        navigate("/projects/", { replace: true });
       } catch (err) {
         console.error("Error deleting project", err);
         alert("Failed to delete project. Please try again.");
       }
     }
   };
+
+  const employeesFromForecasts = useMemo(() => {
+    const seen = new Set();
+    const result = [];
+    forecasts.forEach(forecast => {
+      if (Array.isArray(forecast.allocations)) {
+        forecast.allocations.forEach(allocation => {
+          if (!seen.has(allocation.employeeID)) {
+            seen.add(allocation.employeeID);
+            result.push({ id: allocation.employeeID, name: allocation.employeeName });
+          }
+        });
+      }
+    });
+    return result;
+  }, [forecasts]);
 
   if (loading) return <div className="detail-page">Loading project...</div>;
   if (error) return <div className="detail-page">Error: {error}</div>;
@@ -237,10 +293,62 @@ function ProjectPage({ refreshKey }) {
 
                 <h2 className="section-title">Employees:</h2>
                 <div className="description-box">
-                  {project.employees && project.employees.length > 0
-                    ? project.employees.map(emp => emp.name).join(", ")
-                    : "None"}
+                  {forecastsLoading
+                    ? "Loading..."
+                    : employeesFromForecasts.length > 0
+                      ? employeesFromForecasts.map(emp => emp.name).join(", ")
+                      : "None"}
                 </div>
+
+                <h2 className="section-title">Forecasts:</h2>
+                {forecastsLoading ? (
+                  <p>Loading forecasts...</p>
+                ) : forecastsError ? (
+                  <p>{forecastsError}</p>
+                ) : forecasts.length === 0 ? (
+                  <p>No forecasts found for this project.</p>
+                ) : (
+                  <div className="project-forecast-listing">
+                    {forecasts.map((forecast) => (
+                      <div
+                        key={forecast.forecastID}
+                        className="description-box project-forecast-item"
+                      >
+                        <p className="label-line">
+                          <span className="label">Forecast ID:</span>{" "}
+                          <span>{forecast.forecastID}</span>
+                        </p>
+                        <p className="label-line">
+                          <span className="label">Job Code:</span>{" "}
+                          <span>{forecast.jobCode}</span>
+                        </p>
+                        <p className="label-line">
+                          <span className="label">Date:</span>{" "}
+                          <span>{new Date(forecast.date).toLocaleDateString()}</span>
+                        </p>
+                        <p className="label-line">
+                          <span className="label">Total Days Allocated:</span>{" "}
+                          <span>{getTotalAllocatedDays(forecast)}</span>
+                        </p>
+                        <h3 className="section-title">Description:</h3>
+                        <p>{forecast.description || "No description"}</p>
+                        <h3 className="section-title">Allocations:</h3>
+                        {Array.isArray(forecast.allocations) &&
+                        forecast.allocations.length > 0 ? (
+                          <ul className="specialism-list">
+                            {forecast.allocations.map((allocation) => (
+                              <li key={`${forecast.forecastID}-${allocation.employeeID}`}>
+                                {allocation.employeeName}: {allocation.daysAllocated} day(s)
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>No employee allocations.</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </div>

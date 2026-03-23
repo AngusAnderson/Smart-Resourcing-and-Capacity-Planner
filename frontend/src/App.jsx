@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useToggle from './functions/useToggle';
 import Header from './Components/Header';
@@ -41,7 +41,6 @@ function App() {
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setCurrentUser(null);
-
   };
 
   const addFeedItem = (item) => {
@@ -52,8 +51,9 @@ function App() {
     });
   };
 
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     if (!isAuthenticated) return;
+
     try {
       const data = await fetchJobcodesAsEvents();
       setEvents(data);
@@ -61,11 +61,11 @@ function App() {
     } catch (e) {
       console.error('Error loading jobcodes', e);
     }
-  };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     loadEvents();
-  }, [isAuthenticated]);
+  }, [loadEvents]);
 
   useEffect(() => {
     saveFeedItems(feedItems);
@@ -128,12 +128,10 @@ function App() {
                       />
                       <Route path="/employees/:id" element={<EmployeePage />} />
                       <Route path="/employees" element={<EmployeeList />} />
-
                       <Route
                         path="/projects/:code"
                         element={<ProjectPage refreshKey={dataRefreshKey} />}
                       />
-                      {/* Project list */}
                       <Route path="/projects" element={<ProjectList />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
