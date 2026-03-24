@@ -1,7 +1,5 @@
-// src/utils/utilization.js
 import { getWorkingDaysInMonth } from "./dateUtils";
 
-// Same thresholds as EmployeePage.getMonthColor but return bucket key
 export function getUtilizationBucket(totalDays, workingDays, allocatedDays) {
   if (totalDays === allocatedDays) return "correct"; // green
 
