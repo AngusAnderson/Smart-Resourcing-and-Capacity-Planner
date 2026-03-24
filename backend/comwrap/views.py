@@ -22,6 +22,16 @@ from django.contrib.auth import authenticate
 client = OpenAI()
 
 
+def sync_jobcode_employees_from_forecasts(jobcode_id):
+    employee_ids = (
+        ForecastAllocation.objects
+        .filter(forecast__jobCode_id=jobcode_id)
+        .values_list("employee_id", flat=True)
+        .distinct()
+    )
+    JobCode.objects.get(id=jobcode_id).employees.set(employee_ids)
+
+
 @api_view(['POST'])
 def ai_chat(request):
     messages = (request.data or {}).get("messages", [])
@@ -344,7 +354,7 @@ def get_forecasts(request, forecastID=None):
             f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
         except Forecast.DoesNotExist:
             return Response({"error": "Forecast not found"}, status=404)
-
+        old_jobcode_id = f.jobCode_id
         data = request.data or {}
         job_code = data.get('jobCode')
         date = data.get('date')
@@ -380,6 +390,9 @@ def get_forecasts(request, forecastID=None):
                 employee=emp,
                 defaults={"daysAllocated": days_allocated},
             )
+            sync_jobcode_employees_from_forecasts(f.jobCode_id)
+            if old_jobcode_id != f.jobCode_id:
+                sync_jobcode_employees_from_forecasts(old_jobcode_id)
 
             return Response({
                 "forecastID": f.forecastID,
@@ -399,6 +412,9 @@ def get_forecasts(request, forecastID=None):
                 "employeeName": a.employee.name,
                 "daysAllocated": float(a.daysAllocated),
             })
+        sync_jobcode_employees_from_forecasts(f.jobCode_id)
+        if old_jobcode_id != f.jobCode_id:
+            sync_jobcode_employees_from_forecasts(old_jobcode_id)
 
         return Response({
             "forecastID": f.forecastID,
@@ -407,8 +423,39 @@ def get_forecasts(request, forecastID=None):
             "date": f.date,
             "allocations": allocs,
         })
+    
+    if forecastID is not None and request.method == 'DELETE':
+        try:
+            f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
+        except Forecast.DoesNotExist:
+            return Response({"error": "Forecast not found"}, status=404)
+
+        jobcode_id_to_sync = f.jobCode_id
+
+        if employee_id is not None:
+            deleted, _ = ForecastAllocation.objects.filter(
+                forecast=f,
+                employee_id=employee_id
+            ).delete()
+
+            if deleted == 0:
+                return Response(
+                    {"error": f"Allocation not found for employee {employee_id}"},
+                    status=404
+                )
+
+            if not f.allocations.exists():
+                f.delete()
+        else:
+            f.delete()
+
+        sync_jobcode_employees_from_forecasts(jobcode_id_to_sync)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     # GET single forecast
+
+    
     try:
         f = Forecast.objects.select_related('jobCode').get(forecastID=forecastID)
     except Forecast.DoesNotExist:
@@ -489,6 +536,7 @@ def create_forecast(request):
             return Response({"error": f"Employee with ID {employee_id} not found"}, status=404)
         
         # Create or get Forecast
+        old_jobcode_id = None
         forecast, created = Forecast.objects.get_or_create(
             forecastID=forecast_id,
             defaults={
@@ -500,6 +548,7 @@ def create_forecast(request):
         
         # If forecast already exists, update it
         if not created:
+            old_jobcode_id = forecast.jobCode_id
             forecast.jobCode = jobcode
             forecast.date = date
             forecast.description = description
@@ -511,6 +560,10 @@ def create_forecast(request):
             employee=employee,
             defaults={'daysAllocated': days_allocated}
         )
+        sync_jobcode_employees_from_forecasts(forecast.jobCode_id)
+        if old_jobcode_id and old_jobcode_id != forecast.jobCode_id:
+            sync_jobcode_employees_from_forecasts(old_jobcode_id)
+
         
         return Response({
             "forecastID": forecast.forecastID,
