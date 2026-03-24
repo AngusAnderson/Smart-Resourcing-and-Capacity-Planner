@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import '../css/navbar.css';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import SidebarExportButton from './Sidebar/Export_Card';
+import '../css/Navbar.css';
 
 const Navbar = ({ user, onLogout, isVisible, toggleVisibility, onDataChanged }) => {
   const [messages, setMessages] = useState([]);
