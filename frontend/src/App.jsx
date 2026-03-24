@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useToggle from './functions/useToggle';
-import Header from './Components/Header';
 import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';
 import EmployeePage from './Components/EmployeePage';
@@ -99,13 +98,6 @@ function App() {
           element={
             isAuthenticated ? (
               <div className="app-wrapper">
-                {/* <Header
-                  isVisible={isVisible}
-                  toggleVisibility={toggleVisibility}
-                  onDataChanged={loadEvents}
-                  onLogout={handleLogout}
-                  user={currentUser}
-                /> */}
 
                 <Navbar
                   isVisible={isVisible}
