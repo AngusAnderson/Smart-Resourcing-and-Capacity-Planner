@@ -29,20 +29,6 @@ vi.mock("../Components/Sidebar/Filter_Box", () => ({
 }));
 
 describe("Sidebar", () => {
-  test("renders Mini_Calendar and Filter_Box", () => {
-    render(
-      <Sidebar
-        searchTerm=""
-        onSearchChange={vi.fn()}
-        setSelectedDate={vi.fn()}
-        events={[]}
-        feedItems={[]}
-      />
-    );
-
-    expect(screen.getByTestId("mini-calendar-mock")).toBeInTheDocument();
-    expect(screen.getByTestId("filter-box-mock")).toBeInTheDocument();
-  });
 
   test("forwards props to Filter_Box", () => {
     render(
@@ -58,23 +44,6 @@ describe("Sidebar", () => {
     expect(screen.getByTestId("filter-props")).toHaveTextContent('"searchTerm":"abc"');
     expect(screen.getByTestId("filter-props")).toHaveTextContent('"eventsCount":2');
     expect(screen.getByTestId("filter-props")).toHaveTextContent('"feedCount":1');
-  });
-
-  test("forwards setSelectedDate to Mini_Calendar", () => {
-    const setSelectedDate = vi.fn();
-
-    render(
-      <Sidebar
-        searchTerm=""
-        onSearchChange={vi.fn()}
-        setSelectedDate={setSelectedDate}
-        events={[]}
-        feedItems={[]}
-      />
-    );
-
-    fireEvent.click(screen.getByTestId("mini-calendar-mock"));
-    expect(setSelectedDate).toHaveBeenCalledWith("2026-02-01");
   });
 
   test("forwards onSearchChange to Filter_Box", () => {

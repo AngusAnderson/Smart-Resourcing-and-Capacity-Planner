@@ -11,6 +11,7 @@ import ProjectList from './Components/ProjectList';
 import LoginPage from './Components/LoginPage';
 import { fetchJobcodesAsEvents } from '../src/services/Job_Codes_API';
 import { saveFeedItems, loadFeedItems } from './utils/Storage';
+import Navbar from './Components/Navbar';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -98,7 +99,7 @@ function App() {
           element={
             isAuthenticated ? (
               <div className="app-wrapper">
-                <Header
+                <Navbar 
                   isVisible={isVisible}
                   toggleVisibility={toggleVisibility}
                   onDataChanged={loadEvents}
