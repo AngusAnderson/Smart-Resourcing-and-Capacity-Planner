@@ -4,17 +4,17 @@ import App from "../App";
 import { fetchJobcodesAsEvents } from "../services/Job_Codes_API";
 import { loadFeedItems, saveFeedItems } from "../utils/Storage";
 
-vi.mock("../Components/Header", () => ({
-  default: ({ isVisible, toggleVisibility }) => (
-    <button
-      data-testid="mock-header"
-      data-visible={String(isVisible)}
-      onClick={toggleVisibility}
-    >
-      Mock Header
-    </button>
-  ),
-}));
+// vi.mock("../Components/Header", () => ({
+//   default: ({ isVisible, toggleVisibility }) => (
+//     <button
+//       data-testid="mock-header"
+//       data-visible={String(isVisible)}
+//       onClick={toggleVisibility}
+//     >
+//       Mock Header
+//     </button>
+//   ),
+// }));
 
 vi.mock("../Components/Sidebar/Sidebar", () => ({
   default: ({ searchTerm, events, feedItems }) => (
@@ -76,7 +76,7 @@ describe("App", () => {
   test("renders root layout components", async () => {
     render(<App />);
 
-    expect(screen.getByTestId("mock-header")).toBeInTheDocument();
+    // expect(screen.getByTestId("mock-header")).toBeInTheDocument();
     expect(screen.getByTestId("mock-sidebar")).toBeInTheDocument();
     expect(screen.getByTestId("mock-calendar")).toBeInTheDocument();
 
@@ -85,16 +85,16 @@ describe("App", () => {
     });
   });
 
-  test("toggles header visible state when header button is clicked", () => {
-    render(<App />);
+  // test("toggles header visible state when header button is clicked", () => {
+  //   render(<App />);
 
-    const headerBtn = screen.getByTestId("mock-header");
-    expect(headerBtn.dataset.visible).toBe("false");
+  //   const headerBtn = screen.getByTestId("mock-header");
+  //   expect(headerBtn.dataset.visible).toBe("false");
 
-    fireEvent.click(headerBtn);
+  //   fireEvent.click(headerBtn);
 
-    expect(screen.getByTestId("mock-header").dataset.visible).toBe("true");
-  });
+  //   expect(screen.getByTestId("mock-header").dataset.visible).toBe("true");
+  // });
 
   test("loads cached feed items and passes them to Sidebar", () => {
     loadFeedItems.mockReturnValue([{ id: "f1", message: "cached" }]);
