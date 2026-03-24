@@ -91,7 +91,7 @@ const EmployeeUtilisationCard = () => {
 
   return (
     <div className="side-card">
-      <h2 className="side-heading" style={{ textAlign: 'center' }}>Employee Allocation</h2>
+      <h2 className="side-heading" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>Employee Allocation</h2>
       {loading && <p>Loading…</p>}
       {error && <p className="error-message">{error}</p>}
       {!loading && !error && <TeamUtilisationDonut counts={counts} />}

@@ -8,6 +8,7 @@
     display: flex;
     gap: 16px;
     align-items: center;
+
   }
   
   .util-chart-wrapper--stacked {
@@ -58,7 +59,7 @@
   }
   
   .util-legend--wide {
-    margin-top: 4px;
+    margin-top: 2.5rem;
   }
   
   .util-legend-row {
