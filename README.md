@@ -1,11 +1,21 @@
-# SH09 Project
+<div align='center'>
 
-## Description
+    ██████╗ ██████╗ ███╗   ███╗██╗    ██╗██████╗  █████╗ ██████╗     ██████╗ ███████╗██████╗ ██╗  ██╗   ██╗
+    ██╔════╝██╔═══██╗████╗ ████║██║    ██║██╔══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔════╝██╔══██╗██║  ╚██╗ ██╔╝
+    ██║     ██║   ██║██╔████╔██║██║ █╗ ██║██████╔╝███████║██████╔╝    ██████╔╝█████╗  ██████╔╝██║   ╚████╔╝ 
+    ██║     ██║   ██║██║╚██╔╝██║██║███╗██║██╔══██╗██╔══██║██╔═══╝     ██╔══██╗██╔══╝  ██╔═══╝ ██║    ╚██╔╝  
+    ╚██████╗╚██████╔╝██║ ╚═╝ ██║╚███╔███╔╝██║  ██║██║  ██║██║         ██║  ██║███████╗██║     ███████╗██║   
+    ╚═════╝ ╚═════╝ ╚═╝     ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝         ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝   
+                                                                                                            
+
+</div>
+
+## { <i>Description</i> }
 **Managers administration calendar app** for Comwrap Reply and their managers to create, manage, and oversee the projects their employees are currently asigned to.  
 The app provides an intuitive user interface for managing employees time effectively, tracking their availability and project progress.  
 The app is built upon a Django backend and a React frontend, offering a modern, responsive web experience for easy scheduling.
 
-Key features of the app include:
+What's incuded:
 - Manager-focused calendar user interface
 - The ability to select either daily, weekly, or monthly calendar views
 - Add employees to and fro projects
@@ -14,7 +24,7 @@ Key features of the app include:
 
 ---
 
-## Getting Started
+## { <i>Getting Started</i> }
 
 Follow the steps below to run the application locally.
 
@@ -26,7 +36,7 @@ Follow the steps below to run the application locally.
 
 ---
 
-## Installation
+## { <i>Installation</i> }
 
 ### Clone the repository
 ```
@@ -36,7 +46,7 @@ cd sh09-main
 
 ***
 
-## Django Backend
+## { <i>Django Backend</i> }
 
 ### Navigate to backend folder
 ```
@@ -88,7 +98,7 @@ http://127.0.0.1:8000/admin/comwrap/
 
 ***
 
-## React Frontend
+## { <i>React Frontend</i> }
 
 Open a new terminal window/tab
 
@@ -113,7 +123,13 @@ http://localhost:5173
 ***
 ***
 
-## Usage
+## { <i>Usage</i> }
 
 # Once both servers are running
 Open the frontend server @ http://localhost:5173 to launch the website
+
+---
+
+## { <i>License</i> }
+
+This project is licenenced under the PolyForm Noncommercial License 1.0.0 

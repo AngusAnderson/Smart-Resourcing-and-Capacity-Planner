@@ -128,67 +128,7 @@
   position: relative;
 }
 
-/* Outer coloured ring */
-.progress-ring {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #90ca6d 0deg 90deg,
-    #f8f46c 90deg 140deg,
-    #f5af49 140deg 250deg,
-    #eb5747 250deg 360deg
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.5s ease;
-}
 
-
-.progress-ring-inner {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #ffffff;
-}
-
-.progress-ring-left {
-  transform: translateX(-20px);
-}
-
-.progress-text {
-  margin-left: 20px;
-  max-width: 220px;
-  font-size: 14px;
-  color: #000;
-}
-
-.segment-btn {
-  position: absolute;
-  inset: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-}
-
-.segment-green {
-  clip-path: path("M60 0 A60 60 0 0 1 120 60 L80 60 A20 20 0 0 0 60 40 Z");
-}
-
-.segment-yellow {
-  clip-path: path("M120 60 A60 60 0 0 1 60 120 L60 80 A20 20 0 0 0 80 60 Z");
-}
-
-.segment-orange {
-  clip-path: path("M60 120 A60 60 0 0 1 0 60 L40 60 A20 20 0 0 0 60 80 Z");
-}
-
-.segment-red {
-  clip-path: path("M0 60 A60 60 0 0 1 60 0 L60 40 A20 20 0 0 0 40 60 Z");
-}
 
 
 
@@ -196,38 +136,28 @@
 /* End filter box */
 
 
-
-/* Media Queries */
-
-/* Small Screens */
-@media (max-height: 1100px) {
   .wrap {
     display: none;
   }
 
   .h1-filter_box {
     margin: 0;
+    padding: 6px 1rem;
+    font-size: 1.5rem;
   }
 
   .search-box {
     margin: 10px auto;
   }
-}
 
-/* Large Screens */
-@media (min-width: 1800px) {
-  .filter-box {
-    height: 53%;
-  }
-
-  .wrap {
-    color: #000;
-    margin-top: 50px;
-    padding-left: 30px;
-  }
   
+
+  @media screen and (min-height: 1101px) {
   .dashboard {
-    margin-top: 60px;
-    height: 350px;
+      margin-top: 3rem;
+    }
+
+    .hr-filter_box {
+      margin: 2rem auto;
+    }
   }
-}
