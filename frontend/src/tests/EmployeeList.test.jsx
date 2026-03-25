@@ -332,7 +332,7 @@ describe("EmployeeList", () => {
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Jane Developer");
 
-    const select = screen.getByRole("listbox");
+    const select = screen.getByRole("listbox"); 
     await userEvent.selectOptions(select, ["Backend"]);
 
     await userEvent.click(screen.getByRole("button", { name: "Create Employee" }));

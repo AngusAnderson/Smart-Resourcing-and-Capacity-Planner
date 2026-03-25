@@ -181,7 +181,7 @@ describe("ProjectList", () => {
 
     expect(screen.getByText("other-1")).toBeInTheDocument();
   });
-
+ 
   it("opens CreateProjectModal when clicking Add Project", async () => {
     apiGetMock.mockResolvedValueOnce({ data: [] });
 
