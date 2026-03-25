@@ -133,7 +133,7 @@ function CreateProjectModal({ onClose, onProjectCreated }) {
               id="code"
               name="code"
               type="text"
-              value={formData.code}
+              value={formData.code.replace(/\s+/g, '-').trim('-')}
               onChange={handleInputChange}
               placeholder="Enter project code"
               required
