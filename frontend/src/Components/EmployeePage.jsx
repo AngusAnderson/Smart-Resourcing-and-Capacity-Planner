@@ -6,20 +6,6 @@ import { getWorkingDaysInMonth } from "../utils/dateUtils";
 import AddForecastModal from "./AddForecastModal";
 import EditForecastModal from "./EditForecastModal";
 
-// const mockEmployee = {
-//   id: 1,
-//   name: "Employee B",
-//   excludedFromAI: false,
-//   specialisms: [
-//     "Frontend Developer",
-//     "Backend Developer",
-//     "Edge Delivery Services"
-//   ],
-//   previousProjects: ["Project X", "Project Y", "Project Z"],
-//   currentProjects: ["Project A"],
-//   futureProjects: ["Project B", "Project C"]
-// };
-
 function EmployeePage() {
   const { id } = useParams(); 
   const [employee, setEmployee] = useState(null);
@@ -172,20 +158,6 @@ function EmployeePage() {
       return f;
     }));
   };
-
-  // const handleDeleteAllocation = async (forecast) => {
-  //   if (!window.confirm("Delete this forecast allocation?")) return;
-
-  //   try {
-  //     await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
-  //     setForecasts((prev) =>
-  //       prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
-  //     );
-  //   } catch (err) {
-  //     console.error("Failed to delete allocation", err);
-  //     alert("Failed to delete allocation");
-  //   }
-  // };
 
   if (loading) return <div className="detail-page">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
