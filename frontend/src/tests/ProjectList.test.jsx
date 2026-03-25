@@ -175,7 +175,7 @@ describe("ProjectList", () => {
 
     expect(screen.queryByText("comwrap-22-22")).not.toBeInTheDocument();
 
-    await waitFor(() => {
+    await waitFor(() => { 
       expect(apiDeleteMock).toHaveBeenCalledWith("/jobcodes/comwrap-22-22/");
     });
 

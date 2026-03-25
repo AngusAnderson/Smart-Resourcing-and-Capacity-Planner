@@ -341,7 +341,7 @@ describe("EmployeeList", () => {
       expect(api.post).toHaveBeenCalledWith("/employees/", {
         name: "Jane Developer",
         specialisms: ["Backend"],
-        excludedFromAI: false,
+        excludedFromAI: false, 
       });
     });
   });
