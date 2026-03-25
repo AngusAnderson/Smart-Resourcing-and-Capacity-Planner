@@ -1,14 +1,16 @@
-```
+<div align='center'>
+    ```
 
- ██████╗ ██████╗ ███╗   ███╗██╗    ██╗██████╗  █████╗ ██████╗     ██████╗ ███████╗██████╗ ██╗  ██╗   ██╗
-██╔════╝██╔═══██╗████╗ ████║██║    ██║██╔══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔════╝██╔══██╗██║  ╚██╗ ██╔╝
-██║     ██║   ██║██╔████╔██║██║ █╗ ██║██████╔╝███████║██████╔╝    ██████╔╝█████╗  ██████╔╝██║   ╚████╔╝ 
-██║     ██║   ██║██║╚██╔╝██║██║███╗██║██╔══██╗██╔══██║██╔═══╝     ██╔══██╗██╔══╝  ██╔═══╝ ██║    ╚██╔╝  
-╚██████╗╚██████╔╝██║ ╚═╝ ██║╚███╔███╔╝██║  ██║██║  ██║██║         ██║  ██║███████╗██║     ███████╗██║   
- ╚═════╝ ╚═════╝ ╚═╝     ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝         ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝   
-                                                                                                        
+    ██████╗ ██████╗ ███╗   ███╗██╗    ██╗██████╗  █████╗ ██████╗     ██████╗ ███████╗██████╗ ██╗  ██╗   ██╗
+    ██╔════╝██╔═══██╗████╗ ████║██║    ██║██╔══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔════╝██╔══██╗██║  ╚██╗ ██╔╝
+    ██║     ██║   ██║██╔████╔██║██║ █╗ ██║██████╔╝███████║██████╔╝    ██████╔╝█████╗  ██████╔╝██║   ╚████╔╝ 
+    ██║     ██║   ██║██║╚██╔╝██║██║███╗██║██╔══██╗██╔══██║██╔═══╝     ██╔══██╗██╔══╝  ██╔═══╝ ██║    ╚██╔╝  
+    ╚██████╗╚██████╔╝██║ ╚═╝ ██║╚███╔███╔╝██║  ██║██║  ██║██║         ██║  ██║███████╗██║     ███████╗██║   
+    ╚═════╝ ╚═════╝ ╚═╝     ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝         ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝   
+                                                                                                            
 
-```
+    ```
+</div>
 
 ## { <i>Description</i> }
 **Managers administration calendar app** for Comwrap Reply and their managers to create, manage, and oversee the projects their employees are currently asigned to.  
@@ -24,7 +26,7 @@ Key features of the app include:
 
 ---
 
-## Getting Started
+## { <i>Getting Started</i> }
 
 Follow the steps below to run the application locally.
 
@@ -36,7 +38,7 @@ Follow the steps below to run the application locally.
 
 ---
 
-## Installation
+## { <i>Installation</i> }
 
 ### Clone the repository
 ```
@@ -46,7 +48,7 @@ cd sh09-main
 
 ***
 
-## Django Backend
+## { <i>Django Backend</i> }
 
 ### Navigate to backend folder
 ```
@@ -98,7 +100,7 @@ http://127.0.0.1:8000/admin/comwrap/
 
 ***
 
-## React Frontend
+## { <i>React Frontend</i> }
 
 Open a new terminal window/tab
 
@@ -123,7 +125,7 @@ http://localhost:5173
 ***
 ***
 
-## Usage
+## { <i>Usage</i> }
 
 # Once both servers are running
 Open the frontend server @ http://localhost:5173 to launch the website
