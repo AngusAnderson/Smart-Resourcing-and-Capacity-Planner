@@ -1,5 +1,4 @@
 <div align='center'>
-    ```
 
     ██████╗ ██████╗ ███╗   ███╗██╗    ██╗██████╗  █████╗ ██████╗     ██████╗ ███████╗██████╗ ██╗  ██╗   ██╗
     ██╔════╝██╔═══██╗████╗ ████║██║    ██║██╔══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔════╝██╔══██╗██║  ╚██╗ ██╔╝
@@ -9,7 +8,6 @@
     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝         ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝   
                                                                                                             
 
-    ```
 </div>
 
 ## { <i>Description</i> }
@@ -17,7 +15,7 @@
 The app provides an intuitive user interface for managing employees time effectively, tracking their availability and project progress.  
 The app is built upon a Django backend and a React frontend, offering a modern, responsive web experience for easy scheduling.
 
-Key features of the app include:
+What's incuded:
 - Manager-focused calendar user interface
 - The ability to select either daily, weekly, or monthly calendar views
 - Add employees to and fro projects
@@ -129,3 +127,9 @@ http://localhost:5173
 
 # Once both servers are running
 Open the frontend server @ http://localhost:5173 to launch the website
+
+---
+
+## { <i>License</i> }
+
+This project is licenenced under the PolyForm Noncommercial License 1.0.0
