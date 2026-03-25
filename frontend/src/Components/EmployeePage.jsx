@@ -42,6 +42,10 @@ function EmployeePage() {
   const [employeeSaving, setEmployeeSaving] = useState(false);
   const [employeeSaveError, setEmployeeSaveError] = useState("");
 
+  const emitUtilisationRefresh = () => {
+    window.dispatchEvent(new Event("forecast-data-changed"));
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -157,6 +161,7 @@ function EmployeePage() {
 
   const handleForecastAdded = (newForecast) => {
     setForecasts((prev) => [...prev, newForecast]);
+    emitUtilisationRefresh();
   };
 
   const openEditModal = (forecast) => {
@@ -171,6 +176,7 @@ function EmployeePage() {
       }
       return f;
     }));
+    emitUtilisationRefresh();
   };
 
   // const handleDeleteAllocation = async (forecast) => {
@@ -229,6 +235,7 @@ function EmployeePage() {
         ...prev,
         allocatedDaysPerMonth: res.data.allocatedDaysPerMonth || updatedAllocations,
       }));
+      emitUtilisationRefresh();
     } catch (err) {
       console.error("Failed to save allocated days per month", err);
     }
@@ -444,6 +451,7 @@ function EmployeePage() {
                                         .delete(`/api/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`)
                                         .then(() => {
                                           setForecasts((prev) => prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID)));
+                                          emitUtilisationRefresh();
                                         })
                                         .catch((err) => {
                                           console.error('Failed to delete allocation', err);

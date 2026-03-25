@@ -17,20 +17,24 @@
   font-weight: 800;
 }
 
-.btn-primary {
-  background-color: #ff6666;
-  color: #ffffff;
-  border: none;
-  border-radius: 999px;
-  padding: 10px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.list-top-bar {
+  margin-bottom: 20px;
 }
 
+.btn-primary {
+  padding: 10px 18px;
+  background-color: #ff6666;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+
+
 .btn-primary:hover {
-  background-color: #ff5555;
+  opacity: 0.9;
 }
 
 .btn-secondary {
@@ -188,10 +192,4 @@
 
 .employee-search-input::placeholder {
   color: #999999;
-}
-
-.list-top-bar {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 12px;
 }

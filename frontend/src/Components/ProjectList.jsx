@@ -85,7 +85,7 @@ function ProjectList() {
           className="project-btn-primary"
           onClick={() => setShowCreateModal(true)}
         >
-          Add Project
+          Add New
         </button>
       </div>
 

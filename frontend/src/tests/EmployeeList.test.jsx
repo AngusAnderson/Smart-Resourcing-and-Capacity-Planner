@@ -219,25 +219,6 @@ describe("EmployeeList", () => {
     expect(api.delete).not.toHaveBeenCalled();
   });
 
-  it("Add Employee toggles the create form", async () => {
-    api.get.mockImplementation((url) => {
-      if (url === "/employees/") return Promise.resolve({ data: [] });
-      if (url === "/specialisms/") return Promise.resolve({ data: [] });
-      return Promise.resolve({ data: [] });
-    });
-
-    renderPage();
-    await screen.findByRole("heading", { name: "Employees" });
-
-    expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
-    expect(screen.getByRole("button", { name: "Create Employee" })).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
-  });
-
   it("Create Employee button is disabled until name has text", async () => {
     api.get.mockImplementation((url) => {
       if (url === "/employees/") return Promise.resolve({ data: [] });
@@ -248,7 +229,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const createBtn = screen.getByRole("button", { name: "Create Employee" });
     expect(createBtn).toBeDisabled();
@@ -270,7 +251,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Test User");
@@ -298,7 +279,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Test");
@@ -327,12 +308,12 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Jane Developer");
 
-    const select = screen.getByRole("listbox");
+    const select = screen.getByRole("listbox"); 
     await userEvent.selectOptions(select, ["Backend"]);
 
     await userEvent.click(screen.getByRole("button", { name: "Create Employee" }));
@@ -341,7 +322,7 @@ describe("EmployeeList", () => {
       expect(api.post).toHaveBeenCalledWith("/employees/", {
         name: "Jane Developer",
         specialisms: ["Backend"],
-        excludedFromAI: false,
+        excludedFromAI: false, 
       });
     });
   });

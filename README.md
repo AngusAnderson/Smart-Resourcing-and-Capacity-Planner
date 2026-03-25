@@ -33,6 +33,7 @@ Follow the steps below to run the application locally.
 - Node.js and npm (for React frontend)
 - Git (for cloning the repository)
 - A supported database (e.g. SQLite by default)
+- Open AI key
 
 ---
 
@@ -51,6 +52,11 @@ cd sh09-main
 ### Navigate to backend folder
 ```
 cd backend
+```
+
+### Create a file in the backend folder called '.env'
+```
+OPENAI_API_KEY= { ai key }
 ```
 
 ### Create virtual environment { This is optional, but is recomended }
