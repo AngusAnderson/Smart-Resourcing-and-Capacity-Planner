@@ -1,6 +1,16 @@
-# SH09 Project
+```
 
-## Description
+ ██████╗ ██████╗ ███╗   ███╗██╗    ██╗██████╗  █████╗ ██████╗     ██████╗ ███████╗██████╗ ██╗  ██╗   ██╗
+██╔════╝██╔═══██╗████╗ ████║██║    ██║██╔══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔════╝██╔══██╗██║  ╚██╗ ██╔╝
+██║     ██║   ██║██╔████╔██║██║ █╗ ██║██████╔╝███████║██████╔╝    ██████╔╝█████╗  ██████╔╝██║   ╚████╔╝ 
+██║     ██║   ██║██║╚██╔╝██║██║███╗██║██╔══██╗██╔══██║██╔═══╝     ██╔══██╗██╔══╝  ██╔═══╝ ██║    ╚██╔╝  
+╚██████╗╚██████╔╝██║ ╚═╝ ██║╚███╔███╔╝██║  ██║██║  ██║██║         ██║  ██║███████╗██║     ███████╗██║   
+ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝         ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝   
+                                                                                                        
+
+```
+
+## { <i>Description</i> }
 **Managers administration calendar app** for Comwrap Reply and their managers to create, manage, and oversee the projects their employees are currently asigned to.  
 The app provides an intuitive user interface for managing employees time effectively, tracking their availability and project progress.  
 The app is built upon a Django backend and a React frontend, offering a modern, responsive web experience for easy scheduling.
