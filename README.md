@@ -132,4 +132,4 @@ Open the frontend server @ http://localhost:5173 to launch the website
 
 ## { <i>License</i> }
 
-This project is licenenced under the PolyForm Noncommercial License 1.0.0
+This project is licenenced under the PolyForm Noncommercial License 1.0.0 
