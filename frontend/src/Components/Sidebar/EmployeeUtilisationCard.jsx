@@ -8,6 +8,8 @@ import {
   getMonthWorkingDays,
 } from "../../utils/utilisation";
 
+const UTILISATION_REFRESH_EVENT = "forecast-data-changed";
+
 const EmployeeUtilisationCard = () => {
   const [counts, setCounts] = useState({
     under1: 0,
@@ -61,7 +63,10 @@ const EmployeeUtilisationCard = () => {
             0
           );
 
-          const allocatedDays = workingDays;
+          const employeeTarget = Number(emp.allocatedDaysPerMonth?.[monthKey]);
+          const allocatedDays = Number.isFinite(employeeTarget)
+            ? employeeTarget
+            : workingDays;
 
           const bucket = getUtilizationBucket(
             totalDays,
@@ -84,8 +89,15 @@ const EmployeeUtilisationCard = () => {
     }
 
     load();
+    const handleRefresh = () => {
+      load();
+    };
+
+    window.addEventListener(UTILISATION_REFRESH_EVENT, handleRefresh);
+
     return () => {
       cancelled = true;
+      window.removeEventListener(UTILISATION_REFRESH_EVENT, handleRefresh);
     };
   }, []);
 

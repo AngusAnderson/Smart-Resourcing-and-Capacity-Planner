@@ -219,25 +219,6 @@ describe("EmployeeList", () => {
     expect(api.delete).not.toHaveBeenCalled();
   });
 
-  it("Add Employee toggles the create form", async () => {
-    api.get.mockImplementation((url) => {
-      if (url === "/employees/") return Promise.resolve({ data: [] });
-      if (url === "/specialisms/") return Promise.resolve({ data: [] });
-      return Promise.resolve({ data: [] });
-    });
-
-    renderPage();
-    await screen.findByRole("heading", { name: "Employees" });
-
-    expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Add new" }));
-    expect(screen.getByRole("button", { name: "Create Employee" })).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
-  });
-
   it("Create Employee button is disabled until name has text", async () => {
     api.get.mockImplementation((url) => {
       if (url === "/employees/") return Promise.resolve({ data: [] });

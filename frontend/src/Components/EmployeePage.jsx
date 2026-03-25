@@ -6,6 +6,20 @@ import { getWorkingDaysInMonth } from "../utils/dateUtils";
 import AddForecastModal from "./AddForecastModal";
 import EditForecastModal from "./EditForecastModal";
 
+// const mockEmployee = {
+//   id: 1,
+//   name: "Employee B",
+//   excludedFromAI: false,
+//   specialisms: [
+//     "Frontend Developer",
+//     "Backend Developer",
+//     "Edge Delivery Services"
+//   ],
+//   previousProjects: ["Project X", "Project Y", "Project Z"],
+//   currentProjects: ["Project A"],
+//   futureProjects: ["Project B", "Project C"]
+// };
+
 function EmployeePage() {
   const { id } = useParams(); 
   const [employee, setEmployee] = useState(null);
@@ -27,6 +41,10 @@ function EmployeePage() {
   const [specialismOptions, setSpecialismOptions] = useState([]);
   const [employeeSaving, setEmployeeSaving] = useState(false);
   const [employeeSaveError, setEmployeeSaveError] = useState("");
+
+  const emitUtilisationRefresh = () => {
+    window.dispatchEvent(new Event("forecast-data-changed"));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -143,6 +161,7 @@ function EmployeePage() {
 
   const handleForecastAdded = (newForecast) => {
     setForecasts((prev) => [...prev, newForecast]);
+    emitUtilisationRefresh();
   };
 
   const openEditModal = (forecast) => {
@@ -157,7 +176,22 @@ function EmployeePage() {
       }
       return f;
     }));
+    emitUtilisationRefresh();
   };
+
+  // const handleDeleteAllocation = async (forecast) => {
+  //   if (!window.confirm("Delete this forecast allocation?")) return;
+
+  //   try {
+  //     await api.delete(`/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`);
+  //     setForecasts((prev) =>
+  //       prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID))
+  //     );
+  //   } catch (err) {
+  //     console.error("Failed to delete allocation", err);
+  //     alert("Failed to delete allocation");
+  //   }
+  // };
 
   if (loading) return <div className="detail-page">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -201,6 +235,7 @@ function EmployeePage() {
         ...prev,
         allocatedDaysPerMonth: res.data.allocatedDaysPerMonth || updatedAllocations,
       }));
+      emitUtilisationRefresh();
     } catch (err) {
       console.error("Failed to save allocated days per month", err);
     }
@@ -416,6 +451,7 @@ function EmployeePage() {
                                         .delete(`/api/forecasts/${forecast.forecastID}/?employee_id=${forecast.employeeID}`)
                                         .then(() => {
                                           setForecasts((prev) => prev.filter((p) => !(p.forecastID === forecast.forecastID && p.employeeID === forecast.employeeID)));
+                                          emitUtilisationRefresh();
                                         })
                                         .catch((err) => {
                                           console.error('Failed to delete allocation', err);
