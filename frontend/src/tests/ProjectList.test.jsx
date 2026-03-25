@@ -187,7 +187,7 @@ describe("ProjectList", () => {
 
     renderPage();
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Project" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     expect(screen.getByTestId("create-project-modal")).toBeInTheDocument();
   });

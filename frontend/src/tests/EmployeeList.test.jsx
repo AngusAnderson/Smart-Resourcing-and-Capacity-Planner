@@ -231,7 +231,7 @@ describe("EmployeeList", () => {
 
     expect(screen.queryByRole("button", { name: "Create Employee" })).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add new" }));
     expect(screen.getByRole("button", { name: "Create Employee" })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
@@ -248,7 +248,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const createBtn = screen.getByRole("button", { name: "Create Employee" });
     expect(createBtn).toBeDisabled();
@@ -270,7 +270,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Test User");
@@ -298,7 +298,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Test");
@@ -327,7 +327,7 @@ describe("EmployeeList", () => {
     renderPage();
     await screen.findByRole("heading", { name: "Employees" });
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Employee" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     const nameInput = getNameInput();
     await userEvent.type(nameInput, "Jane Developer");
