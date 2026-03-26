@@ -41,8 +41,7 @@ Follow the steps below to run the application locally.
 
 ### Clone the repository
 ```
-git clone https://github.com/AngusAnderson/Smart-Resourcing-and-Capacity-Planner.git
-cd sh09-main
+https://github.com/AngusAnderson/Smart-Resourcing-and-Capacity-Planner.git
 ```
 
 ***
