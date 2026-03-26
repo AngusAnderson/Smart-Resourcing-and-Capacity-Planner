@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useToggle from './functions/useToggle';
+// Don't remove below
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar/Sidebar';
 import Calendar from './Components/Calendar';

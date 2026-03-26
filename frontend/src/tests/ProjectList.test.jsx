@@ -175,19 +175,19 @@ describe("ProjectList", () => {
 
     expect(screen.queryByText("comwrap-22-22")).not.toBeInTheDocument();
 
-    await waitFor(() => {
+    await waitFor(() => { 
       expect(apiDeleteMock).toHaveBeenCalledWith("/jobcodes/comwrap-22-22/");
     });
 
     expect(screen.getByText("other-1")).toBeInTheDocument();
   });
-
+ 
   it("opens CreateProjectModal when clicking Add Project", async () => {
     apiGetMock.mockResolvedValueOnce({ data: [] });
 
     renderPage();
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Project" }));
+    await userEvent.click(screen.getByRole("button", { name: "Add New" }));
 
     expect(screen.getByTestId("create-project-modal")).toBeInTheDocument();
   });

@@ -28,6 +28,13 @@ EMPLOYEES = [
     {"name": "Nathan Hutchison", "excluded": False, "specialisms": ["Frontend Developer", "Backend Developer", "Edge Delivery Services"]},
     {"name": "John Doe", "excluded": False, "specialisms": ["Frontend Developer", "Backend Developer"]},
     {"name": "Jane Smith", "excluded": True, "specialisms": ["Frontend Developer", "Edge Delivery Services"]},
+    {"name": "Alice Johnson", "excluded": False, "specialisms": ["Backend Developer"]},
+    {"name": "Bob Dylan", "excluded": False, "specialisms": ["Frontend Developer", "Edge Delivery Services"]},
+    {"name": "Clara Martinez", "excluded": False, "specialisms": ["Backend Developer", "Edge Delivery Services"]},
+    {"name": "David Lee", "excluded": False, "specialisms": ["Frontend Developer"]},
+    {"name": "Emma Brown", "excluded": False, "specialisms": ["Backend Developer", "Frontend Developer"]},
+    {"name": "Finn Grahams", "excluded": True, "specialisms": ["Edge Delivery Services"]},
+    {"name": "Grace Patel", "excluded": False, "specialisms": ["Frontend Developer", "Backend Developer", "Edge Delivery Services"]},
 ]
 
 JOBCODES = [
@@ -55,6 +62,54 @@ JOBCODES = [
         "job_origin": "B",
         "status": "O",
     },
+    {
+        "code": "CWP-UX-26-1-1",
+        "description": "UX Redesign Initiative",
+        "customer": "Comwrap Reply",
+        "unit": "Design",
+        "start": date(2026, 1, 12),
+        "end": date(2026, 4, 30),
+        "budget_time": 160,
+        "budget_cost": 40000,
+        "job_origin": "A",
+        "status": "O",
+    },
+    {
+        "code": "RPL-MIG-26-2-1",
+        "description": "Cloud Migration Phase 2",
+        "customer": "Reply Group",
+        "unit": "Infrastructure",
+        "start": date(2026, 2, 1),
+        "end": date(2026, 6, 30),
+        "budget_time": 250,
+        "budget_cost": 75000,
+        "job_origin": "A",
+        "status": "O",
+    },
+    {
+        "code": "CWP-INT-26-3-1",
+        "description": "CMS Integration Project",
+        "customer": "Retail Client GmbH",
+        "unit": "Content",
+        "start": date(2026, 3, 1),
+        "end": date(2026, 7, 31),
+        "budget_time": 180,
+        "budget_cost": 55000,
+        "job_origin": "B",
+        "status": "O",
+    },
+    {
+        "code": "RPL-ANA-26-4-1",
+        "description": "Analytics Dashboard Build",
+        "customer": "Reply UK",
+        "unit": "Data",
+        "start": date(2026, 4, 1),
+        "end": date(2026, 9, 30),
+        "budget_time": 300,
+        "budget_cost": 90000,
+        "job_origin": "A",
+        "status": "O",
+    },
 ]
 
 FORECASTS = [
@@ -78,6 +133,153 @@ FORECASTS = [
         "jobcode": "RPL-IT-15-3-1",
         "date": date(2025, 12, 5),
         "days": 4.0,
+    },
+    {
+        "forecastID": "F004",
+        "employee": "Alice Johnson",
+        "jobcode": "C341-CWPUK-28-7-4",
+        "date": date(2025, 12, 10),
+        "days": 6.0,
+    },
+    {
+        "forecastID": "F005",
+        "employee": "Bob Dylan",
+        "jobcode": "RPL-IT-15-3-1",
+        "date": date(2025, 12, 15),
+        "days": 3.5,
+    },
+    {
+        "forecastID": "F006",
+        "employee": "Clara Martinez",
+        "jobcode": "C341-CWPUK-28-7-4",
+        "date": date(2026, 1, 5),
+        "days": 8.0,
+    },
+    {
+        "forecastID": "F007",
+        "employee": "David Lee",
+        "jobcode": "RPL-IT-15-3-1",
+        "date": date(2025, 12, 20),
+        "days": 5.5,
+    },
+    {
+        "forecastID": "F008",
+        "employee": "Emma Brown",
+        "jobcode": "C341-CWPUK-28-7-4",
+        "date": date(2026, 1, 12),
+        "days": 4.5,
+    },
+    {
+        "forecastID": "F009",
+        "employee": "Grace Patel",
+        "jobcode": "C341-CWPUK-28-7-4",
+        "date": date(2026, 1, 19),
+        "days": 7.0,
+    },
+    {
+        "forecastID": "F010",
+        "employee": "Nathan Hutchison",
+        "jobcode": "RPL-IT-15-3-1",
+        "date": date(2025, 12, 8),
+        "days": 3.0,
+    },
+    {
+        "forecastID": "F011",
+        "employee": "Grace Patel",
+        "jobcode": "RPL-IT-15-3-1",
+        "date": date(2025, 12, 22),
+        "days": 5.0,
+    },
+    {
+        "forecastID": "F012",
+        "employee": "Emma Brown",
+        "jobcode": "RPL-IT-15-3-1",
+        "date": date(2026, 1, 7),
+        "days": 6.5,
+    },
+    {
+        "forecastID": "F013",
+        "employee": "David Lee",
+        "jobcode": "CWP-UX-26-1-1",
+        "date": date(2026, 1, 19),
+        "days": 5.0,
+    },
+    {
+        "forecastID": "F014",
+        "employee": "Alice Johnson",
+        "jobcode": "CWP-UX-26-1-1",
+        "date": date(2026, 2, 2),
+        "days": 7.0,
+    },
+    {
+        "forecastID": "F015",
+        "employee": "Nathan Hutchison",
+        "jobcode": "CWP-UX-26-1-1",
+        "date": date(2026, 2, 16),
+        "days": 6.0,
+    },
+    {
+        "forecastID": "F016",
+        "employee": "Clara Martinez",
+        "jobcode": "RPL-MIG-26-2-1",
+        "date": date(2026, 2, 9),
+        "days": 8.0,
+    },
+    {
+        "forecastID": "F017",
+        "employee": "John Doe",
+        "jobcode": "RPL-MIG-26-2-1",
+        "date": date(2026, 3, 2),
+        "days": 5.5,
+    },
+    {
+        "forecastID": "F018",
+        "employee": "Grace Patel",
+        "jobcode": "RPL-MIG-26-2-1",
+        "date": date(2026, 3, 16),
+        "days": 4.0,
+    },
+    {
+        "forecastID": "F019",
+        "employee": "Bob Dylan",
+        "jobcode": "CWP-INT-26-3-1",
+        "date": date(2026, 3, 9),
+        "days": 6.5,
+    },
+    {
+        "forecastID": "F020",
+        "employee": "Emma Brown",
+        "jobcode": "CWP-INT-26-3-1",
+        "date": date(2026, 4, 6),
+        "days": 7.5,
+    },
+    {
+        "forecastID": "F021",
+        "employee": "David Lee",
+        "jobcode": "CWP-INT-26-3-1",
+        "date": date(2026, 4, 20),
+        "days": 5.0,
+    },
+    {
+        "forecastID": "F022",
+        "employee": "Alice Johnson",
+        "jobcode": "RPL-ANA-26-4-1",
+        "date": date(2026, 4, 13),
+        "days": 8.0,
+    },
+    {
+        "forecastID": "F023",
+        "employee": "Nathan Hutchison",
+        "jobcode": "RPL-ANA-26-4-1",
+        "date": date(2026, 5, 4),
+        "days": 6.0,
+    },
+    {
+        "forecastID": "F024",
+        "employee": "Clara Martinez",
+        "jobcode": "RPL-ANA-26-4-1",
+        "date": date(2026, 5, 18),
+        "days": 7.0,
     },
 ]
 
@@ -133,7 +335,6 @@ def create_jobcodes(reply_entity):
 
 def create_forecasts(employee_map, jobcode_map):
     for f in FORECASTS:
-        # Create or get the Forecast (one forecast per jobCode/date/forecastID)
         forecast_obj, _ = Forecast.objects.get_or_create(
             forecastID=f["forecastID"],
             defaults={
@@ -141,8 +342,6 @@ def create_forecasts(employee_map, jobcode_map):
                 "date": f["date"],
             },
         )
-
-        # Create allocation linking the forecast to the employee with days
         ForecastAllocation.objects.get_or_create(
             forecast=forecast_obj,
             employee=employee_map[f["employee"]],
@@ -151,7 +350,6 @@ def create_forecasts(employee_map, jobcode_map):
 
 def populate():
     print("Clearing data...")
-    # Remove allocations and forecasts first, then jobcodes/employees/specialisms
     ForecastAllocation.objects.all().delete()
     Forecast.objects.all().delete()
     JobCode.objects.all().delete()

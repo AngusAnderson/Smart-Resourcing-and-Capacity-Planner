@@ -131,14 +131,14 @@ function EmployeeList(){
               className="btn-primary"
               onClick={() => navigate("/")}
             >
-              Back To Calendar Page
+              Back
             </button>
           </div>
 
             <div className="list-header">
                 <h1>Employees</h1>
                 <button className="btn-primary" onClick={() => setShowCreateForm((v) => !v)}>
-                  {showCreateForm ? "Cancel" : "Add Employee"}
+                  {showCreateForm ? "Cancel" : "Add New"}
                 </button>
             </div>
 

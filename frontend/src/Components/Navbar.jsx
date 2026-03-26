@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import SidebarExportButton from './Sidebar/Export_Card';
 import '../css/Navbar.css';
 
-const Navbar = ({ user, onLogout, isVisible, toggleVisibility, onDataChanged }) => {
+const Navbar = ({ onLogout, isVisible, toggleVisibility, onDataChanged }) => {
+
+
+
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [panelPos, setPanelPos] = useState({ x: null, y: null });
@@ -166,7 +169,7 @@ const Navbar = ({ user, onLogout, isVisible, toggleVisibility, onDataChanged }) 
                     onLogout();
                 }}
                 >
-                {user?.firstName} {user?.lastName}
+                Logout?
                 </a>
             </li>
             </ul>
