@@ -54,6 +54,7 @@ cd backend
 ```
 
 ### Create a file in the backend folder called '.env'
+This is a file that only has the variable below in it and nothing else
 ```
 OPENAI_API_KEY= { ai key }
 ```
