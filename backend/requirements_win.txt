@@ -6,3 +6,7 @@ pytz==2024.2
 sqlparse==0.5.3
 python-dotenv
 openai
+openpyxl
+djangorestframework-simplejwt>=5.3.0,<6.0.0
+flake8
+bandit
