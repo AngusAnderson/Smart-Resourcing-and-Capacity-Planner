@@ -78,7 +78,7 @@ venv\Scripts\activate
 
 ### Install backend dependencies
 ```
-pip install -r requirements.txt
+pip install -r requirements-ci.txt
 ```
 
 ### Apply database migrations
